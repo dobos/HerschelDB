@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Footprint", "src\Footprint\Footprint.csproj", "{3DA6B565-72F4-4184-8848-2F577F745CDB}"
-EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Herschel.Sql", "src\Herschel.Sql\Herschel.Sql.sqlproj", "{0B2DD4DF-B24E-4AA3-9E5F-DCDD0277F787}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Herschel.Lib", "src\Herschel.Lib\Herschel.Lib.csproj", "{36B1F087-77CA-4EF2-8653-C9C7499D1126}"
@@ -17,15 +15,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exe", "Exe", "{8D1C0B55-63D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Herschel.Sql.Plot", "src\Herschel.Sql.Plot\Herschel.Sql.Plot.csproj", "{DBDD5017-65B7-4E56-ADA9-9C54AA143190}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Herschel.Loader", "src\Herschel.Loader\Herschel.Loader.csproj", "{6050142B-3974-4F12-9E2D-512EE1616D03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3DA6B565-72F4-4184-8848-2F577F745CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3DA6B565-72F4-4184-8848-2F577F745CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3DA6B565-72F4-4184-8848-2F577F745CDB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0B2DD4DF-B24E-4AA3-9E5F-DCDD0277F787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0B2DD4DF-B24E-4AA3-9E5F-DCDD0277F787}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B2DD4DF-B24E-4AA3-9E5F-DCDD0277F787}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -43,6 +40,10 @@ Global
 		{DBDD5017-65B7-4E56-ADA9-9C54AA143190}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBDD5017-65B7-4E56-ADA9-9C54AA143190}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBDD5017-65B7-4E56-ADA9-9C54AA143190}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6050142B-3974-4F12-9E2D-512EE1616D03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6050142B-3974-4F12-9E2D-512EE1616D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6050142B-3974-4F12-9E2D-512EE1616D03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6050142B-3974-4F12-9E2D-512EE1616D03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,5 +53,6 @@ Global
 		{0B2DD4DF-B24E-4AA3-9E5F-DCDD0277F787} = {62F22887-E042-45A2-9FCD-D51B51BC6703}
 		{9DBAC822-4574-44DD-A3CF-B43A089767EA} = {26FCE244-236C-485E-A44C-F08B06825569}
 		{DBDD5017-65B7-4E56-ADA9-9C54AA143190} = {8D1C0B55-63DD-41E0-B4E4-1B1501FBB2D4}
+		{6050142B-3974-4F12-9E2D-512EE1616D03} = {8D1C0B55-63DD-41E0-B4E4-1B1501FBB2D4}
 	EndGlobalSection
 EndGlobal

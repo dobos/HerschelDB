@@ -88,4 +88,35 @@ public partial class UserDefinedFunctions
 
         return Util.SetRegion(region);
     }
+
+    [SqlFunction(Name = "fGetHtmCover", TableDefinition = "htmIDStart bigint, htmIDEnd bigint, partial bit",
+        IsPrecise = false, IsDeterministic = true, FillRowMethodName = "FillGetHtmCover")]
+    public static IEnumerable GetHtmCover(SqlBytes region)
+    {
+        var r = Util.GetRegion(region);
+        var cover = Htm.GetCover(r);
+
+        var ranges = new List<Htm.HtmRange>();
+        
+        foreach ( var p in cover.GetPairs(Spherical.Htm.Markup.Inner))
+        {
+            ranges.Add(new Htm.HtmRange(true, p.lo, p.hi));
+        }
+
+        foreach ( var p in cover.GetPairs(Spherical.Htm.Markup.Outer))
+        {
+            ranges.Add(new Htm.HtmRange(true, p.lo, p.hi));
+        }
+
+        return ranges;
+    }
+
+    public static void FillGetHtmCover(object obj, out SqlInt64 htmIDStart, out SqlInt64 htmIDEnd, out SqlBoolean partial)
+    {
+        var range = (Htm.HtmRange)obj;
+
+        htmIDStart = new SqlInt64(range.HtmIDStart);
+        htmIDEnd = new SqlInt64(range.HtmIDEnd);
+        partial = new SqlBoolean(!range.FullOnly);
+    }
 }

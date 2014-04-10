@@ -50,6 +50,43 @@ CREATE TABLE [Observation]
 GO
 
 
+IF OBJECT_ID (N'ObservationRegion', N'U') IS NOT NULL
+DROP TABLE [ObservationRegion]
+
+CREATE TABLE [ObservationRegion]
+(
+	[obsID] bigint NOT NULL,
+	[region] varbinary(max) NOT NULL,
+	CONSTRAINT [PK_ObservationRegion] PRIMARY KEY CLUSTERED 
+	(
+		[obsID] ASC
+	)
+)
+
+GO
+
+
+IF OBJECT_ID (N'ObservationHtm', N'U') IS NOT NULL
+DROP TABLE [ObservationHtm]
+
+CREATE TABLE [ObservationHtm]
+(
+	[obsID] bigint NOT NULL,
+	[legID] smallint NOT NULL,
+	[htmIDStart] bigint NOT NULL,
+	[htmIDEnd] bigint NOT NULL,
+	[partial] bit NOT NULL
+)
+
+CREATE CLUSTERED INDEX [CI_ObservationHtm] ON [ObservationHtm]
+(
+	[htmIDStart] ASC,
+	[htmIDEnd] ASC
+)
+
+GO
+
+
 IF OBJECT_ID (N'Leg', N'U') IS NOT NULL
 DROP TABLE [Leg]
 
@@ -60,7 +97,7 @@ CREATE TABLE [Leg]
 	[fineTimeStart] bigint NOT NULL,
 	[fineTimeEnd] bigint NOT NULL,
 	[raStart] float NOT NULL,
-	[deStart] float NOT NULL,
+	[decStart] float NOT NULL,
 	[paStart] float NOT NULL,
 	[raEnd] float NOT NULL,
 	[decEnd] float NOT NULL,
@@ -103,7 +140,7 @@ CREATE TABLE [LegHtm]
 	[legID] smallint NOT NULL,
 	[htmIDStart] bigint NOT NULL,
 	[htmIDEnd] bigint NOT NULL,
-	[innerFlag] bit NOT NULL
+	[partial] bit NOT NULL
 )
 
 CREATE CLUSTERED INDEX [CI_LegHtm] ON [LegHtm]
