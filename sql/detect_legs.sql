@@ -9,7 +9,7 @@ CREATE TABLE #LegTemp
 	ra float,
 	dec float,
 	pa float,
-	CONSTRAINT PK_LegTemp PRIMARY KEY CLUSTERED 
+	CONSTRAINT PK_LegTemp3 PRIMARY KEY CLUSTERED 
 	(
 		obsID ASC,
 		legID ASC,
@@ -17,7 +17,7 @@ CREATE TABLE #LegTemp
 	)
 )
 
-DECLARE @fineTimeDelta bigint = 1100000;
+DECLARE @fineTimeDelta bigint = 1200000;
 DECLARE @avVarMax float = 0.05;
 
 WITH a AS
@@ -35,14 +35,16 @@ WITH a AS
 				  ROWS BETWEEN 5 PRECEDING
 						   AND 5 FOLLOWING) av_var
 	FROM Pointing
+	WHERE obsID = 1342224854
 ),
 b AS
 (
 	SELECT a.*,
-		fineTime - LAG(fineTime, 1, NULL) OVER(PARTITION BY ObsID ORDER BY obsID, fineTime) deltaLag,
-		fineTime - LEAD(fineTime, 1, NULL) OVER(PARTITION BY ObsID ORDER BY obsID, fineTime) deltaLead
+		a.fineTime - LAG(fineTime, 1, NULL) OVER(PARTITION BY a.ObsID ORDER BY a.obsID, a.fineTime) deltaLag,
+		a.fineTime - LEAD(fineTime, 1, NULL) OVER(PARTITION BY a.ObsID ORDER BY a.obsID, a.fineTime) deltaLead
 	FROM a
-	WHERE av_avg BETWEEN 19 AND 21 AND
+	INNER JOIN Observation o ON o.obsID = a.obsID
+	WHERE av_avg BETWEEN o.av - 1 AND o.av + 1 AND
           av_var < @avVarMax
 ),
 leg AS
@@ -57,12 +59,14 @@ leg AS
 	FROM b
 	WHERE deltaLag > @fineTimeDelta OR deltaLag IS NULL OR deltaLead < -@fineTimeDelta OR deltaLead IS NULL
 )
-INSERT #LegTemp
+INSERT #LegTemp WITH(TABLOCKX)
 SELECT obsID, leg, start, fineTime, ra, dec, pa
 FROM leg
 ORDER BY obsID, fineTime
 
-INSERT Leg
+TRUNCATE TABLE Leg
+
+INSERT Leg WITH(TABLOCKX)
 SELECT a.obsID, a.legID, a.fineTime, b.fineTime, a.ra, a.dec, a.pa, b.ra, b.dec, b.pa
 FROM #LegTemp a
 INNER JOIN #LegTemp b ON a.obsID = b.obsID AND a.legID = b.legID

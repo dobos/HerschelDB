@@ -92,7 +92,12 @@ namespace Herschel.Loader
         {
             using (var outfile = new StreamWriter(outputFile, append))
             {
-                int line = 0;
+                foreach (var p in ReadPointingsFile(inputFile))
+                {
+                    p.Write(outfile);
+                }
+
+                /*int line = 0;
                 foreach (var p in ReadPointingsFile(inputFile))
                 {
                     line++;
@@ -107,7 +112,7 @@ namespace Herschel.Loader
                         lastObsId = p.ObsID;
                         lastFineTime = p.FineTime;
                     }
-                }
+                }*/
             }
         }
 
