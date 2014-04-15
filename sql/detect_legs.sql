@@ -100,7 +100,8 @@ GO
 TRUNCATE TABLE LegRegion
 
 INSERT LegRegion WITH (TABLOCKX)
-SELECT obsID, legID, dbo.fGetLegRegion(raStart, decStart, paStart, raEnd, decEnd, paEnd, 'Blue')
+SELECT obsID, legID, fineTimeStart, fineTimeEnd,
+       dbo.fGetLegRegion(raStart, decStart, paStart, raEnd, decEnd, paEnd, 'Blue')
 FROM Leg
 
 GO
@@ -111,7 +112,7 @@ GO
 TRUNCATE TABLE LegHtm
 
 INSERT LegHtm WITH (TABLOCKX)
-SELECT obsID, legID, htm.htmidStart, htm.htmidEnd, htm.partial
+SELECT obsID, legID, htm.htmidStart, htm.htmidEnd, fineTimeStart, fineTimeEnd, htm.partial
 FROM LegRegion
 CROSS APPLY dbo.fGetHtmCover(region) htm
 

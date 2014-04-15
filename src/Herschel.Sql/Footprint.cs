@@ -89,6 +89,14 @@ public partial class UserDefinedFunctions
         return Util.SetRegion(region);
     }
 
+    [SqlFunction(Name = "fContainsEq", IsPrecise = false, IsDeterministic = true)]
+    public static SqlBoolean ContainsEq(SqlBytes region, SqlDouble ra, SqlDouble dec)
+    {
+        var r = Util.GetRegion(region);
+
+        return new SqlBoolean(r.Contains(new Cartesian(ra.Value, dec.Value)));
+    }
+
     [SqlFunction(Name = "fGetHtmCover", TableDefinition = "htmIDStart bigint, htmIDEnd bigint, partial bit",
         IsPrecise = false, IsDeterministic = true, FillRowMethodName = "FillGetHtmCover")]
     public static IEnumerable GetHtmCover(SqlBytes region)

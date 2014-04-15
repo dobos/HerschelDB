@@ -56,6 +56,8 @@ DROP TABLE [ObservationRegion]
 CREATE TABLE [ObservationRegion]
 (
 	[obsID] bigint NOT NULL,
+	[fineTimeStart] bigint NOT NULL,
+	[fineTimeEnd] bigint NOT NULL,
 	[region] varbinary(max) NOT NULL,
 	CONSTRAINT [PK_ObservationRegion] PRIMARY KEY CLUSTERED 
 	(
@@ -74,6 +76,8 @@ CREATE TABLE [ObservationHtm]
 	[obsID] bigint NOT NULL,
 	[htmIDStart] bigint NOT NULL,
 	[htmIDEnd] bigint NOT NULL,
+	[fineTimeStart] bigint NOT NULL,
+	[fineTimeEnd] bigint NOT NULL,
 	[partial] bit NOT NULL
 )
 
@@ -119,6 +123,8 @@ CREATE TABLE [LegRegion]
 (
 	[obsID] bigint NOT NULL,
 	[legID] smallint NOT NULL,
+	[fineTimeStart] bigint NOT NULL,
+	[fineTimeEnd] bigint NOT NULL,
 	[region] varbinary(8000) NOT NULL,
 	CONSTRAINT [PK_LegRegion] PRIMARY KEY CLUSTERED 
 	(
@@ -139,6 +145,8 @@ CREATE TABLE [LegHtm]
 	[legID] smallint NOT NULL,
 	[htmIDStart] bigint NOT NULL,
 	[htmIDEnd] bigint NOT NULL,
+	[fineTimeStart] bigint NOT NULL,
+	[fineTimeEnd] bigint NOT NULL,
 	[partial] bit NOT NULL
 )
 
