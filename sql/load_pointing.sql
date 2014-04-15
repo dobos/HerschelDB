@@ -68,3 +68,6 @@ SELECT * FROM PointingTemp
 
 --(196697043 row(s) affected)
 --6:42
+
+
+DROP TABLE PointingTemp

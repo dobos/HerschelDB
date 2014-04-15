@@ -1,4 +1,17 @@
+/*
+Detect scan legs from raw pointings
+
+Raw points are filtered for scan legs. Legs are defined by almost constant
+scan velocity along straight lines. Rolling average and variance of velocity
+along scan curve is computed to find leg ends.
+
+*/
+
+
 -- Create temp table for legs
+
+IF OBJECT_ID (N'#LegTemp', N'U') IS NOT NULL
+DROP TABLE #LegTemp
 
 CREATE TABLE #LegTemp
 (
@@ -9,7 +22,7 @@ CREATE TABLE #LegTemp
 	ra float,
 	dec float,
 	pa float,
-	CONSTRAINT PK_LegTemp3 PRIMARY KEY CLUSTERED 
+	CONSTRAINT PK_LegTemp PRIMARY KEY CLUSTERED 
 	(
 		obsID ASC,
 		legID ASC,
@@ -17,12 +30,14 @@ CREATE TABLE #LegTemp
 	)
 )
 
-DECLARE @fineTimeDelta bigint = 1200000;
-DECLARE @avVarMax float = 0.05;
+DECLARE @legMinGap bigint = 25 * 1e6;			-- minimum gap to start new leg
+DECLARE @avVarMax float = 0.15;
+DECLARE @avDiffMax float = 0.5;
 
-WITH a AS
+WITH
+a AS	-- average velocities over +/-5 bins
 (
-	SELECT --TOP 10000
+	SELECT
 		*,
 		AVG(SQRT(avy*avy + avz*avz))
 			OVER (PARTITION BY ObsID
@@ -35,16 +50,15 @@ WITH a AS
 				  ROWS BETWEEN 5 PRECEDING
 						   AND 5 FOLLOWING) av_var
 	FROM Pointing
-	WHERE obsID = 1342224854
 ),
 b AS
 (
 	SELECT a.*,
-		a.fineTime - LAG(fineTime, 1, NULL) OVER(PARTITION BY a.ObsID ORDER BY a.obsID, a.fineTime) deltaLag,
-		a.fineTime - LEAD(fineTime, 1, NULL) OVER(PARTITION BY a.ObsID ORDER BY a.obsID, a.fineTime) deltaLead
+		a.fineTime - LAG(a.fineTime, 1, NULL) OVER(PARTITION BY a.ObsID ORDER BY a.obsID, a.fineTime) deltaLag,
+		a.fineTime - LEAD(a.fineTime, 1, NULL) OVER(PARTITION BY a.ObsID ORDER BY a.obsID, a.fineTime) deltaLead
 	FROM a
 	INNER JOIN Observation o ON o.obsID = a.obsID
-	WHERE av_avg BETWEEN o.av - 1 AND o.av + 1 AND
+	WHERE av_avg BETWEEN o.av - @avDiffMax AND o.av + @avDiffMax AND
           av_var < @avVarMax
 ),
 leg AS
@@ -52,16 +66,20 @@ leg AS
 	SELECT b.*,
 		(ROW_NUMBER() OVER(PARTITION BY ObsID ORDER BY fineTime) + 1) / 2 leg,
 		CASE
-			WHEN deltaLead < -@fineTimeDelta OR deltaLead IS NULL THEN 0
-			WHEN deltaLag > @fineTimeDelta OR deltaLag IS NULL THEN 1
+			WHEN (deltaLead < -@legMinGap OR deltaLead IS NULL) AND (deltaLag > @legMinGap OR deltaLag IS NULL) THEN -1
+			WHEN deltaLead < -@legMinGap OR deltaLead IS NULL THEN 0
+			WHEN deltaLag > @legMinGap OR deltaLag IS NULL THEN 1
 			ELSE NULL
 		END start
 	FROM b
-	WHERE deltaLag > @fineTimeDelta OR deltaLag IS NULL OR deltaLead < -@fineTimeDelta OR deltaLead IS NULL
+	WHERE (deltaLead < -@legMinGap OR deltaLead IS NULL) OR 
+	      (deltaLag > @legMinGap OR deltaLag IS NULL) AND
+		  NOT ((deltaLead < -@legMinGap OR deltaLead IS NULL) AND (deltaLag > @legMinGap OR deltaLag IS NULL))
 )
 INSERT #LegTemp WITH(TABLOCKX)
 SELECT obsID, leg, start, fineTime, ra, dec, pa
 FROM leg
+WHERE start IN (0, 1)
 ORDER BY obsID, fineTime
 
 TRUNCATE TABLE Leg

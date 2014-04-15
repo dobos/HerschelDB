@@ -40,7 +40,7 @@ CREATE TABLE [Observation]
 	[obsID] bigint NOT NULL,			--/ <column>Unique ID of the observation</column>
 	[fineTimeStart] bigint NOT NULL,
 	[fineTimeEnd] bigint NOT NULL,
-	--[vel] float NOT NULL,
+	[av] float NOT NULL,
 	CONSTRAINT [PK_Observation] PRIMARY KEY CLUSTERED 
 	(
 		[obsID] ASC
@@ -72,7 +72,6 @@ DROP TABLE [ObservationHtm]
 CREATE TABLE [ObservationHtm]
 (
 	[obsID] bigint NOT NULL,
-	[legID] smallint NOT NULL,
 	[htmIDStart] bigint NOT NULL,
 	[htmIDEnd] bigint NOT NULL,
 	[partial] bit NOT NULL

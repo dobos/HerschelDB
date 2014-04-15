@@ -1,3 +1,14 @@
+/*
+Detect observations from raw pointings
+
+Pointings contain obsID but velocity needs to be figured out from
+the maximum of the histogram of velocities.
+
+TODO: add minimum enclosing circle center, coverage, area, pointing count etc.
+
+*/
+
+
 DECLARE @binsize float = 1;
 
 WITH
