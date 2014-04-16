@@ -124,7 +124,7 @@ GO
 TRUNCATE TABLE ObservationRegion
 
 INSERT ObservationRegion WITH (TABLOCKX)
-SELECT obsID, dbo.fRegionUnion(region)
+SELECT obsID, MIN(fineTimeStart), Max(fineTimeEnd), dbo.fRegionUnion(region)
 FROM LegRegion
 GROUP BY obsID
 
@@ -136,6 +136,6 @@ GO
 TRUNCATE TABLE ObservationHtm
 
 INSERT ObservationHtm WITH (TABLOCKX)
-SELECT obsID, htm.htmidStart, htm.htmidEnd, htm.partial
+SELECT obsID, htm.htmidStart, htm.htmidEnd, fineTimeStart, fineTimeEnd, htm.partial
 FROM ObservationRegion
 CROSS APPLY dbo.fGetHtmCover(region) htm
