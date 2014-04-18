@@ -11,9 +11,6 @@ namespace Herschel.Loader
 {
     class Program
     {
-        static long lastObsId = 0;
-        static long lastFineTime = 0;
-
         static string ConnectionString
         {
             get { return ConfigurationManager.ConnectionStrings["Herschel"].ConnectionString; }
@@ -26,7 +23,7 @@ namespace Herschel.Loader
             switch (args[0])
             {
                 case "prepare":
-                    PreparePointings(args[1], args[2], args[3] == "-a");
+                    PreparePointings(args[1], args[2], int.Parse(args[3]));
                     break;
                 case "load":
                     LoadPointings(args[1]);
@@ -36,24 +33,43 @@ namespace Herschel.Loader
             }
         }
 
-        static void PreparePointings(string path, string output, bool append)
+        static void PreparePointings(string path, string output, int fnum)
         {
             var dir = Path.GetDirectoryName(path);
             var pattern = Path.GetFileName(path);
 
             var files = Directory.GetFiles(dir, pattern);
-            Array.Sort(files);
+            var queue = new Queue<string>(files);
 
             Console.WriteLine("Preparing pointing files for bulk load...", files.Length);
             Console.WriteLine("Found {0} files.", files.Length);
 
             int q = 0;
-            foreach (var infile in files)
-            {
-                ConvertPointingsFile(infile, output, append);
 
-                Console.WriteLine("{0}: {1}", ++q, infile);
-            }
+            Parallel.For(0, fnum, i =>
+            {
+                while (true)
+                {
+                    int qq;
+                    string infile = null;
+
+                    lock (queue)
+                    {
+                        if (queue.Count > 0)
+                        {
+                            infile = queue.Dequeue();
+                            qq = q++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    ConvertPointingsFile(infile, String.Format(output, i), true);
+                    Console.WriteLine("{0}: {1}", qq, infile);
+                }
+            });
         }
 
         static long GetID(string filename)
@@ -96,23 +112,6 @@ namespace Herschel.Loader
                 {
                     p.Write(outfile);
                 }
-
-                /*int line = 0;
-                foreach (var p in ReadPointingsFile(inputFile))
-                {
-                    line++;
-                    if (p.ObsID < lastObsId || p.FineTime <= lastFineTime)
-                    {
-                        //
-                        Console.WriteLine("Error in {0} at line {1}, skipping {2} {3}", inputFile, line, p.ObsID, p.FineTime);
-                    }
-                    else
-                    {
-                        p.Write(outfile);
-                        lastObsId = p.ObsID;
-                        lastFineTime = p.FineTime;
-                    }
-                }*/
             }
         }
 

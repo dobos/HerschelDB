@@ -65,7 +65,7 @@ namespace Herschel.Lib
         public Cartesian[] GetCorners(Cartesian pointing, double pa)
         {
             // Rotate around x (PA)
-            double ang = pa * Constants.Degree2Radian;
+            double ang = (180 - pa) * Constants.Degree2Radian;
             double[] r1 = new double[]
             {
                 1, 0, 0,

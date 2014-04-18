@@ -52,6 +52,9 @@ namespace Herschel.Sql.Plot
                                 case "htm_out":
                                     PrintHtm(region, Spherical.Htm.Markup.Outer);
                                     break;
+                                case "ds9":
+                                    PrintDS9(region);
+                                    break;
                                 default:
                                     throw new NotImplementedException();
                             }
@@ -109,6 +112,21 @@ namespace Herschel.Sql.Plot
                 Console.WriteLine("{0}\t{1}", c.RA, c.Dec);
                 Console.WriteLine("{0}\t{1}", a.RA, a.Dec);
                 Console.WriteLine();
+            }
+        }
+
+        static void PrintDS9(Region region)
+        {
+            var ol = new Outline(region.EnumPatches());
+
+            Console.WriteLine("ICRS");
+
+            foreach (Spherical.PatchPart s in ol.PartList)
+            {
+                foreach (Spherical.Arc a in s.ArcList)
+                {
+                    Console.WriteLine("line {0:0.000000}d {1:0.000000}d {2:0.000000}d {3:0.000000}d # color = blue", a.Point1.RA, a.Point1.Dec, a.Point2.RA, a.Point2.Dec);
+                }
             }
         }
     }
