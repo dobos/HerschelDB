@@ -45,7 +45,8 @@ namespace Herschel.Lib
         public static Region ReadRegion(Stream s)
         {
             var rr = new Spherical.IO.RegionReader(s);
-            if (rr.ReadBoolean())
+
+            if (s.Length == 0)
             {
                 return null;
             }
@@ -58,7 +59,6 @@ namespace Herschel.Lib
         public static void WriteRegion(Region r, Stream s)
         {
             var rw = new Spherical.IO.RegionWriter(s);
-            rw.Write(r == null);
             if (r != null)
             {
                 rw.Write(r);

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Configuration;
 using Herschel.Lib;
@@ -19,6 +21,7 @@ namespace Herschel.Loader
         static void Main(string[] args)
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
             switch (args[0])
             {
@@ -26,7 +29,7 @@ namespace Herschel.Loader
                     PreparePointings(args[1], args[2], int.Parse(args[3]));
                     break;
                 case "load":
-                    LoadPointings(args[1]);
+                    LoadPointings(args[1], int.Parse(args[2]));
                     break;
                 default:
                     throw new NotImplementedException();
@@ -115,10 +118,26 @@ namespace Herschel.Loader
             }
         }
 
-        static void LoadPointings(string filename)
+        static void LoadPointings(string filename, int fnum)
         {
-            var sql = @"
-";
+            Parallel.For(0, fnum, i =>
+            {
+
+                var infile = String.Format(filename, i);
+
+                var sql = SqlScripts.LoadPointing;
+                sql = sql.Replace("[$datafile]", infile);
+
+                using (var cn = new SqlConnection(ConnectionString))
+                {
+                    cn.Open();
+
+                    using (var cmd = new SqlCommand(sql, cn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            });
         }
     }
 }
