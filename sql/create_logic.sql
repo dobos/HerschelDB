@@ -3,7 +3,7 @@ DROP FUNCTION dbo.FindObservationEq
 
 GO
 
-CREATE FUNCTION dbo.FindObservationEq
+CREATE FUNCTION [dbo].[FindObservationEq]
 (	
 	@ra float,
 	@dec float,
@@ -33,5 +33,9 @@ RETURN
 	SELECT q.obsID
 	FROM q
 )
+
+GO
+
+GRANT SELECT ON [dbo].[FindObservationEq] TO [User]
 
 GO

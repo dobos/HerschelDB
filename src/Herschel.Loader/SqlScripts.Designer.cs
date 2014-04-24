@@ -61,81 +61,18 @@ namespace Herschel.Loader {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DROP TABLE PointingTemp.
-        /// </summary>
-        internal static string CleanupPointing {
-            get {
-                return ResourceManager.GetString("CleanupPointing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to BULK INSERT [PointingTemp]
+        ///   Looks up a localized string similar to BULK INSERT [load].[RawPointing]
         ///FROM &apos;[$datafile]&apos;
         ///WITH 
         ///( 
         ///   DATAFILETYPE = &apos;char&apos;,
         ///   FIELDTERMINATOR = &apos; &apos;,
-        ///   ROWTERMINATOR = &apos;\n&apos;,
-        ///   TABLOCK
+        ///   ROWTERMINATOR = &apos;\n&apos;
         ///).
         /// </summary>
         internal static string LoadPointing {
             get {
                 return ResourceManager.GetString("LoadPointing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to CREATE CLUSTERED INDEX [IC_PointingTemp] ON [dbo].[PointingTemp]
-        ///(
-        ///	[obsID] ASC,
-        ///	[fineTime] ASC
-        ///)
-        ///
-        ///
-        ///-- Check duplicates
-        ///
-        ////*SELECT obsID, fineTime, COUNT(*)
-        ///FROM PointingTemp
-        ///GROUP BY obsID, fineTime
-        ///HAVING COUNT(*) &gt; 1*/
-        ///
-        ///INSERT Pointing WITH (TABLOCKX)
-        ///SELECT * FROM PointingTemp
-        ///.
-        /// </summary>
-        internal static string MergePointing {
-            get {
-                return ResourceManager.GetString("MergePointing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to IF OBJECT_ID (N&apos;PointingTemp&apos;, N&apos;U&apos;) IS NOT NULL
-        ///DROP TABLE [PointingTemp]
-        ///
-        ///CREATE TABLE [PointingTemp]
-        ///(
-        ///	[obsID] [bigint] NOT NULL,
-        ///	[fineTime] [bigint] NOT NULL,
-        ///	[bbID] [bigint] NOT NULL,
-        ///	[ra] [float] NOT NULL,
-        ///	[raError] [float] NOT NULL,
-        ///	[dec] [float] NOT NULL,
-        ///	[decError] [float] NOT NULL,
-        ///	[pa] [float] NOT NULL,
-        ///	[paError] [float] NOT NULL,
-        ///	[avX] [float] NOT NULL,
-        ///	[avXError] [float] NOT NULL,
-        ///	[avY] [float] NOT NULL,
-        ///	[avYError] [float] NOT NULL,
-        ///	[avZ] [float] NOT NULL,
-        ///	[avZ [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string PreparePointing {
-            get {
-                return ResourceManager.GetString("PreparePointing", resourceCulture);
             }
         }
     }

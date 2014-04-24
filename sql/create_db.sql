@@ -16,3 +16,12 @@ GO
 
 ALTER DATABASE [Herschel] SET RECOVERY SIMPLE 
 GO
+
+USE [Herschel]
+GO
+
+CREATE SCHEMA [sph]
+GO
+
+CREATE ROLE [User]
+GO

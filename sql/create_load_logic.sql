@@ -23,10 +23,12 @@ AS
 	))
 	THROW 51000, 'Duplicate key.', 1;
 
-	TRUNCATE TABLE [load].[RawPointing];
+	TRUNCATE TABLE [Pointing]
 
 	INSERT [Pointing] WITH (TABLOCKX)
 	SELECT * FROM [load].[RawPointing]
+
+	TRUNCATE TABLE [load].[RawPointing];
 
 GO
 
@@ -78,12 +80,12 @@ TODO: add minimum enclosing circle center, coverage, area, pointing count etc.
 GO
 
 
-IF OBJECT_ID(N'dbo.FilterPointingTurnaround') IS NOT NULL
-DROP FUNCTION dbo.FilterPointingTurnaround
+IF OBJECT_ID(N'load.FilterPointingTurnaround') IS NOT NULL
+DROP FUNCTION [load].[FilterPointingTurnaround]
 
 GO
 
-CREATE FUNCTION dbo.FilterPointingTurnaround
+CREATE FUNCTION [load].[FilterPointingTurnaround]
 (
 	@avDiffMax float,
 	@avVarMax float
@@ -144,7 +146,7 @@ RETURN
 	WITH
 	b AS
 	(
-		SELECT * FROM dbo.FilterPointingTurnaround(@avDiffMax, @avVarMax)
+		SELECT * FROM [load].FilterPointingTurnaround(@avDiffMax, @avVarMax)
 	),
 	leg AS
 	(
@@ -161,7 +163,7 @@ RETURN
 			  (deltaLag > @legMinGap OR deltaLag IS NULL) AND
 			  NOT ((deltaLead < -@legMinGap OR deltaLead IS NULL) AND (deltaLag > @legMinGap OR deltaLag IS NULL))
 	)
-	SELECT * FROM [load].[Leg]
+	SELECT * FROM leg
 )
 
 GO
@@ -173,9 +175,10 @@ DROP PROC [load].[DetectLegs]
 GO
 
 CREATE PROC [load].[DetectLegs]
-	@legMinGap bigint = 5e6,			-- minimum gap to start new leg
+	@avDiffMax float = 25.0,			-- max deviation from observation velocity (turnaround removal)
 	@avVarMax float = NULL,				-- max variance in velocity in moving window
-	@avDiffMax float = 25.0				-- max deviation from observation velocity (turnaround removal)
+	@legMinGap bigint = 5e6				-- minimum gap to start new leg
+	
 AS
 /*
 Detect scan legs from raw pointings
@@ -187,7 +190,7 @@ along scan curve is computed to find leg ends.
 
 	INSERT [load].[LegEnds] WITH(TABLOCKX)
 	SELECT obsID, leg, start, fineTime, ra, dec, pa
-	FROM dbo.FindLegEnds(@avDiffMax, @avVarMax, @legMinGap)
+	FROM [load].[FindLegEnds](@avDiffMax, @avVarMax, @legMinGap)
 	WHERE start IN (0, 1)
 	ORDER BY obsID, fineTime;
 

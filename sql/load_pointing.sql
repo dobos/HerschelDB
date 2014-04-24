@@ -4,5 +4,6 @@ WITH
 ( 
    DATAFILETYPE = 'char',
    FIELDTERMINATOR = ' ',
-   ROWTERMINATOR = '\n'
+   ROWTERMINATOR = '\n',
+   TABLOCK
 )

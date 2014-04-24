@@ -31,12 +31,6 @@ namespace Herschel.Loader
                 case "load":
                     LoadPointings(args[1], int.Parse(args[2]));
                     break;
-                case "merge":
-                    LoadPointings(args[1], int.Parse(args[2]));
-                    break;
-                case "cleanup":
-                    CleanupPointings();
-                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -126,23 +120,17 @@ namespace Herschel.Loader
 
         static void LoadPointings(string filename, int fnum)
         {
-            RunSqlScript(SqlScripts.PreparePointing, 60);
-
             Parallel.For(0, fnum, i =>
             {
-
                 var infile = String.Format(filename, i);
+
+                Console.WriteLine("Loading from {0}...", infile);
 
                 var sql = SqlScripts.LoadPointing;
                 sql = sql.Replace("[$datafile]", infile);
 
                 RunSqlScript(sql, 3600);
             });
-        }
-
-        static void CleanupPointings()
-        {
-            RunSqlScript(SqlScripts.CleanupPointing, 60);
         }
 
         static void RunSqlScript(string sql, int timeout)

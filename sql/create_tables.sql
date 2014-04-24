@@ -30,6 +30,8 @@ CREATE TABLE [Pointing]
 	)
 ) ON [PRIMARY]
 
+GRANT SELECT ON [Pointing] TO [User]
+
 GO
 
 
@@ -55,6 +57,8 @@ CREATE TABLE [Observation]
 	)
 ) ON [PRIMARY]
 
+GRANT SELECT ON [Observation] TO [User]
+
 GO
 
 
@@ -79,5 +83,7 @@ CREATE CLUSTERED INDEX [CI_ObservationHtm] ON [ObservationHtm]
 	[htmIDStart] ASC,
 	[htmIDEnd] ASC
 )
+
+GRANT SELECT ON [ObservationHtm] TO [User]
 
 GO
