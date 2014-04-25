@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="Herschel.Ws.Footprint" CodeBehind="Footprint.svc.cs" %>

@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Herschel.Sql.Plot", "src\He
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Herschel.Loader", "src\Herschel.Loader\Herschel.Loader.csproj", "{6050142B-3974-4F12-9E2D-512EE1616D03}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{40F2C866-04E9-44E8-BEAE-19088E716B2B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Herschel.Ws", "src\Herschel.Ws\Herschel.Ws.csproj", "{DF771E7C-2052-467F-9172-422E37135490}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +48,10 @@ Global
 		{6050142B-3974-4F12-9E2D-512EE1616D03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6050142B-3974-4F12-9E2D-512EE1616D03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6050142B-3974-4F12-9E2D-512EE1616D03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF771E7C-2052-467F-9172-422E37135490}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF771E7C-2052-467F-9172-422E37135490}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF771E7C-2052-467F-9172-422E37135490}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF771E7C-2052-467F-9172-422E37135490}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,5 +62,6 @@ Global
 		{9DBAC822-4574-44DD-A3CF-B43A089767EA} = {26FCE244-236C-485E-A44C-F08B06825569}
 		{DBDD5017-65B7-4E56-ADA9-9C54AA143190} = {8D1C0B55-63DD-41E0-B4E4-1B1501FBB2D4}
 		{6050142B-3974-4F12-9E2D-512EE1616D03} = {8D1C0B55-63DD-41E0-B4E4-1B1501FBB2D4}
+		{DF771E7C-2052-467F-9172-422E37135490} = {40F2C866-04E9-44E8-BEAE-19088E716B2B}
 	EndGlobalSection
 EndGlobal

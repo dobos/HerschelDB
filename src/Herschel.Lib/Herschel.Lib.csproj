@@ -50,8 +50,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="DataReaderEnumerator.cs" />
     <Compile Include="Detector.cs" />
     <Compile Include="Htm.cs" />
+    <Compile Include="IDatabaseTableObject.cs" />
+    <Compile Include="Observation.cs" />
     <Compile Include="Pointing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util.cs" />
