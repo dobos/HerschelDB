@@ -10,7 +10,8 @@ AS
 		[obsID] ASC,
 		[fineTime] ASC
 	)
-
+	WITH (SORT_IN_TEMPDB = ON)
+	ON [LOAD]
 
 	-- Check duplicates
 
@@ -218,13 +219,15 @@ AS
 	Generate regions for legs then union them into observations
 */
 
-	TRUNCATE TABLE LegRegion;
+	TRUNCATE TABLE [load].LegRegion;
 
+	-- TODO: make this multi-threaded
 	INSERT [load].[LegRegion] WITH (TABLOCKX)
 	SELECT obsID, legID, fineTimeStart, fineTimeEnd,
 		   dbo.fGetLegRegion(raStart, decStart, paStart, raEnd, decEnd, paEnd, 'Blue')
-	FROM Leg;
+	FROM [load].Leg;
 
+	-- TODO: make this multi-threaded somehow... also logging is an issue
 	UPDATE [Observation]
 	SET fineTimeStart = leg.fineTimeStart,
 		fineTimeEnd = leg.fineTimeEnd,
@@ -237,6 +240,8 @@ AS
 		ON leg.obsID = obs.obsID;
 
 	TRUNCATE TABLE [load].[LegRegion];
+
+	TRUNCATE TABLE [load].[Leg]
 
 GO
 
