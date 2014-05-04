@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Spherical;
+using Jhu.Spherical;
 
 namespace Herschel.Lib
 {
@@ -74,7 +74,7 @@ namespace Herschel.Lib
             };
 
             // Rotate around y (Dec)
-            ang = -pointing.Dec * Spherical.Constant.Degree2Radian;
+            ang = -pointing.Dec * Jhu.Spherical.Constant.Degree2Radian;
             double[] r2 = new double[]
             {
                 Math.Cos(ang), 0, Math.Sin(ang),
@@ -83,7 +83,7 @@ namespace Herschel.Lib
             };
 
             // Rotate around z (RA)
-            ang = pointing.RA * Spherical.Constant.Degree2Radian;
+            ang = pointing.RA * Jhu.Spherical.Constant.Degree2Radian;
             double[] r3 = new double[]
             {
                 Math.Cos(ang), -Math.Sin(ang), 0,

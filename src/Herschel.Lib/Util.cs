@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Data.SqlTypes;
-using Spherical;
-using Spherical.Htm;
+using Jhu.Spherical;
+using Jhu.Spherical.Htm;
 
 namespace Herschel.Lib
 {
@@ -44,7 +44,7 @@ namespace Herschel.Lib
 
         public static Region ReadRegion(Stream s)
         {
-            var rr = new Spherical.IO.RegionReader(s);
+            var rr = new Jhu.Spherical.IO.RegionReader(s);
 
             if (s.Length == 0)
             {
@@ -58,7 +58,7 @@ namespace Herschel.Lib
 
         public static void WriteRegion(Region r, Stream s)
         {
-            var rw = new Spherical.IO.RegionWriter(s);
+            var rw = new Jhu.Spherical.IO.RegionWriter(s);
             if (r != null)
             {
                 rw.Write(r);

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Herschel.Lib;
-using Spherical;
+using Jhu.Spherical;
 
 namespace Herschel.Lib.Test
 {

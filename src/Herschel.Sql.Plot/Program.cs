@@ -7,7 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Configuration;
-using Spherical;
+using Jhu.Spherical;
 
 namespace Herschel.Sql.Plot
 {
@@ -44,13 +44,13 @@ namespace Herschel.Sql.Plot
                                     PrintOutline(region);
                                     break;
                                 case "htm_in":
-                                    PrintHtm(region, Spherical.Htm.Markup.Inner);
+                                    PrintHtm(region, Jhu.Spherical.Htm.Markup.Inner);
                                     break;
                                 case "htm_part":
-                                    PrintHtm(region, Spherical.Htm.Markup.Partial);
+                                    PrintHtm(region, Jhu.Spherical.Htm.Markup.Partial);
                                     break;
                                 case "htm_out":
-                                    PrintHtm(region, Spherical.Htm.Markup.Outer);
+                                    PrintHtm(region, Jhu.Spherical.Htm.Markup.Outer);
                                     break;
                                 case "ds9":
                                     PrintDS9(region);
@@ -84,11 +84,11 @@ namespace Herschel.Sql.Plot
 
         static void PrintOutline(Region region)
         {
-            var ol = new Outline(region.EnumPatches());
+            var ol = region.GetOutline();
 
-            foreach (Spherical.PatchPart s in ol.PartList)
+            foreach (var s in ol.PartList)
             {
-                foreach (Spherical.Arc a in s.ArcList)
+                foreach (var a in s.ArcList)
                 {
                     Console.WriteLine("{0}\t{1}", a.Point1.RA, a.Point1.Dec);
                     Console.WriteLine("{0}\t{1}", a.Point2.RA, a.Point2.Dec);
@@ -97,15 +97,16 @@ namespace Herschel.Sql.Plot
             }
         }
 
-        static void PrintHtm(Region region, Spherical.Htm.Markup markup)
+        static void PrintHtm(Region region, Jhu.Spherical.Htm.Markup markup)
         {
-            var cover = Herschel.Lib.Htm.GetCover(region);
+            var cb = new Jhu.Spherical.Htm.CoverBuilder(region);
+            var cover = cb.Run();
 
             var hids = cover.GetTrixels(markup);
             foreach (var hid in hids)
             {
                 Cartesian a, b, c;
-                Spherical.Htm.Trixel.ToTriangle(hid, out a, out b, out c);
+                hid.GetTriangle(out a, out b, out c);
 
                 Console.WriteLine("{0}\t{1}", a.RA, a.Dec);
                 Console.WriteLine("{0}\t{1}", b.RA, b.Dec);
@@ -117,13 +118,13 @@ namespace Herschel.Sql.Plot
 
         static void PrintDS9(Region region)
         {
-            var ol = new Outline(region.EnumPatches());
+            var ol = region.GetOutline();
 
             Console.WriteLine("ICRS");
 
-            foreach (Spherical.PatchPart s in ol.PartList)
+            foreach (var s in ol.PartList)
             {
-                foreach (Spherical.Arc a in s.ArcList)
+                foreach (var a in s.ArcList)
                 {
                     Console.WriteLine("line {0:0.000000}d {1:0.000000}d {2:0.000000}d {3:0.000000}d # color = blue", a.Point1.RA, a.Point1.Dec, a.Point2.RA, a.Point2.Dec);
                 }

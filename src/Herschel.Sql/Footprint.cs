@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.SqlServer.Server;
 using Herschel.Lib;
-using Spherical;
+using Jhu.Spherical;
 
 public partial class UserDefinedFunctions
 {
@@ -30,8 +30,8 @@ public partial class UserDefinedFunctions
         }
     }
 
-    [SqlFunction(Name = "fGetDetectorCornersEq", TableDefinition = "id tinyint, ra float, dec float",
-        IsPrecise=false, IsDeterministic=true, FillRowMethodName="FillGetDetectorCornersEq")]
+    [SqlFunction(Name = "GetDetectorCornersEq", TableDefinition = "id tinyint, ra float, dec float",
+        IsPrecise = false, IsDeterministic = true, FillRowMethodName = "FillEq")]
     public static IEnumerable GetDetectorCornersEq(SqlDouble ra, SqlDouble dec, SqlDouble pa, SqlString detector)
     {
         var d = Detector.Create(detector.Value);
@@ -47,7 +47,7 @@ public partial class UserDefinedFunctions
         }
     }
 
-    public static void FillGetDetectorCornersEq(object obj, out SqlByte id, out SqlDouble ra, out SqlDouble dec)
+    public static void FillEq(object obj, out SqlByte id, out SqlDouble ra, out SqlDouble dec)
     {
         var c = (Corner)obj;
         id = new SqlByte(c.ID);
@@ -55,7 +55,7 @@ public partial class UserDefinedFunctions
         dec = new SqlDouble(c.Dec);
     }
 
-    [SqlFunction(Name = "fGetDetectorRegion", IsPrecise = false, IsDeterministic = true)]
+    [SqlFunction(Name = "GetDetectorRegion", IsPrecise = false, IsDeterministic = true)]
     public static SqlBytes GetDetectorRegion(SqlDouble ra, SqlDouble dec, SqlDouble pa, SqlString detector)
     {
         var d = Detector.Create(detector.Value);
@@ -69,62 +69,23 @@ public partial class UserDefinedFunctions
         return Util.SetRegion(r);
     }
 
-    [SqlFunction(Name = "fGetLegRegion", IsPrecise = false, IsDeterministic = true)]
+    [SqlFunction(Name = "GetLegRegion", IsPrecise = false, IsDeterministic = true)]
     public static SqlBytes GetLegRegion(SqlDouble raStart, SqlDouble decStart, SqlDouble paStart, SqlDouble raEnd, SqlDouble decEnd, SqlDouble paEnd, SqlString detector)
     {
         var d = Detector.Create(detector.Value);
         var cstart = d.GetCorners(new Cartesian(raStart.Value, decStart.Value), paStart.Value);
         var cend = d.GetCorners(new Cartesian(raEnd.Value, decEnd.Value), paEnd.Value);
 
-        Spherical.Shape.Chull.Cherror error;
         var points = new List<Cartesian>();
 
         points.AddRange(cstart);
         points.AddRange(cend);
 
-        var convex = Spherical.Shape.Chull.Make(points, out error);
-        var region = new Spherical.Region(convex, false);
+        var hb = new Jhu.Spherical.ShapeBuilder();
+        var region = hb.CreateCHull(points);
+
         region.Simplify();
 
         return Util.SetRegion(region);
-    }
-
-    [SqlFunction(Name = "fContainsEq", IsPrecise = false, IsDeterministic = true)]
-    public static SqlBoolean ContainsEq(SqlBytes region, SqlDouble ra, SqlDouble dec)
-    {
-        var r = Util.GetRegion(region);
-
-        return new SqlBoolean(r.Contains(new Cartesian(ra.Value, dec.Value)));
-    }
-
-    [SqlFunction(Name = "fGetHtmCover", TableDefinition = "htmIDStart bigint, htmIDEnd bigint, partial bit",
-        IsPrecise = false, IsDeterministic = true, FillRowMethodName = "FillGetHtmCover")]
-    public static IEnumerable GetHtmCover(SqlBytes region)
-    {
-        var r = Util.GetRegion(region);
-        var cover = Htm.GetCover(r);
-
-        var ranges = new List<Htm.HtmRange>();
-        
-        foreach ( var p in cover.GetPairs(Spherical.Htm.Markup.Inner))
-        {
-            ranges.Add(new Htm.HtmRange(true, p.lo, p.hi));
-        }
-
-        foreach ( var p in cover.GetPairs(Spherical.Htm.Markup.Outer))
-        {
-            ranges.Add(new Htm.HtmRange(true, p.lo, p.hi));
-        }
-
-        return ranges;
-    }
-
-    public static void FillGetHtmCover(object obj, out SqlInt64 htmIDStart, out SqlInt64 htmIDEnd, out SqlBoolean partial)
-    {
-        var range = (Htm.HtmRange)obj;
-
-        htmIDStart = new SqlInt64(range.HtmIDStart);
-        htmIDEnd = new SqlInt64(range.HtmIDEnd);
-        partial = new SqlBoolean(!range.FullOnly);
     }
 }

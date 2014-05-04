@@ -35,8 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SphericalLib">
-      <HintPath>..\..\lib\SphericalLib.dll</HintPath>
+    <Reference Include="Jhu.Spherical">
+      <HintPath>..\..\lib\Jhu.Spherical.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>

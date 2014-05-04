@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Herschel.Lib</RootNamespace>
     <AssemblyName>Herschel.Lib</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,16 +30,17 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Spherical.Quickhull">
-      <HintPath>..\..\lib\Spherical.Quickhull.dll</HintPath>
+    <Reference Include="Jhu.Spherical">
+      <HintPath>..\..\lib\Jhu.Spherical.dll</HintPath>
     </Reference>
-    <Reference Include="SphericalHtm">
-      <HintPath>..\..\lib\SphericalHtm.dll</HintPath>
+    <Reference Include="Jhu.Spherical.Htm">
+      <HintPath>..\..\lib\Jhu.Spherical.Htm.dll</HintPath>
     </Reference>
-    <Reference Include="SphericalLib">
-      <HintPath>..\..\lib\SphericalLib.dll</HintPath>
+    <Reference Include="Jhu.Spherical.Visualizer">
+      <HintPath>..\..\lib\Jhu.Spherical.Visualizer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,7 +54,6 @@
     <Compile Include="Constants.cs" />
     <Compile Include="DataReaderEnumerator.cs" />
     <Compile Include="Detector.cs" />
-    <Compile Include="Htm.cs" />
     <Compile Include="IDatabaseTableObject.cs" />
     <Compile Include="Observation.cs" />
     <Compile Include="Pointing.cs" />
