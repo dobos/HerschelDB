@@ -11,7 +11,7 @@ namespace Herschel.Ws.Controls
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            version.Text = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
     }
 }

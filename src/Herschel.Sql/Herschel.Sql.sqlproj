@@ -74,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Footprint.cs" />
+    <Compile Include="Properties.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="HerschelSql.publish.xml" />
