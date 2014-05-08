@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace Herschel.Lib
 {
     public static class DataReaderEnumerable
     {
-        public static IEnumerable<T> AsEnumerable<T>(this IDataReader reader)
+        public static IEnumerable<T> AsEnumerable<T>(this SqlDataReader reader)
             where T : IDatabaseTableObject, new()
         {
             return new DataReaderEnumerator<T>(reader);
@@ -18,9 +19,9 @@ namespace Herschel.Lib
     public class DataReaderEnumerator<T> : IEnumerable<T>, IEnumerator<T>
         where T : IDatabaseTableObject, new()
     {
-        IDataReader reader;
+        SqlDataReader reader;
 
-        public DataReaderEnumerator(IDataReader reader)
+        public DataReaderEnumerator(SqlDataReader reader)
         {
             this.reader = reader;
         }

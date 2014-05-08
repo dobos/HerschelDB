@@ -65,19 +65,15 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="SphericalLib">
-      <HintPath>..\..\lib\SphericalLib.dll</HintPath>
+    <Reference Include="Jhu.Spherical">
+      <HintPath>..\..\lib\Jhu.Spherical.dll</HintPath>
     </Reference>
-    <Reference Include="Spherical.Quickhull">
-      <HintPath>..\..\lib\Spherical.Quickhull.dll</HintPath>
-    </Reference>
-    <Reference Include="SphericalHtm">
-      <HintPath>..\..\lib\SphericalHtm.dll</HintPath>
+    <Reference Include="Jhu.Spherical.Htm">
+      <HintPath>..\..\lib\Jhu.Spherical.Htm.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Footprint.cs" />
-    <Compile Include="RegionUnion.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="HerschelSql.publish.xml" />
@@ -92,6 +88,10 @@
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) $(SolutionDir)$(OutDir)</PostBuildEvent>
+    <PostBuildEvent>$(SolutionDir)lib\Jhu.Spherical.ScriptGenerator.exe $(TargetPath)
+copy $(TargetDir)$(TargetName).Drop.sql $(SolutionDir)$(OutputPath)
+copy $(TargetDir)$(TargetName).Create.sql $(SolutionDir)$(OutputPath)
+
+copy $(TargetPath) $(SolutionDir)$(OutDir)</PostBuildEvent>
   </PropertyGroup>
 </Project>

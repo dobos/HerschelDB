@@ -30,27 +30,30 @@ namespace Herschel.Sql.Plot
                 {
                     using (var dr = cmd.ExecuteReader())
                     {
+                        int index = 0;
                         while (dr.Read())
                         {
+                            index++;
+
                             var bytes = dr.GetSqlBytes(0);
                             region = Herschel.Lib.Util.GetRegion(bytes);
 
                             switch (verb)
                             {
                                 case "arcs":
-                                    PrintArcs(region);
+                                    PrintArcs(index, region);
                                     break;
                                 case "outline":
-                                    PrintOutline(region);
+                                    PrintOutline(index, region);
                                     break;
                                 case "htm_in":
-                                    PrintHtm(region, Jhu.Spherical.Htm.Markup.Inner);
+                                    PrintHtm(index, region, Jhu.Spherical.Htm.Markup.Inner);
                                     break;
                                 case "htm_part":
-                                    PrintHtm(region, Jhu.Spherical.Htm.Markup.Partial);
+                                    PrintHtm(index, region, Jhu.Spherical.Htm.Markup.Partial);
                                     break;
                                 case "htm_out":
-                                    PrintHtm(region, Jhu.Spherical.Htm.Markup.Outer);
+                                    PrintHtm(index, region, Jhu.Spherical.Htm.Markup.Outer);
                                     break;
                                 case "ds9":
                                     PrintDS9(region);
@@ -64,7 +67,7 @@ namespace Herschel.Sql.Plot
             }
         }
 
-        static void PrintArcs(Region region)
+        static void PrintArcs(int index, Region region)
         {
             for (int ic = 0; ic < region.ConvexList.Count; ic++)
             {
@@ -73,8 +76,8 @@ namespace Herschel.Sql.Plot
                 {
                     for (int j = 0; j < c.PatchList[i].ArcList.Length; j++)
                     {
-                        Console.WriteLine("{0}\t{1}", c.PatchList[i].ArcList[j].Point1.RA, c.PatchList[i].ArcList[j].Point1.Dec);
-                        Console.WriteLine("{0}\t{1}", c.PatchList[i].ArcList[j].Point2.RA, c.PatchList[i].ArcList[j].Point2.Dec);
+                        Console.WriteLine("{0}\t{1}\t{2}", c.PatchList[i].ArcList[j].Point1.RA, c.PatchList[i].ArcList[j].Point1.Dec, index);
+                        Console.WriteLine("{0}\t{1}\t{2}", c.PatchList[i].ArcList[j].Point2.RA, c.PatchList[i].ArcList[j].Point2.Dec, index);
                     }
 
                     Console.WriteLine();
@@ -82,7 +85,7 @@ namespace Herschel.Sql.Plot
             }
         }
 
-        static void PrintOutline(Region region)
+        static void PrintOutline(int index, Region region)
         {
             var ol = region.GetOutline();
 
@@ -90,14 +93,14 @@ namespace Herschel.Sql.Plot
             {
                 foreach (var a in s.ArcList)
                 {
-                    Console.WriteLine("{0}\t{1}", a.Point1.RA, a.Point1.Dec);
-                    Console.WriteLine("{0}\t{1}", a.Point2.RA, a.Point2.Dec);
+                    Console.WriteLine("{0}\t{1}\t{2}", a.Point1.RA, a.Point1.Dec, index);
+                    Console.WriteLine("{0}\t{1}\t{2}", a.Point2.RA, a.Point2.Dec, index);
                     Console.WriteLine();
                 }
             }
         }
 
-        static void PrintHtm(Region region, Jhu.Spherical.Htm.Markup markup)
+        static void PrintHtm(int index, Region region, Jhu.Spherical.Htm.Markup markup)
         {
             var cb = new Jhu.Spherical.Htm.CoverBuilder(region);
             var cover = cb.Run();
@@ -108,10 +111,10 @@ namespace Herschel.Sql.Plot
                 Cartesian a, b, c;
                 hid.GetTriangle(out a, out b, out c);
 
-                Console.WriteLine("{0}\t{1}", a.RA, a.Dec);
-                Console.WriteLine("{0}\t{1}", b.RA, b.Dec);
-                Console.WriteLine("{0}\t{1}", c.RA, c.Dec);
-                Console.WriteLine("{0}\t{1}", a.RA, a.Dec);
+                Console.WriteLine("{0}\t{1}\t{2}", a.RA, a.Dec, index);
+                Console.WriteLine("{0}\t{1}\t{2}", b.RA, b.Dec, index);
+                Console.WriteLine("{0}\t{1}\t{2}", c.RA, c.Dec, index);
+                Console.WriteLine("{0}\t{1}\t{2}", a.RA, a.Dec, index);
                 Console.WriteLine();
             }
         }

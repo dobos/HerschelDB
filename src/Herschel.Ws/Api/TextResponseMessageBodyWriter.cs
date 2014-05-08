@@ -8,7 +8,7 @@ using System.IO;
 using System.Data;
 using System.Data.SqlClient;
 
-namespace Herschel.Ws
+namespace Herschel.Ws.Api
 {
     public class TextResponseMessageBodyWriter : StreamBodyWriter
     {
@@ -37,12 +37,12 @@ namespace Herschel.Ws
             {
                 WriteDataReader(writer, (IDataReader)result);
             }
-            else if (type.IsArray)
+            else if (!(result is String) && type.IsArray)
             {
                 WriteArray(writer, (Array)result);
                 return;
             }
-            else if (result is IEnumerable)
+            else if (!(result is String) && result is IEnumerable)
             {
                 WriteEnumerable(writer, (IEnumerable)result);
             }
@@ -146,7 +146,7 @@ namespace Herschel.Ws
         {
             var type = value.GetType();
 
-            if (type.IsPrimitive)
+            if (type.IsPrimitive || value is String)
             {
                 WritePrimitiveValue(writer, value);
             }

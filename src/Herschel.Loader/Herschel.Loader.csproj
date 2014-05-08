@@ -42,8 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PointingsFile.cs" />
+    <Compile Include="PointingsFilePacs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PointingsFileSpire.cs" />
     <Compile Include="SqlScripts.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

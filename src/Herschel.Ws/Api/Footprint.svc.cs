@@ -10,7 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using Herschel.Lib;
 
-namespace Herschel.Ws
+namespace Herschel.Ws.Api
 {
     [ServiceContract]
     public interface ISearch
@@ -18,7 +18,12 @@ namespace Herschel.Ws
         [OperationContract]
         [WebGet(UriTemplate = "Observation/Find?ra={ra}&dec={dec}")]
         [DynamicResponseFormat]
-        IEnumerable<Observation> FindObservation(double ra, double dec);
+        IEnumerable<long> FindObservationEq(double ra, double dec);
+
+        [OperationContract]
+        [WebGet(UriTemplate = "Observation/Footprint?obsid={obsID}")]
+        [DynamicResponseFormat]
+        string FindObservation(long obsID);
     }
 
     public class Footprint : ISearch
@@ -36,20 +41,27 @@ namespace Herschel.Ws
             return cn;
         }
 
-        public IEnumerable<Observation> FindObservation(double ra, double dec)
+        public IEnumerable<long> FindObservationEq(double ra, double dec)
         {
-            var ids = new List<Int64>();
-            var sql = "SELECT obsID FROM FindObservationEq(@ra, @dec, NULL)";
+            var s = new ObservationSearch();
 
-            var cn = OpenConnection();
-            var cmd = new SqlCommand(sql, cn);
+            s.Instrument = Instrument.Pacs;
+            s.Point = new Jhu.Spherical.Cartesian(ra, dec);
 
-            cmd.Parameters.Add("@ra", SqlDbType.Float).Value = ra;
-            cmd.Parameters.Add("@dec", SqlDbType.Float).Value = dec;
+            var q = from r in s.FindEq()
+                    select r.ObsID;
 
-            var dr = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+            return q;
+        }
 
-            return dr.AsEnumerable<Observation>();
+        public string FindObservation(long obsID)
+        {
+            var s = new ObservationSearch();
+
+            var q = from r in s.FindID(new long[] { obsID })
+                    select r.Region.ToString();
+
+            return q.First();
         }
     }
 }

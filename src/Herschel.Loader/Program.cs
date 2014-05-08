@@ -23,56 +23,52 @@ namespace Herschel.Loader
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
-            switch (args[0])
+            var verb = args[0].ToLowerInvariant();
+
+            switch (verb)
             {
                 case "prepare":
-                    PreparePointings(args[1], args[2], int.Parse(args[3]));
+                    PreparePointings(args);
                     break;
                 case "load":
-                    LoadPointings(args[1], int.Parse(args[2]));
+                    LoadPointings(args);
                     break;
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        static void PreparePointings(string path, string output, int fnum)
+        private static void PreparePointings(string[] args)
         {
-            var dir = Path.GetDirectoryName(path);
-            var pattern = Path.GetFileName(path);
+            var inst = args[1].ToLowerInvariant();
+            var path = args[2];
+            var output = args[3];
+            int fnum = int.Parse(args[4]);
 
-            var files = Directory.GetFiles(dir, pattern);
-            var queue = new Queue<string>(files);
+            var file = GetPointingsFile(inst);
+            file.PreparePointings(path, output, fnum);
+        }
 
-            Console.WriteLine("Preparing pointing files for bulk load...", files.Length);
-            Console.WriteLine("Found {0} files.", files.Length);
+        private static void LoadPointings(string[] args)
+        {
+            var inst = args[1].ToLowerInvariant();
+            var path = args[2];
+            int fnum = int.Parse(args[3]);
 
-            int q = 0;
+            var file = GetPointingsFile(inst);
+            file.LoadPointings(path, fnum);
+        }
 
-            Parallel.For(0, fnum, i =>
+        private static PointingsFile GetPointingsFile(string inst)
+        {
+            switch (inst.ToLowerInvariant())
             {
-                while (true)
-                {
-                    int qq;
-                    string infile = null;
-
-                    lock (queue)
-                    {
-                        if (queue.Count > 0)
-                        {
-                            infile = queue.Dequeue();
-                            qq = q++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    ConvertPointingsFile(infile, String.Format(output, i), true);
-                    Console.WriteLine("{0}: {1}", qq, infile);
-                }
-            });
+                case "pacs":
+                    return new PointingsFilePacs();
+                case "spire":
+                default:
+                    throw new NotImplementedException();
+            }
         }
 
         static long GetID(string filename)
@@ -81,70 +77,5 @@ namespace Herschel.Loader
             return long.Parse(fn, System.Globalization.CultureInfo.InvariantCulture);
         }
 
-        static IEnumerable<Pointing> ReadPointingsFile(string filename)
-        {
-            // Open file
-            using (var infile = new StreamReader(filename))
-            {
-                // Skip four lines
-                for (int i = 0; i < 4; i++)
-                {
-                    infile.ReadLine();
-                }
-
-                string line;
-                while ((line = infile.ReadLine()) != null)
-                {
-                    Pointing p = new Pointing();
-                    p.Parse(line.Split(' '));
-                    yield return p;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Reads Herschel pointing file and writes bulk-insert ready file
-        /// </summary>
-        /// <param name="inputFile"></param>
-        /// <param name="outputFile"></param>
-        static void ConvertPointingsFile(string inputFile, string outputFile, bool append)
-        {
-            using (var outfile = new StreamWriter(outputFile, append))
-            {
-                foreach (var p in ReadPointingsFile(inputFile))
-                {
-                    p.Write(outfile);
-                }
-            }
-        }
-
-        static void LoadPointings(string filename, int fnum)
-        {
-            Parallel.For(0, fnum, i =>
-            {
-                var infile = String.Format(filename, i);
-
-                Console.WriteLine("Loading from {0}...", infile);
-
-                var sql = SqlScripts.LoadPointing;
-                sql = sql.Replace("[$datafile]", infile);
-
-                RunSqlScript(sql, 3600);
-            });
-        }
-
-        static void RunSqlScript(string sql, int timeout)
-        {
-            using (var cn = new SqlConnection(ConnectionString))
-            {
-                cn.Open();
-
-                using (var cmd = new SqlCommand(sql, cn))
-                {
-                    cmd.CommandTimeout = timeout;
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
     }
 }

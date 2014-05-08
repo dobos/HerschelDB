@@ -69,23 +69,43 @@ public partial class UserDefinedFunctions
         return Util.SetRegion(r);
     }
 
+    [SqlFunction(Name = "GetLegCornersEq", TableDefinition = "id tinyint, ra float, dec float",
+        IsPrecise = false, IsDeterministic = true, FillRowMethodName = "FillEq")]
+    public static IEnumerable GetLegCornersEq(SqlDouble raStart, SqlDouble decStart, SqlDouble paStart, SqlDouble raEnd, SqlDouble decEnd, SqlDouble paEnd, SqlString detector)
+    {
+        var points = GetLegCornersInternal(raStart.Value, decStart.Value, paStart.Value, raEnd.Value, decEnd.Value, paEnd.Value, detector.Value);
+        var corners = new List<Corner>();
+        for (int i = 0; i < points.Count; i ++)
+        {
+            corners.Add(new Corner((byte)i, points[i].RA, points[i].Dec));
+        }
+        return corners;
+    }
+
     [SqlFunction(Name = "GetLegRegion", IsPrecise = false, IsDeterministic = true)]
     public static SqlBytes GetLegRegion(SqlDouble raStart, SqlDouble decStart, SqlDouble paStart, SqlDouble raEnd, SqlDouble decEnd, SqlDouble paEnd, SqlString detector)
     {
-        var d = Detector.Create(detector.Value);
-        var cstart = d.GetCorners(new Cartesian(raStart.Value, decStart.Value), paStart.Value);
-        var cend = d.GetCorners(new Cartesian(raEnd.Value, decEnd.Value), paEnd.Value);
+        var points = GetLegCornersInternal(raStart.Value, decStart.Value, paStart.Value, raEnd.Value, decEnd.Value, paEnd.Value, detector.Value);
+
+        var hb = new Jhu.Spherical.ShapeBuilder();
+        var convex = hb.CreateConvexHull(points);
+        var region = new Region(convex, false);
+        region.Simplify();
+
+        return region.ToSqlBytes();
+    }
+
+    private static List<Cartesian> GetLegCornersInternal(double raStart, double decStart, double paStart, double raEnd, double decEnd, double paEnd, string detector)
+    {
+        var d = Detector.Create(detector);
+        var cstart = d.GetCorners(new Cartesian(raStart, decStart), paStart);
+        var cend = d.GetCorners(new Cartesian(raEnd, decEnd), paEnd);
 
         var points = new List<Cartesian>();
 
         points.AddRange(cstart);
         points.AddRange(cend);
 
-        var hb = new Jhu.Spherical.ShapeBuilder();
-        var region = hb.CreateCHull(points);
-
-        region.Simplify();
-
-        return Util.SetRegion(region);
+        return points;
     }
 }

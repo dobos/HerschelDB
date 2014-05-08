@@ -7,7 +7,7 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 
-namespace Herschel.Ws
+namespace Herschel.Ws.Api
 {
     public class DynamicResponseFormatAttribute : Attribute, IOperationBehavior
     {

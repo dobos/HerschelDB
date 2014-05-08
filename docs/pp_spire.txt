@@ -1,0 +1,59 @@
+RESETINDEX                Integer            Indicates the reset index of the status paramet
+OBSID                     Long               Identifier of the observation
+BBID                      Long               Building block type
+LBL                       Integer            Label
+TMP1                      Integer            Time 1 field - Number of microseconds since epoch 1 Jan 1958 (0 <= coarse < 2^32)
+TMP2                      Integer            Time 2 field- Number of 1/65536 fractional seconds (0 <= fine < 2^16)
+FINETIME                  Long               Time [microsec] since epoch 1 Jan 1958
+VLD                       Integer            Validity flag set by DecMec
+CPR                       Integer            Chopper position
+WPR                       Integer            Filter wheel Position
+GPR                       Integer            Grating Position
+CRCRMP                    Integer            Readout counter within an integration ramp
+RRR                       Integer            Readouts in Ramp
+CRDC                      Integer            Current Readout counter since last time reset
+CRECR                     Integer            CRE status word
+DMCSEQACTIVE              Boolean            Indicates if a DMC sequence executing
+CHOPPERPLATEAU            Integer            Indicates the chopper plateau within a sequence
+CALSOURCE                 Integer            Chopper on Calibration source 1, 2 or off (0)
+SCANDIR                   Integer            Scan Direction
+WASWITCH                  Boolean            Indicates that we are in Wavelength switching
+WASWITCHPOS               Integer            Give wavelength switch position (0,1,2)
+PIX                       Integer            PIX counter for synchronisation to SPU housekeeping (CompressedEntHeader
+RCX                       Integer            Raw Channel Index in CompressedEntHeader
+RESETCNT                  Integer            Reset counter to identify frames belonging to a reset
+BLOCKIDX                  Integer            Reference to the BlockTable entry
+BAND                      String             Wavelength Band
+BBTYPE                    Integer            Building Block Type
+BBSEQCNT                  Integer            Building Block Sequence Count
+CAPA                      Double             effective capacitance in pF
+DP_WHICH_OBCP             Integer            OBCP Number
+RaArray                   Double             RA
+DecArray                  Double             Declination
+PaArray                   Double             Position Angle
+RaArrayErr                Double             RA Eror
+DecArrayErr               Double             Declination Error
+PaArrayErr                Double             Position Angle Error
+Mode                      String             Pointing Mode
+RasterLineNum             Long               Pointing Raster Line Number
+RasterColumnNum           Long               Pointing Raster Column Number
+NodCycleNum               Long               Pointing Nod Cycle Number
+OnTarget                  Boolean            On Target flag
+AbPosId                   Boolean            onRaster and offRaster Nod information
+IsSlew                    Boolean            Slew of the Sattelite
+IsOffPos                  Boolean            Off Position flag
+ScanLineNumber            Long               Scan Line number
+Repetition                Integer            Repetition Number
+AcmsMode                  String             ACMS mode 
+Aperture                  String             Aperture
+IsAPosition               Boolean            is A position
+IsBPosition               Boolean            is B position
+IsOutOfField              Boolean            Is Out of Field
+IsSerendipity             Boolean            is serendipity mode
+IsConstantVelocity        Boolean            Is constant velocity
+AngularVelocityX          Double             Angular velocity X in arcsec/sec
+AngularVelocityY          Double             Angular velocity Y in arcsec/sec
+AngularVelocityZ          Double             Angular velocity Z in arcsec/sec
+AngularVelocityXError     Double             Angular velocity X error in arcsec/sec
+AngularVelocityYError     Double             Angular velocity Y error in arcsec/sec
+AngularVelocityZError     Double             Angular velocity Z error in arcsec/sec

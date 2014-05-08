@@ -1,0 +1,68 @@
+﻿body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 11pt;
+    color: #000000;
+}
+
+div.menu {
+    font-size: 22px;
+    color: #A5A5A5;
+    font-weight: lighter;
+    letter-spacing: 1px;
+}
+
+    div.menu a {
+        text-decoration: none;
+        color: #A5A5A5;
+        display: inline-block;
+        margin-right: 5px;
+        padding: 10px;
+    }
+
+        div.menu a:hover {
+            color: #BE003C;
+            background-color: #F0F0F0;
+        }
+
+h1 {
+    font-size: 28px;
+    font-weight: lighter;
+    letter-spacing: 1px;
+    color: #BE003C;
+    margin-top: 24px;
+    margin-bottom: 36px;
+}
+
+h2 {
+    color: #A5A5A5;
+    font-weight: lighter;
+    letter-spacing: 1px;
+    margin-top: 36px;
+    margin-bottom: 36px;
+}
+
+div.content p a {
+    color: #000000;
+    text-decoration: none;
+}
+
+    div.content p a:hover {
+        text-decoration: underline;
+    }
+
+div.content ul {
+    margin-left: -1.5em;
+    list-style-type: square;
+    list-style-position: outside;
+}
+
+div.content pre {
+    font-family: Consolas, 'Lucida Console', 'Courier New', Courier, monospace;
+}
+
+#layout_footer {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 12px;
+    color: #000000;
+    position:;
+}

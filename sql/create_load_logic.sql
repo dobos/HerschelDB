@@ -50,6 +50,8 @@ the maximum of the histogram of velocities.
 TODO: add minimum enclosing circle center, coverage, area, pointing count etc.
 
 */
+	TRUNCATE TABLE Observation
+
 	DECLARE @binsize float = 1;		-- velocity bins for histogram
 
 	WITH
@@ -189,6 +191,8 @@ scan velocity along straight lines. Rolling average and variance of velocity
 along scan curve is computed to find leg ends.
 */
 
+	TRUNCATE TABLE [load].[LegEnds];
+
 	INSERT [load].[LegEnds] WITH(TABLOCKX)
 	SELECT obsID, leg, start, fineTime, ra, dec, pa
 	FROM [load].[FindLegEnds](@avDiffMax, @avVarMax, @legMinGap)
@@ -221,27 +225,25 @@ AS
 
 	TRUNCATE TABLE [load].LegRegion;
 
-	-- TODO: make this multi-threaded
-	INSERT [load].[LegRegion] WITH (TABLOCKX)
-	SELECT obsID, legID, fineTimeStart, fineTimeEnd,
-		   dbo.fGetLegRegion(raStart, decStart, paStart, raEnd, decEnd, paEnd, 'Blue')
-	FROM [load].Leg;
+	DBCC SETCPUWEIGHT(1000); 
 
-	-- TODO: make this multi-threaded somehow... also logging is an issue
+	INSERT [load].[LegRegion] WITH (TABLOCKX)
+	SELECT leg.obsID, leg.legID, leg.fineTimeStart, leg.fineTimeEnd,
+		   dbo.GetLegRegion(leg.raStart, leg.decStart, leg.paStart, leg.raEnd, leg.decEnd, leg.paEnd, 'Blue')
+	FROM [load].Leg leg
+
 	UPDATE [Observation]
 	SET fineTimeStart = leg.fineTimeStart,
 		fineTimeEnd = leg.fineTimeEnd,
 		region = leg.region
 	FROM [Observation] obs
 	INNER JOIN
-		(SELECT obsID, MIN(fineTimeStart) fineTimeStart, Max(fineTimeEnd) fineTimeEnd, dbo.fRegionUnion(region) region
-		 FROM LegRegion
+		(SELECT obsID, MIN(fineTimeStart) fineTimeStart, Max(fineTimeEnd) fineTimeEnd, region.UnionEvery(region) region
+		 FROM [load].LegRegion
 		 GROUP BY obsID) leg
 		ON leg.obsID = obs.obsID;
 
-	TRUNCATE TABLE [load].[LegRegion];
-
-	TRUNCATE TABLE [load].[Leg]
+	DBCC SETCPUWEIGHT(1); 
 
 GO
 
@@ -259,9 +261,28 @@ AS
 
 	TRUNCATE TABLE ObservationHtm;
 
+	DBCC SETCPUWEIGHT(1000); 
+
 	INSERT ObservationHtm WITH (TABLOCKX)
-	SELECT obsID, htm.htmidStart, htm.htmidEnd, fineTimeStart, fineTimeEnd, htm.partial
+	SELECT obsID, htm.htmIDstart, htm.htmIDEnd, fineTimeStart, fineTimeEnd, htm.partial
 	FROM Observation
-	CROSS APPLY dbo.fGetHtmCover(region) htm;
+	CROSS APPLY htm.Cover(region) htm;
+
+	DBCC SETCPUWEIGHT(1); 
+
+GO
+
+
+IF OBJECT_ID ('load.CleanUp', N'P') IS NOT NULL
+DROP PROC [load].[CleanUp]
+
+GO
+
+CREATE PROC [load].[CleanUp]
+AS
+
+	TRUNCATE TABLE [load].[LegRegion];
+
+	TRUNCATE TABLE [load].[Leg]
 
 GO

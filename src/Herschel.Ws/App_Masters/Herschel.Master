@@ -1,0 +1,41 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Herschel.master.cs" Inherits="Herschel.Ws.App_Masters.Herschel" %>
+
+<%@ Register Src="~/Controls/Menu.ascx" TagPrefix="hwc" TagName="Menu" %>
+<%@ Register Src="~/Controls/Footer.ascx" TagPrefix="hwc" TagName="Footer" %>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <div id="layout_container">
+        <div id="layout_content">
+            <form id="form1" runat="server">
+                <asp:ScriptManager runat="server" />
+                <asp:UpdatePanel runat="server">
+                    <ContentTemplate>
+                        <div class="layout_topline"></div>
+                        <div class="layout top">
+                            <asp:Image runat="server" AlternateText="Herschel Footprint Tools" ImageUrl="~/images/logo_footprint.png" />
+                        </div>
+                        <div class="layout menu">
+                            <hwc:menu runat="server" id="Menu" />
+                        </div>
+                        <div class="layout content">
+                            <asp:ContentPlaceHolder ID="Content" runat="server" />
+                        </div>
+
+                    </ContentTemplate>
+                </asp:UpdatePanel>
+            </form>
+        </div>
+    </div>
+    <div id="layout_footer">
+        <hwc:footer runat="server" id="Footer" />
+    </div>
+</body>
+</html>

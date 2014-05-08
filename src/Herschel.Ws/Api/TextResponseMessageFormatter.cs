@@ -7,7 +7,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Web;
 using System.IO;
 
-namespace Herschel.Ws
+namespace Herschel.Ws.Api
 {
     public class TextResponseMessageFormatter : IDispatchMessageFormatter
     {

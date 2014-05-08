@@ -1,0 +1,67 @@
+SPIRE                        PACS
+
+RESETINDEX                   RESETINDEX           
+OBSID                        OBSID                
+BBID                         BBID                 
+LBL                          LBL                  
+TMP1                         TMP1                 
+TMP2                         TMP2                 
+FINETIME                     FINETIME             
+VLD                          VLD                  
+CPR                          CPR                  
+WPR                          WPR                  
+
+GPR                          BOLST                
+CRCRMP                       CRDC                 
+RRR                          CRDCCP               
+CRDC                         DBID                 
+CRECR                        BSID                 
+DMCSEQACTIVE                 DMCSEQACTIVE         
+CHOPPERPLATEAU               CHOPPERPLATEAU       
+CALSOURCE                    CALSOURCE            
+SCANDIR                      
+WASWITCH                     
+WASWITCHPOS                  
+
+PIX                          PIX                  
+RCX                          RCX                  
+RESETCNT                     RESETCNT             
+BLOCKIDX                     BLOCKIDX             
+BAND                         BAND                 
+BBTYPE                       NrReadouts           
+BBSEQCNT                     BBTYPE               
+CAPA                         BBSEQCNT             
+DP_WHICH_OBCP                DP_WHICH_OBCP 
+       
+RaArray                      RaArray              
+DecArray                     DecArray             
+PaArray                      PaArray              
+RaArrayErr                   RaArrayErr           
+DecArrayErr                  DecArrayErr          
+PaArrayErr                   PaArrayErr           
+Mode                         Mode                 
+RasterLineNum                RasterLineNum        
+RasterColumnNum              RasterColumnNum      
+NodCycleNum                  NodCycleNum          
+OnTarget                     OnTarget             
+AbPosId                      AbPosId              
+IsSlew                       IsSlew               
+IsOffPos                     IsOffPos             
+ScanLineNumber               ScanLineNumber       
+Repetition                   Repetition           
+AcmsMode                     AcmsMode             
+Aperture                     Aperture             
+IsAPosition                  IsAPosition          
+IsBPosition                  IsBPosition          
+IsOutOfField                 IsOutOfField         
+IsSerendipity                IsSerendipity        
+IsConstantVelocity           IsConstantVelocity   
+AngularVelocityX             AngularVelocityX     
+AngularVelocityY             AngularVelocityY     
+AngularVelocityZ             AngularVelocityZ     
+AngularVelocityXError        AngularVelocityXError
+AngularVelocityYError        AngularVelocityYError
+AngularVelocityZError        AngularVelocityZError
+                             Utc                  
+                             CHOPFPUANGLE         
+                             CHOPSKYANGLE         

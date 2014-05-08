@@ -17,7 +17,7 @@ namespace Herschel.Ws
         {
             RouteTable.Routes.Ignore("{resource}.axd/{*pathInfo}");
 
-            RouteTable.Routes.Add(new ServiceRoute("Footprint/", new WebServiceHostFactory(), typeof(Herschel.Ws.Footprint)));
+            RouteTable.Routes.Add(new ServiceRoute("Api/", new WebServiceHostFactory(), typeof(Herschel.Ws.Api.Footprint)));
         }
 
         protected void Session_Start(object sender, EventArgs e)

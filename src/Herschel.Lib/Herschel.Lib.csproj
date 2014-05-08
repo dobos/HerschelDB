@@ -43,6 +43,7 @@
       <HintPath>..\..\lib\Jhu.Spherical.Visualizer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -53,9 +54,14 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="DataReaderEnumerator.cs" />
+    <Compile Include="DbObjectBase.cs" />
     <Compile Include="Detector.cs" />
+    <Compile Include="Enum.cs" />
+    <Compile Include="FineTime.cs" />
+    <Compile Include="FineTimeInterval.cs" />
     <Compile Include="IDatabaseTableObject.cs" />
     <Compile Include="Observation.cs" />
+    <Compile Include="ObservationSearch.cs" />
     <Compile Include="Pointing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util.cs" />
@@ -65,7 +71,8 @@
     <PostBuildEvent>copy $(TargetPath) $(SolutionDir)$(OutDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>copy $(SolutionDir)lib\* $(SolutionDir)$(OutDir)</PreBuildEvent>
+    <PreBuildEvent>copy $(SolutionDir)..\Spherical\bin\$(ConfigurationName)\*.dll $(SolutionDir)lib
+copy $(SolutionDir)lib\* $(SolutionDir)$(OutDir)</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

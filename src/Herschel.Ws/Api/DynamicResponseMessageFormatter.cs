@@ -7,7 +7,7 @@ using System.ServiceModel;
 using System.Net;
 using System.ServiceModel.Dispatcher;
 
-namespace Herschel.Ws
+namespace Herschel.Ws.Api
 {
     public class DynamicResponseMessageFormatter : IDispatchMessageFormatter
     {
