@@ -96,9 +96,9 @@ RETURN
 			htm.htmIDStart = cover.htmIDStart & 0xFFFFFFC000000000)
 			AND htm.htmIDEnd >= cover.htmIDStart
 	)
-	SELECT q.obsID, region.[IntersectAdvanced](o.Region, region.Parse(@region), 1) region
+	SELECT q.obsID, region.[IntersectAdvanced](o.Region, @region, 1) region
 	FROM q
-	INNER JOIN Observation o
+	INNER JOIN Observation o WITH (FORCESEEK)
 		ON o.obsID = q.obsID
 )
 

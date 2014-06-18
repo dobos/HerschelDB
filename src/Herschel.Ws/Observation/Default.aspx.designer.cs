@@ -10,7 +10,16 @@
 namespace Herschel.Ws.Observation {
     
     
-    public partial class Search {
+    public partial class Default {
+        
+        /// <summary>
+        /// observationSearchPanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel observationSearchPanel;
         
         /// <summary>
         /// instrumentLabel control.
@@ -22,13 +31,13 @@ namespace Herschel.Ws.Observation {
         protected global::System.Web.UI.WebControls.Label instrumentLabel;
         
         /// <summary>
-        /// instrument control.
+        /// instrumentList control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBoxList instrument;
+        protected global::System.Web.UI.WebControls.CheckBoxList instrumentList;
         
         /// <summary>
         /// searchMethodLabel control.
@@ -155,5 +164,41 @@ namespace Herschel.Ws.Observation {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.LinkButton plot;
+        
+        /// <summary>
+        /// observationPlotPanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel observationPlotPanel;
+        
+        /// <summary>
+        /// canvas control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::Jhu.Spherical.Web.Controls.PlotCanvas canvas;
+        
+        /// <summary>
+        /// savePlotPdfLink control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink savePlotPdfLink;
+        
+        /// <summary>
+        /// savePlotPdf control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton savePlotPdf;
     }
 }

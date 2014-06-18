@@ -11,10 +11,25 @@ namespace Herschel.Lib
 {
     public class ObservationSearch : DbObjectBase
     {
-        public Cartesian Point { get; set; }
-        public FineTimeInterval FineTimeInterval { get; set; }
+        public ObservationSearchMethod SearchMethod { get; set; }
         public Instrument Instrument { get; set; }
+        public Cartesian Point { get; set; }
         public Region Region { get; set; }
+        public FineTimeInterval FineTimeInterval { get; set; }
+
+        public IEnumerable<Observation> Find()
+        {
+            switch (SearchMethod)
+            {
+                case ObservationSearchMethod.Point:
+                    return FindEq();
+                case ObservationSearchMethod.Intersect:
+                    return FindIntersect();
+                case ObservationSearchMethod.Cover:
+                default:
+                    throw new NotImplementedException();
+            }
+        }
 
         public IEnumerable<Observation> FindEq()
         {

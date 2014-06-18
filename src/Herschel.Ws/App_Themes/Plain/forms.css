@@ -2,6 +2,22 @@
     border-collapse: collapse;
 }
 
+    table.block {
+        border: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+        table.block td.block_left {
+            width: auto;
+            vertical-align: top;
+        }
+
+        table.block td.block_buttons {
+            width: 150px;
+            vertical-align: bottom;
+        }
+
 div.form {
     border: 1px solid #A5A5A5;
     border-collapse: separate;
@@ -39,8 +55,7 @@ p.buttons {
     color: #A5A5A5;
     font-weight: lighter;
     letter-spacing: 1px;
-    margin-top: 8px;
-    margin-right: -5px;
+    margin-bottom: 0px;
     text-align: right;
 }
 
@@ -48,8 +63,8 @@ p.buttons {
         text-decoration: none;
         color: #A5A5A5;
         display: inline-block;
-        width: 100px;
-        margin-right: 5px;
+        width: 120px;
+        margin-top: 10px;
         padding-left: 10px;
         padding-right: 10px;
         padding-bottom: 10px;
@@ -61,3 +76,7 @@ p.buttons {
             color: #BE003C;
             background-color: #F0F0F0;
         }
+
+img.plot {
+    border: 1px solid #000000;
+}

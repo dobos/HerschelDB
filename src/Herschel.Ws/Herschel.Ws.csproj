@@ -50,6 +50,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Jhu.Spherical.Visualizer.dll</HintPath>
     </Reference>
+    <Reference Include="Jhu.Spherical.Web.Controls">
+      <HintPath>..\..\lib\Jhu.Spherical.Web.Controls.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -90,9 +93,7 @@
     <Content Include="Global.asax" />
     <Content Include="images\logo_footprint.jpg" />
     <Content Include="images\logo_footprint.png" />
-    <Content Include="Observation\Plot.aspx" />
-    <Content Include="Observation\Search.aspx" />
-    <Content Include="RegionPlot.aspx" />
+    <Content Include="Observation\Default.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -160,31 +161,17 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Observation\Plot.aspx.cs">
-      <DependentUpon>Plot.aspx</DependentUpon>
+    <Compile Include="Observation\Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Observation\Plot.aspx.designer.cs">
-      <DependentUpon>Plot.aspx</DependentUpon>
-    </Compile>
-    <Compile Include="Observation\Search.aspx.cs">
-      <DependentUpon>Search.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Observation\Search.aspx.designer.cs">
-      <DependentUpon>Search.aspx</DependentUpon>
+    <Compile Include="Observation\Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
     <Compile Include="PageBase.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegionPlot.aspx.cs">
-      <DependentUpon>RegionPlot.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="RegionPlot.aspx.designer.cs">
-      <DependentUpon>RegionPlot.aspx</DependentUpon>
-    </Compile>
     <Compile Include="Util\JQuery.cs" />
     <Compile Include="Util\QueryString.cs" />
   </ItemGroup>

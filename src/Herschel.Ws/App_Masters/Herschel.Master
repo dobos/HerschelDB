@@ -16,21 +16,16 @@
         <div id="layout_content">
             <form id="form1" runat="server">
                 <asp:ScriptManager runat="server" />
-                <asp:UpdatePanel runat="server">
-                    <ContentTemplate>
-                        <div class="layout_topline"></div>
-                        <div class="layout top">
-                            <asp:Image runat="server" AlternateText="Herschel Footprint Tools" ImageUrl="~/images/logo_footprint.png" />
-                        </div>
-                        <div class="layout menu">
-                            <hwc:menu runat="server" id="Menu" />
-                        </div>
-                        <div class="layout content">
-                            <asp:ContentPlaceHolder ID="Content" runat="server" />
-                        </div>
-
-                    </ContentTemplate>
-                </asp:UpdatePanel>
+                <div class="layout_topline"></div>
+                <div class="layout top">
+                    <asp:Image runat="server" AlternateText="Herschel Footprint Tools" ImageUrl="~/images/logo_footprint.png" />
+                </div>
+                <div class="layout menu">
+                    <hwc:menu runat="server" id="Menu" />
+                </div>
+                <div class="layout content">
+                    <asp:ContentPlaceHolder ID="Content" runat="server" />
+                </div>
             </form>
         </div>
     </div>

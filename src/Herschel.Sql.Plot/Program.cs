@@ -74,7 +74,7 @@ namespace Herschel.Sql.Plot
                 var c = region.ConvexList[ic];
                 for (int i = 0; i < c.PatchList.Count; i++)
                 {
-                    for (int j = 0; j < c.PatchList[i].ArcList.Length; j++)
+                    for (int j = 0; j < c.PatchList[i].ArcList.Count; j++)
                     {
                         Console.WriteLine("{0}\t{1}\t{2}", c.PatchList[i].ArcList[j].Point1.RA, c.PatchList[i].ArcList[j].Point1.Dec, index);
                         Console.WriteLine("{0}\t{1}\t{2}", c.PatchList[i].ArcList[j].Point2.RA, c.PatchList[i].ArcList[j].Point2.Dec, index);
@@ -87,14 +87,14 @@ namespace Herschel.Sql.Plot
 
         static void PrintOutline(int index, Region region)
         {
-            var ol = region.GetOutline();
+            var ol = region.Outline;
 
-            foreach (var s in ol.PartList)
+            foreach (var loop in ol.LoopList)
             {
-                foreach (var a in s.ArcList)
+                foreach (var arc in loop.ArcList)
                 {
-                    Console.WriteLine("{0}\t{1}\t{2}", a.Point1.RA, a.Point1.Dec, index);
-                    Console.WriteLine("{0}\t{1}\t{2}", a.Point2.RA, a.Point2.Dec, index);
+                    Console.WriteLine("{0}\t{1}\t{2}", arc.Point1.RA, arc.Point1.Dec, index);
+                    Console.WriteLine("{0}\t{1}\t{2}", arc.Point2.RA, arc.Point2.Dec, index);
                     Console.WriteLine();
                 }
             }
@@ -121,15 +121,15 @@ namespace Herschel.Sql.Plot
 
         static void PrintDS9(Region region)
         {
-            var ol = region.GetOutline();
+            var ol = region.Outline;
 
             Console.WriteLine("ICRS");
 
-            foreach (var s in ol.PartList)
+            foreach (var loop in ol.LoopList)
             {
-                foreach (var a in s.ArcList)
+                foreach (var arc in loop.ArcList)
                 {
-                    Console.WriteLine("line {0:0.000000}d {1:0.000000}d {2:0.000000}d {3:0.000000}d # color = blue", a.Point1.RA, a.Point1.Dec, a.Point2.RA, a.Point2.Dec);
+                    Console.WriteLine("line {0:0.000000}d {1:0.000000}d {2:0.000000}d {3:0.000000}d # color = blue", arc.Point1.RA, arc.Point1.Dec, arc.Point2.RA, arc.Point2.Dec);
                 }
             }
         }

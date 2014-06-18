@@ -5,8 +5,10 @@ using System.Web;
 using System.Web.Security;
 using System.Web.SessionState;
 using System.Web.Routing;
+using System.Web.Hosting;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
+using Jhu.Spherical.Web.Controls;
 
 namespace Herschel.Ws
 {
@@ -15,8 +17,9 @@ namespace Herschel.Ws
 
         protected void Application_Start(object sender, EventArgs e)
         {
-            RouteTable.Routes.Ignore("{resource}.axd/{*pathInfo}");
+            HostingEnvironment.RegisterVirtualPathProvider(new ImageCacheVirtualPathProvider());
 
+            RouteTable.Routes.Ignore("{resource}.axd/{*pathInfo}");
             RouteTable.Routes.Add(new ServiceRoute("Api/", new WebServiceHostFactory(), typeof(Herschel.Ws.Api.Footprint)));
         }
 
