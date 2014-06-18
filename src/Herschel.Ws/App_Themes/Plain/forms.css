@@ -56,6 +56,7 @@ p.buttons {
     font-weight: lighter;
     letter-spacing: 1px;
     margin-bottom: 0px;
+    margin-top: 0px;
     text-align: right;
 }
 
@@ -76,6 +77,10 @@ p.buttons {
             color: #BE003C;
             background-color: #F0F0F0;
         }
+
+p.controls {
+    text-align:left;
+}
 
 img.plot {
     border: 1px solid #000000;

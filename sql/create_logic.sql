@@ -43,12 +43,12 @@ GRANT SELECT ON [dbo].[FindObservationEq] TO [User]
 GO
 
 
-IF OBJECT_ID(N'dbo.FindObservationRegion') IS NOT NULL
-DROP FUNCTION dbo.FindObservationRegion
+IF OBJECT_ID(N'dbo.FindObservationRegionIntersect') IS NOT NULL
+DROP FUNCTION dbo.FindObservationRegionIntersect
 
 GO
 
-CREATE FUNCTION [dbo].[FindObservationRegion]
+CREATE FUNCTION [dbo].[FindObservationRegionIntersect]
 (	
 	@region varbinary(max),
 	@fineTimeStart float = NULL,
@@ -100,6 +100,8 @@ RETURN
 	FROM q
 	INNER JOIN Observation o WITH (FORCESEEK)
 		ON o.obsID = q.obsID
+	WHERE (@fineTimeStart IS NULL OR o.fineTimeStart > @fineTimeStart) AND
+	      (@fineTimeEnd IS NULL OR o.fineTimeEnd < @fineTimeEnd)
 )
 
 GO

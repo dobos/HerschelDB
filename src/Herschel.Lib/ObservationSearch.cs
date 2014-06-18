@@ -24,7 +24,7 @@ namespace Herschel.Lib
                 case ObservationSearchMethod.Point:
                     return FindEq();
                 case ObservationSearchMethod.Intersect:
-                    return FindIntersect();
+                    return FindRegionIntersect();
                 case ObservationSearchMethod.Cover:
                 default:
                     throw new NotImplementedException();
@@ -38,7 +38,8 @@ namespace Herschel.Lib
 SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, region
 FROM [dbo].[FindObservationEq](@ra, @dec, @fineTimeStart, @fineTimeEnd) ids
 INNER JOIN [dbo].[Observation] obs
-    ON obs.obsID = ids.obsID";
+    ON obs.obsID = ids.obsID
+ORDER BY obs.ObsID";
 
             var cmd = new SqlCommand(sql);
             cmd.Parameters.Add("@ra", SqlDbType.Float).Value = Point.RA;
@@ -49,14 +50,33 @@ INNER JOIN [dbo].[Observation] obs
             return ExecuteCommandReader<Observation>(cmd);
         }
 
-        public IEnumerable<Observation> FindIntersect()
+        public IEnumerable<Observation> FindRegionIntersect()
         {
             var sql =
 @"
 SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, obs.region
-FROM [dbo].[FindObservationRegion](@region, NULL, NULL) ids
+FROM [dbo].[FindObservationRegionIntersect](@region, NULL, NULL) ids
 INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
-    ON obs.obsID = ids.obsID";
+    ON obs.obsID = ids.obsID
+ORDER BY obs.ObsID";
+
+            var cmd = new SqlCommand(sql);
+            cmd.Parameters.Add("@region", SqlDbType.VarBinary).Value = Region.ToSqlBytes().Value;
+            cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = DBNull.Value;
+            cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = DBNull.Value;
+
+            return ExecuteCommandReader<Observation>(cmd);
+        }
+
+        public IEnumerable<Observation> FindRegionCover()
+        {
+            var sql =
+@"
+SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, obs.region
+FROM [dbo].[FindObservationRegionCover](@region, NULL, NULL) ids
+INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
+    ON obs.obsID = ids.obsID
+ORDER BY obs.ObsID";
 
             var cmd = new SqlCommand(sql);
             cmd.Parameters.Add("@region", SqlDbType.VarBinary).Value = Region.ToSqlBytes().Value;
@@ -72,7 +92,8 @@ INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
 @"
 SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, region
 FROM [dbo].[Observation] obs
-WHERE obs.obsID IN ({0})";
+WHERE obs.obsID IN ({0})
+ORDER BY obs.ObsID";
 
             var idlist = String.Empty;
             for (int i = 0; i < ids.Count; i++)

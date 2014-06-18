@@ -112,6 +112,24 @@ namespace Herschel.Ws.Observation {
         protected global::System.Web.UI.WebControls.TextBox region;
         
         /// <summary>
+        /// pointFormatValidator control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CustomValidator pointFormatValidator;
+        
+        /// <summary>
+        /// regionFormatValidator control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CustomValidator regionFormatValidator;
+        
+        /// <summary>
         /// search control.
         /// </summary>
         /// <remarks>
@@ -166,6 +184,15 @@ namespace Herschel.Ws.Observation {
         protected global::System.Web.UI.WebControls.LinkButton plot;
         
         /// <summary>
+        /// observationListValidator control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CustomValidator observationListValidator;
+        
+        /// <summary>
         /// observationPlotPanel control.
         /// </summary>
         /// <remarks>
@@ -182,6 +209,51 @@ namespace Herschel.Ws.Observation {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::Jhu.Spherical.Web.Controls.PlotCanvas canvas;
+        
+        /// <summary>
+        /// plotOutline control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox plotOutline;
+        
+        /// <summary>
+        /// plotFill control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox plotFill;
+        
+        /// <summary>
+        /// plotDegreeStyle control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RadioButtonList plotDegreeStyle;
+        
+        /// <summary>
+        /// plotGrid control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox plotGrid;
+        
+        /// <summary>
+        /// plotQuery control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox plotQuery;
         
         /// <summary>
         /// savePlotPdfLink control.

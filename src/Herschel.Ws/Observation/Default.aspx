@@ -33,10 +33,17 @@
                                             <asp:RadioButtonList ID="searchMethod" runat="server" AutoPostBack="True" RepeatDirection="Horizontal" OnSelectedIndexChanged="searchMethod_SelectedIndexChanged">
                                                 <asp:ListItem Selected="True" Value="Point">Coordinates</asp:ListItem>
                                                 <asp:ListItem Value="Intersect">Intersect</asp:ListItem>
-                                                <asp:ListItem Value="Cover" Enabled="False">Cover</asp:ListItem>
+                                                <%--<asp:ListItem Value="Cover" Enabled="False">Cover</asp:ListItem>--%>
                                             </asp:RadioButtonList>
                                         </td>
                                     </tr>
+                                    <%--<tr>
+                                        <td class="label">
+                                            <asp:Label runat="server" ID="fineTimeLabel" Text="Fine Time:" /></td>
+                                        <td class="field" style="width: 520px">
+                                            <asp:TextBox runat="server" ID="fineTime" />
+                                        </td>
+                                    </tr>--%>
                                     <tr runat="server" id="pointTr">
                                         <td class="label">
                                             <asp:Label ID="pointLabel" runat="server" Text="Coordinates:" /></td>
@@ -51,11 +58,17 @@
                                         </td>
                                     </tr>
                                 </table>
+                                <asp:CustomValidator runat="server" ID="pointFormatValidator" Display="Dynamic"
+                                    ValidationGroup="search" OnServerValidate="pointFormatValidator_ServerValidate"
+                                    Text="Invalid coordinates." />
+                                <asp:CustomValidator runat="server" ID="regionFormatValidator" Display="Dynamic"
+                                    ValidationGroup="search" OnServerValidate="regionFormatValidator_ServerValidate"
+                                    Text="Invalid region definition, please see the documentation." />
                             </div>
                         </td>
                         <td class="block_buttons">
                             <p class="buttons">
-                                <asp:LinkButton runat="server" ID="search" Text="search >" OnClick="search_Click" />
+                                <asp:LinkButton runat="server" ID="search" ValidationGroup="search" Text="search >" OnClick="search_Click" />
                             </p>
                         </td>
                     </tr>
@@ -75,24 +88,30 @@
                                 OnObjectCreating="observationDataSource_ObjectCreating" TypeName="Herschel.Lib.ObservationSearch"
                                 SelectMethod="Find" />
                             <hwc:MultiSelectGridView runat="server" ID="observationList" DataSourceID="observationDataSource"
-                                AutoGenerateColumns="false" DataKeyNames="ObsID">
+                                AutoGenerateColumns="false" DataKeyNames="ObsID"
+                                Width="100%">
                                 <Columns>
                                     <hwc:SelectionField />
                                     <asp:BoundField HeaderText="obs ID" DataField="ObsID" />
                                     <asp:BoundField HeaderText="fine time" DataField="FineTime.Start" />
-                                    <asp:BoundField HeaderText="angular velocity" DataField="AV" />
-                                    <asp:BoundField HeaderText="area" DataField="Region.Area" />
+                                    <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="AV" />
+                                    <asp:BoundField HeaderText="area" DataField="Region.Area" DataFormatString="{0:0.00000}" />
                                 </Columns>
+                                <EmptyDataTemplate>
+                                    No observations match the query.
+                                </EmptyDataTemplate>
                             </hwc:MultiSelectGridView>
                         </td>
                         <td class="block_buttons">
                             <p class="buttons">
-                                <asp:LinkButton runat="server" ID="save" Text="save >" />
-                                <asp:LinkButton runat="server" ID="plot" Text="plot >" OnClick="plot_Click" />
+                                <asp:LinkButton runat="server" ID="save" ValidationGroup="observationList" Text="save >" />
+                                <asp:LinkButton runat="server" ID="plot" ValidationGroup="observationList" Text="plot >" OnClick="plot_Click" />
                             </p>
                         </td>
                     </tr>
                 </table>
+                <asp:CustomValidator runat="server" ID="observationListValidator" ValidationGroup="observationList" OnServerValidate="observationListValidator_ServerValidate"
+                    Display="Dynamic" Text="No observations selected." />
             </asp:Panel>
         </ContentTemplate>
     </asp:UpdatePanel>
@@ -104,11 +123,21 @@
                 <table class="block">
                     <tr>
                         <td class="block_left">
-                            <spherical:PlotCanvas runat="server" ID="canvas" Width="800" Height="450" CssClass="plot" />
+                            <spherical:PlotCanvas runat="server" ID="canvas" Width="840" Height="450" CssClass="plot" />
                         </td>
                         <td class="block_buttons">
+                            <p class="controls">
+                                <asp:CheckBox runat="server" ID="plotOutline" Text="Outline" Checked="true" AutoPostBack="true" /><br />
+                                <asp:CheckBox runat="server" ID="plotFill" Text="Fill" Checked="true" AutoPostBack="true" /><br />
+                                <asp:RadioButtonList runat="server" ID="plotDegreeStyle" AutoPostBack="true">
+                                    <asp:ListItem Text="Decimal" Value="Decimal" Selected="True" />
+                                    <asp:ListItem Text="HMS-DMS" Value="Sexagesimal" />
+                                </asp:RadioButtonList><br />
+                                <asp:CheckBox runat="server" ID="plotGrid" Text="Grid" Checked="true" AutoPostBack="true" /><br />
+                                <asp:CheckBox runat="server" ID="plotQuery" Text="Plot Query" Checked="true" AutoPostBack="true" />
+                            </p>
                             <p class="buttons">
-                                <asp:HyperLink runat="server" ID="savePlotPdfLink" Text="save pdf >"/>
+                                <asp:HyperLink runat="server" ID="savePlotPdfLink" Text="save pdf >" />
                             </p>
                         </td>
                     </tr>
@@ -116,5 +145,5 @@
             </asp:Panel>
         </ContentTemplate>
     </asp:UpdatePanel>
-    <asp:LinkButton runat="server" ID="savePlotPdf" onclick="savePlotPdf_Click" Text="save pdf" style="display:none;" />
+    <asp:LinkButton runat="server" ID="savePlotPdf" OnClick="savePlotPdf_Click" Text="save pdf" Style="display: none;" />
 </asp:Content>

@@ -34,6 +34,18 @@ namespace Herschel.Ws.Observation
             set { ViewState["SearchMethod"] = value; }
         }
 
+        protected long SearchFineTimeStart
+        {
+            get { return (long)ViewState["SearchFineTimeStart"]; }
+            set { ViewState["SearchFineTimeStart"] = value; }
+        }
+
+        protected long SearchFineTimeEnd
+        {
+            get { return (long)ViewState["SearchFineTimeEnd"]; }
+            set { ViewState["SearchFineTimeEnd"] = value; }
+        }
+
         protected Cartesian SearchPoint
         {
             get { return (Cartesian)ViewState["SearchPoint"]; }
@@ -63,7 +75,7 @@ namespace Herschel.Ws.Observation
                 GeneratePlot();
             }
 
-            switch(renderMode)
+            switch (renderMode)
             {
                 case RenderMode.SaveToPdf:
                     SavePlotPdf();
@@ -72,6 +84,17 @@ namespace Herschel.Ws.Observation
         }
 
         #region Search form
+
+        protected Cartesian ParseSearchPoint()
+        {
+            var parts = point.Text.Split(new char[] { ' ', '\t', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+            return new Cartesian(double.Parse(parts[0]), double.Parse(parts[1]));
+        }
+
+        protected Jhu.Spherical.Region ParseSearchRegion()
+        {
+            return Jhu.Spherical.Region.Parse(region.Text);
+        }
 
         protected void searchMethod_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -95,52 +118,87 @@ namespace Herschel.Ws.Observation
             }
         }
 
+        protected void pointFormatValidator_ServerValidate(object source, ServerValidateEventArgs args)
+        {
+            try
+            {
+                if (point.Visible)
+                {
+                    ParseSearchPoint();
+                }
+                args.IsValid = true;
+            }
+            catch (Exception)
+            {
+                args.IsValid = false;
+            }
+        }
+
+        protected void regionFormatValidator_ServerValidate(object source, ServerValidateEventArgs args)
+        {
+            try
+            {
+                if (region.Visible)
+                {
+                    ParseSearchRegion();
+                }
+                args.IsValid = true;
+            }
+            catch (Exception)
+            {
+                args.IsValid = false;
+            }
+        }
+
         protected void search_Click(object sender, EventArgs e)
         {
-            // Instrument
-            var instrument = Instrument.None;
+            Validate();
 
-            foreach (ListItem i in instrumentList.Items)
+            if (IsValid)
             {
-                if (i.Selected)
-                {
-                    Lib.Instrument ii;
+                // Instrument
+                var instrument = Instrument.None;
 
-                    if (Enum.TryParse<Lib.Instrument>(i.Value, out ii))
+                foreach (ListItem i in instrumentList.Items)
+                {
+                    if (i.Selected)
                     {
-                        instrument |= ii;
+                        Lib.Instrument ii;
+
+                        if (Enum.TryParse<Lib.Instrument>(i.Value, out ii))
+                        {
+                            instrument |= ii;
+                        }
                     }
                 }
-            }
 
-            SearchInstrument = instrument;
+                SearchInstrument = instrument;
 
-            // SearchMethod
-            ObservationSearchMethod method;
-            Enum.TryParse<ObservationSearchMethod>(searchMethod.SelectedValue, out method);
+                // SearchMethod
+                ObservationSearchMethod method;
+                Enum.TryParse<ObservationSearchMethod>(searchMethod.SelectedValue, out method);
 
-            SearchMethod = method;
+                SearchMethod = method;
 
-            switch (method)
-            {
-                case ObservationSearchMethod.Point:
-                    {
-                        var parts = point.Text.Split(new char[] { ' ', '\t', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-                        SearchPoint = new Cartesian(double.Parse(parts[0]), double.Parse(parts[1]));
+                switch (method)
+                {
+                    case ObservationSearchMethod.Point:
+                        SearchPoint = ParseSearchPoint();
                         break;
-                    }
-                case ObservationSearchMethod.Intersect:
-                case ObservationSearchMethod.Cover:
-                    {
-                        SearchRegion = Jhu.Spherical.Region.Parse(region.Text);
+                    case ObservationSearchMethod.Intersect:
+                    case ObservationSearchMethod.Cover:
+                        SearchRegion = ParseSearchRegion();
                         break;
-                    }
-                default:
-                    throw new NotImplementedException();
+                    default:
+                        throw new NotImplementedException();
+                }
+
+                // Clear previous selection
+                observationList.SelectedDataKeys.Clear();
             }
 
             // Update panels
-            observationListPanel.Visible = true;
+            observationListPanel.Visible = IsValid;
             observationPlotPanel.Visible = false;
         }
 
@@ -169,9 +227,16 @@ namespace Herschel.Ws.Observation
             e.ObjectInstance = searchObject;
         }
 
+        protected void observationListValidator_ServerValidate(object source, ServerValidateEventArgs args)
+        {
+            args.IsValid = observationList.SelectedDataKeys.Count > 0;
+        }
+
         protected void plot_Click(object sender, EventArgs e)
         {
-            observationPlotPanel.Visible = true;
+            Validate();
+
+            observationPlotPanel.Visible = IsValid;
         }
 
         #endregion
@@ -222,27 +287,59 @@ namespace Herschel.Ws.Observation
             var grid = new GridLayer();
             grid.RaScale.Density = 100;
             grid.DecScale.Density = 100;
-            canvas.Plot.Layers.Add(grid);
 
-            canvas.Plot.Layers.Add(new BorderLayer());
+            if (plotGrid.Checked)
+            {
+                canvas.Plot.Layers.Add(grid);
+                canvas.Plot.Layers.Add(new BorderLayer());
+            }
 
-            var r1 = new RegionsLayer();
-            r1.DataSource = regions;
-            r1.Outline.Visible = false;
-            canvas.Plot.Layers.Add(r1);
+            if (plotFill.Checked)
+            {
+                var r1 = new RegionsLayer();
+                r1.DataSource = regions;
+                r1.Outline.Visible = false;
+                canvas.Plot.Layers.Add(r1);
+            }
 
-            var r2 = new RegionsLayer();
-            r2.DataSource = regions;
-            r2.Fill.Visible = false;
-            r2.Outline.Pens = new[] { Pens.Black };
-            canvas.Plot.Layers.Add(r2);
+            if (plotOutline.Checked)
+            {
+                var r2 = new RegionsLayer();
+                r2.DataSource = regions;
+                r2.Fill.Visible = false;
+                r2.Outline.Pens = new[] { Pens.Black };
+                canvas.Plot.Layers.Add(r2);
+            }
 
-            if (queryLayer != null)
+            if (queryLayer != null && plotQuery.Checked)
             {
                 canvas.Plot.Layers.Add(queryLayer);
             }
 
-            canvas.Plot.Layers.Add(new AxesLayer());
+            var axes = new AxesLayer();
+            canvas.Plot.Layers.Add(axes);
+
+            switch (plotDegreeStyle.SelectedValue)
+            {
+                case "Decimal":
+                    grid.RaScale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
+                    grid.DecScale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
+                    axes.X1Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
+                    axes.X2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
+                    axes.Y1Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
+                    axes.Y2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
+                    break;
+                case "Sexagesimal":
+                    grid.RaScale.DegreeFormat.DegreeStyle = DegreeStyle.Hours;
+                    grid.DecScale.DegreeFormat.DegreeStyle = DegreeStyle.Symbols;
+                    axes.X1Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Hours;
+                    axes.X2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Hours;
+                    axes.Y1Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Symbols;
+                    axes.Y2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Symbols;
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
 
             canvas.Plot.AutoRotate = true;
             canvas.Plot.AutoZoom = true;

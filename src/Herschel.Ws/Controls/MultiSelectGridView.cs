@@ -13,7 +13,7 @@ namespace Herschel.Ws.Controls
     {
         protected const string ViewStateSelectedDataKeys = "SelectedDataKeys";
 
-        private HashSet<string> selectedDataKeys;
+        private HashSet<string> selectedDataKeys = new HashSet<string>();
 
         public ListSelectionMode SelectionMode
         {
