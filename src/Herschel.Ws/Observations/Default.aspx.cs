@@ -9,7 +9,7 @@ using Jhu.Spherical;
 using Jhu.Spherical.Visualizer;
 using Herschel.Lib;
 
-namespace Herschel.Ws.Observation
+namespace Herschel.Ws.Observations
 {
     public partial class Default : PageBase
     {
@@ -280,8 +280,26 @@ namespace Herschel.Ws.Observation
             // Find regions
             var s = new Lib.ObservationSearch();
             var ids = observationList.SelectedDataKeys.Select(id => long.Parse(id)).ToArray();
-            var regions = new ListDataSource(searchObject.FindID(ids).Select(o => o.Region).ToArray());
+            var regions = new List<Jhu.Spherical.Region>(searchObject.FindID(ids).Select(o => o.Region));
 
+            // Apply region transformations
+            double epsilon = 0;
+            if (plotReduce.Checked)
+            {
+                epsilon = double.Parse(plotReduceEpsilon.Text) / 3600.0 * Constant.Degree2Radian;
+            }
+
+            if (plotConvexHull.Checked)
+            {
+                for (int i = 0; i < regions.Count; i++)
+                {
+                    regions[i] = regions[i].Outline.GetConvexHull();
+                }
+            }
+
+            var regionds = new ListDataSource(regions);
+
+            // Create plot
             canvas.Plot.Projection = new OrthographicProjection();
 
             var grid = new GridLayer();
@@ -297,18 +315,30 @@ namespace Herschel.Ws.Observation
             if (plotFill.Checked)
             {
                 var r1 = new RegionsLayer();
-                r1.DataSource = regions;
+                r1.DataSource = regionds;
                 r1.Outline.Visible = false;
                 canvas.Plot.Layers.Add(r1);
+
+                if (plotReduce.Checked)
+                {
+                    r1.Reduce = true;
+                    r1.ReduceEpsilon = epsilon;
+                }
             }
 
             if (plotOutline.Checked)
             {
                 var r2 = new RegionsLayer();
-                r2.DataSource = regions;
+                r2.DataSource = regionds;
                 r2.Fill.Visible = false;
                 r2.Outline.Pens = new[] { Pens.Black };
                 canvas.Plot.Layers.Add(r2);
+
+                if (plotReduce.Checked)
+                {
+                    r2.Reduce = true;
+                    r2.ReduceEpsilon = epsilon;
+                }
             }
 
             if (queryLayer != null && plotQuery.Checked)

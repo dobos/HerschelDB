@@ -93,7 +93,7 @@
     <Content Include="Global.asax" />
     <Content Include="images\logo_footprint.jpg" />
     <Content Include="images\logo_footprint.png" />
-    <Content Include="Observation\Default.aspx" />
+    <Content Include="Observations\Default.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -161,11 +161,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Observation\Default.aspx.cs">
+    <Compile Include="Observations\Default.aspx.cs">
       <DependentUpon>Default.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Observation\Default.aspx.designer.cs">
+    <Compile Include="Observations\Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
     <Compile Include="PageBase.cs">

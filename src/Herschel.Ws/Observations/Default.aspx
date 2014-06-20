@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/App_Masters/Herschel.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Herschel.Ws.Observation.Default" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/App_Masters/Herschel.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Herschel.Ws.Observations.Default" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>
@@ -93,7 +93,8 @@
                                 <Columns>
                                     <hwc:SelectionField />
                                     <asp:BoundField HeaderText="obs ID" DataField="ObsID" />
-                                    <asp:BoundField HeaderText="fine time" DataField="FineTime.Start" />
+                                    <asp:BoundField HeaderText="fine time start" DataField="FineTime.Start" />
+                                    <asp:BoundField HeaderText="fine time end" DataField="FineTime.End" />
                                     <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="AV" />
                                     <asp:BoundField HeaderText="area" DataField="Region.Area" DataFormatString="{0:0.00000}" />
                                 </Columns>
@@ -129,10 +130,33 @@
                             <p class="controls">
                                 <asp:CheckBox runat="server" ID="plotOutline" Text="Outline" Checked="true" AutoPostBack="true" /><br />
                                 <asp:CheckBox runat="server" ID="plotFill" Text="Fill" Checked="true" AutoPostBack="true" /><br />
-                                <asp:RadioButtonList runat="server" ID="plotDegreeStyle" AutoPostBack="true">
-                                    <asp:ListItem Text="Decimal" Value="Decimal" Selected="True" />
-                                    <asp:ListItem Text="HMS-DMS" Value="Sexagesimal" />
-                                </asp:RadioButtonList><br />
+                            </p>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <asp:RadioButton runat="server" GroupName="reduction" Text="Original" AutoPostBack="true" Checked="true" /></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <asp:RadioButton ID="plotConvexHull" runat="server" GroupName="reduction" Text="Convex Hull" AutoPostBack="true" /></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <asp:RadioButton runat="server" ID="plotReduce" GroupName="reduction" Text="Reduce:" Checked="false" AutoPostBack="true" />
+                                        <asp:TextBox runat="server" ID="plotReduceEpsilon" Text="25" Width="36px" AutoPostBack="true" />&nbsp;"
+                                        <asp:RegularExpressionValidator runat="server" ID="plotReduceEpsilonFormatValidator" ValidationExpression="[0-9\+\-]+" ControlToValidate="plotReduceEpsilon"
+                                            Display="Dynamic" Text="Invalid format." />
+                                        <asp:RangeValidator runat="server" ID="plotReduceEpsilonRangeValidator" MinimumValue="10" MaximumValue="250" ControlToValidate="plotReduceEpsilon"
+                                            Display="Dynamic" Text="Invalid limit." />
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                            <asp:RadioButtonList runat="server" ID="plotDegreeStyle" AutoPostBack="true">
+                                <asp:ListItem Text="Decimal" Value="Decimal" Selected="True" />
+                                <asp:ListItem Text="HMS-DMS" Value="Sexagesimal" />
+                            </asp:RadioButtonList><br />
+                            <p class="controls">
                                 <asp:CheckBox runat="server" ID="plotGrid" Text="Grid" Checked="true" AutoPostBack="true" /><br />
                                 <asp:CheckBox runat="server" ID="plotQuery" Text="Plot Query" Checked="true" AutoPostBack="true" />
                             </p>

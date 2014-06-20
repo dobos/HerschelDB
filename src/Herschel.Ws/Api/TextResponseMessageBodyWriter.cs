@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.ServiceModel.Channels;
+using System.Runtime.Serialization;
 using System.IO;
 using System.Data;
 using System.Data.SqlClient;
+using System.Reflection;
 
 namespace Herschel.Ws.Api
 {
@@ -22,11 +24,14 @@ namespace Herschel.Ws.Api
 
         protected override void OnWriteBodyContents(Stream stream)
         {
-            var writer = new StreamWriter(stream, System.Text.Encoding.ASCII);
+            if (result != null)
+            {
+                var writer = new StreamWriter(stream, System.Text.Encoding.ASCII);
 
-            WriteBodyContents(writer);
+                WriteBodyContents(writer);
 
-            writer.Flush();
+                writer.Flush();
+            }
         }
 
         private void WriteBodyContents(TextWriter writer)
@@ -101,7 +106,7 @@ namespace Herschel.Ws.Api
             {
                 throw new InvalidOperationException();
             }
-            
+
             for (int i = 0; i < results.Length; i++)
             {
                 if (i == 0)
@@ -168,14 +173,19 @@ namespace Herschel.Ws.Api
 
             writer.Write("#");
 
+            int q = 0;
             for (int i = 0; i < props.Length; i++)
             {
-                if (i > 0)
+                if (!IsIgnoredProperty(props[i]))
                 {
-                    writer.Write("\t");
-                }
+                    if (q > 0)
+                    {
+                        writer.Write("\t");
+                    }
 
-                writer.Write(props[i].Name);
+                    writer.Write(props[i].Name);
+                    q++;
+                }
             }
 
             writer.WriteLine();
@@ -186,17 +196,27 @@ namespace Herschel.Ws.Api
             var type = value.GetType();
             var props = type.GetProperties();
 
+            int q = 0;
             for (int i = 0; i < props.Length; i++)
             {
-                if (i > 0)
+                if (!IsIgnoredProperty(props[i]))
                 {
-                    writer.Write("\t");
-                }
+                    if (q > 0)
+                    {
+                        writer.Write("\t");
+                    }
 
-                writer.Write(props[i].GetValue(value).ToString());
+                    writer.Write(props[i].GetValue(value).ToString());
+                    q++;
+                }
             }
 
             writer.WriteLine();
+        }
+
+        private bool IsIgnoredProperty(PropertyInfo prop)
+        {
+            return prop.GetCustomAttribute(typeof(IgnoreDataMemberAttribute), true) != null;
         }
     }
 }

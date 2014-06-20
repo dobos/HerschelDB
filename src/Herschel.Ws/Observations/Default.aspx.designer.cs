@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Herschel.Ws.Observation {
+namespace Herschel.Ws.Observations {
     
     
     public partial class Default {
@@ -227,6 +227,51 @@ namespace Herschel.Ws.Observation {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CheckBox plotFill;
+        
+        /// <summary>
+        /// plotConvexHull control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RadioButton plotConvexHull;
+        
+        /// <summary>
+        /// plotReduce control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RadioButton plotReduce;
+        
+        /// <summary>
+        /// plotReduceEpsilon control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox plotReduceEpsilon;
+        
+        /// <summary>
+        /// plotReduceEpsilonFormatValidator control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator plotReduceEpsilonFormatValidator;
+        
+        /// <summary>
+        /// plotReduceEpsilonRangeValidator control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RangeValidator plotReduceEpsilonRangeValidator;
         
         /// <summary>
         /// plotDegreeStyle control.
