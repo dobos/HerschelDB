@@ -8,11 +8,11 @@
     <ul>
         <li>Find observations by coordinates (J2000 decimal)</li>
     </ul>
-    <pre>curl -H &quot;Accept:text/plain&quot; &quot;http://herschel.vo.elte.hu/Api/Observation/Find?ra=207.25&amp;dec=-28.4&quot;</pre>
+    <pre>curl -H &quot;Accept:text/plain&quot; &quot;http://herschel.vo.elte.hu/Api/Observations?findby=eq&amp;ra=207.25&amp;dec=-28.4&quot;</pre>
     <ul>
         <li>See footprint description of observation</li>
     </ul>
-    <pre>curl -H &quot;Accept:text/plain&quot; &quot;http://herschel.vo.elte.hu/Api/Observation/Footprint?obsid=1342182235&quot;</pre>
+    <pre>curl -H &quot;Accept:text/plain&quot; &quot;http://herschel.vo.elte.hu/Api/Observations/1342182235/Footprint&quot;</pre>
     <h2>region examples</h2>
     <p>Circle with a radius of 20 arcminutes centered on J2000 coordinates</p>
     <pre>CIRCLE J2000 207.25 -28.4 20</pre>

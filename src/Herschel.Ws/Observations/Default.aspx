@@ -48,7 +48,12 @@
                                         <td class="label">
                                             <asp:Label ID="pointLabel" runat="server" Text="Coordinates:" /></td>
                                         <td class="field" style="width: 520px">
-                                            <asp:TextBox ID="point" runat="server" Text="207.25, -28.4" /></td>
+                                            <asp:TextBox ID="point" runat="server" Text="207.25, -28.4" />
+                                        </td>
+                                    </tr>
+                                    <tr runat="server" id="resolvedTr" visible="false">
+                                        <td></td>
+                                        <td>Using coordinates from <a href="http://simbad.u-strasbg.fr/simbad/">Simbad</a>.</td>
                                     </tr>
                                     <tr runat="server" id="regionTr" visible="false">
                                         <td class="label">
@@ -91,7 +96,7 @@
                                 AutoGenerateColumns="false" DataKeyNames="ObsID"
                                 Width="100%">
                                 <Columns>
-                                    <hwc:SelectionField />
+                                    <hwc:SelectionField ItemStyle-HorizontalAlign="Center" />
                                     <asp:BoundField HeaderText="obs ID" DataField="ObsID" />
                                     <asp:BoundField HeaderText="fine time start" DataField="FineTime.Start" />
                                     <asp:BoundField HeaderText="fine time end" DataField="FineTime.End" />
@@ -105,7 +110,7 @@
                         </td>
                         <td class="block_buttons">
                             <p class="buttons">
-                                <asp:LinkButton runat="server" ID="save" ValidationGroup="observationList" Text="save >" />
+                                <asp:LinkButton runat="server" ID="save" ValidationGroup="observationList" Text="save >" Visible="false" />
                                 <asp:LinkButton runat="server" ID="plot" ValidationGroup="observationList" Text="plot >" OnClick="plot_Click" />
                             </p>
                         </td>

@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Drawing;
+using System.Globalization;
 using Jhu.Spherical;
 using Jhu.Spherical.Visualizer;
 using Herschel.Lib;
@@ -21,6 +22,9 @@ namespace Herschel.Ws.Observations
 
         private RenderMode renderMode = RenderMode.Normal;
         private Lib.ObservationSearch searchObject;
+        
+        private double ra;
+        private double dec;
 
         protected Instrument SearchInstrument
         {
@@ -85,12 +89,6 @@ namespace Herschel.Ws.Observations
 
         #region Search form
 
-        protected Cartesian ParseSearchPoint()
-        {
-            var parts = point.Text.Split(new char[] { ' ', '\t', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-            return new Cartesian(double.Parse(parts[0]), double.Parse(parts[1]));
-        }
-
         protected Jhu.Spherical.Region ParseSearchRegion()
         {
             return Jhu.Spherical.Region.Parse(region.Text);
@@ -120,17 +118,27 @@ namespace Herschel.Ws.Observations
 
         protected void pointFormatValidator_ServerValidate(object source, ServerValidateEventArgs args)
         {
-            try
+            if (point.Visible)
             {
-                if (point.Visible)
+                if (Util.Astro.TryParseCoordinates(point.Text, out ra, out dec))
                 {
-                    ParseSearchPoint();
+                    args.IsValid = true;
+                    return;
                 }
-                args.IsValid = true;
-            }
-            catch (Exception)
-            {
+
+                if (Util.Astro.TryResolveObject(point.Text, out ra, out dec))
+                {
+                    resolvedTr.Visible = true;
+                    point.Text = String.Format(CultureInfo.InvariantCulture, "{0:0.0000000}, {1:0.0000000}", ra, dec);
+                    args.IsValid = true;
+                    return;
+                }
+
                 args.IsValid = false;
+            }
+            else
+            {
+                args.IsValid = true;
             }
         }
 
@@ -183,7 +191,7 @@ namespace Herschel.Ws.Observations
                 switch (method)
                 {
                     case ObservationSearchMethod.Point:
-                        SearchPoint = ParseSearchPoint();
+                        SearchPoint = new Cartesian(ra, dec);
                         break;
                     case ObservationSearchMethod.Intersect:
                     case ObservationSearchMethod.Cover:

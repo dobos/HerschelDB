@@ -13,6 +13,8 @@ namespace Herschel.Ws.Controls
     {
         protected const string ViewStateSelectedDataKeys = "SelectedDataKeys";
 
+        private int selectionFieldIndex = -1;
+        private CheckBox selectAllCheckbox;
         private HashSet<string> selectedDataKeys = new HashSet<string>();
 
         public ListSelectionMode SelectionMode
@@ -50,6 +52,7 @@ namespace Herschel.Ws.Controls
             // Look for duplicate selection fields
             var found = false;
 
+            int i = 0;
             foreach (DataControlField col in columns)
             {
                 if (col is SelectionField)
@@ -58,11 +61,53 @@ namespace Herschel.Ws.Controls
                     {
                         throw new InvalidOperationException("MultiSelectGridView can contain one selection column only.");
                     }
+                    selectionFieldIndex = i;
                     found = true;
                 }
+
+                i++;
             }
 
             return columns;
+        }
+
+        protected override void OnRowCreated(GridViewRowEventArgs e)
+        {
+            if (e.Row.RowType == DataControlRowType.Header && selectionFieldIndex != -1 && SelectionMode == ListSelectionMode.Multiple)
+            {
+                selectAllCheckbox = new CheckBox()
+                {
+                    ID = "SelectAllCheckBox",
+                    AutoPostBack = true,
+                    CausesValidation = false
+                };
+
+                selectAllCheckbox.CheckedChanged += SelectAllCheckBox_CheckedChanged;
+
+                e.Row.Cells[selectionFieldIndex].Controls.Add(selectAllCheckbox);
+            }
+
+            base.OnRowCreated(e);
+        }
+
+        void SelectAllCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (selectAllCheckbox.Checked)
+            {
+                // Select all data items
+                foreach (GridViewRow row in Rows)
+                {
+                    var key = GetKey(DataKeys[row.RowIndex]);
+                    if (!selectedDataKeys.Contains(key))
+                    {
+                        selectedDataKeys.Add(key);
+                    }
+                }
+            }
+            else
+            {
+                SelectedDataKeys.Clear();
+            }
         }
 
         protected override void OnLoad(EventArgs e)
@@ -116,6 +161,8 @@ namespace Herschel.Ws.Controls
 
         protected override void OnPreRender(EventArgs e)
         {
+            selectAllCheckbox.Checked = SelectedDataKeys.Count > 0;
+
             if (!this.DesignMode)
             {
                 var scriptManager = ScriptManager.GetCurrent(this.Page);

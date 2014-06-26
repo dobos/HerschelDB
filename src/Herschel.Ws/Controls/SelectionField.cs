@@ -23,7 +23,7 @@ namespace Herschel.Ws.Controls
         {
             base.InitializeDataCell(cell, rowState);
 
-            if ((cell.Controls.Count == 0))
+            if (cell.Controls.Count == 0)
             {
                 CheckBox chk = new CheckBox();
                 chk.ID = SelectionField.DefaultSelectionCheckBoxID;
