@@ -31,13 +31,59 @@ namespace Herschel.Lib
             }
         }
 
+        public Observation Get(long obsID)
+        {
+            var sql =
+@"
+SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, region
+FROM [dbo].[Observation] obs
+WHERE obs.obsID = @obsID
+ORDER BY obs.ObsID";
+
+            var cmd = new SqlCommand(sql);
+            cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = obsID;
+
+            return ExecuteCommandReader<Observation>(cmd).FirstOrDefault();
+        }
+
+        public IEnumerable<Observation> FindID(IList<long> ids)
+        {
+            if (ids.Count == 0)
+            {
+                return new Observation[0];
+            }
+
+            var sql =
+@"
+SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, region
+FROM [dbo].[Observation] obs
+WHERE obs.obsID IN ({0})
+ORDER BY obs.ObsID";
+
+            var idlist = String.Empty;
+            for (int i = 0; i < ids.Count; i++)
+            {
+                if (i > 0)
+                {
+                    idlist += ",";
+                }
+                idlist += ids[i];
+            }
+
+            sql = String.Format(sql, idlist);
+
+            var cmd = new SqlCommand(sql);
+
+            return ExecuteCommandReader<Observation>(cmd);
+        }
+
         public IEnumerable<Observation> FindEq()
         {
             var sql = 
 @"
 SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, region
 FROM [dbo].[FindObservationEq](@ra, @dec, @fineTimeStart, @fineTimeEnd) ids
-INNER JOIN [dbo].[Observation] obs
+INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
     ON obs.obsID = ids.obsID
 ORDER BY obs.ObsID";
 
@@ -82,32 +128,6 @@ ORDER BY obs.ObsID";
             cmd.Parameters.Add("@region", SqlDbType.VarBinary).Value = Region.ToSqlBytes().Value;
             cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = DBNull.Value;
             cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = DBNull.Value;
-
-            return ExecuteCommandReader<Observation>(cmd);
-        }
-
-        public IEnumerable<Observation> FindID(IList<long> ids)
-        {
-            var sql =
-@"
-SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, region
-FROM [dbo].[Observation] obs
-WHERE obs.obsID IN ({0})
-ORDER BY obs.ObsID";
-
-            var idlist = String.Empty;
-            for (int i = 0; i < ids.Count; i++)
-            {
-                if (i > 0)
-                {
-                    idlist += ",";
-                }
-                idlist += ids[i];
-            }
-
-            sql = String.Format(sql, idlist);
-
-            var cmd = new SqlCommand(sql);
 
             return ExecuteCommandReader<Observation>(cmd);
         }

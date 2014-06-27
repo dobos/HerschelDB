@@ -4,16 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Data.SqlClient;
+using System.ServiceModel;
+using System.Runtime.Serialization;
 using Jhu.Spherical;
 
 namespace Herschel.Lib
 {
+    [DataContract]
     public class Observation : IDatabaseTableObject
     {
+        [IgnoreDataMember]
         public bool Selected { get; set; }
+
         public Int64 ObsID { get; set; }
+
         public FineTimeInterval FineTime { get; set; }
+        
         public double AV { get; set; }
+        
+        [IgnoreDataMember]
         public Region Region { get; set; }
 
         public void LoadFromDataReader(SqlDataReader reader)
