@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Api\Footprint.svc" />
+    <Content Include="Api\Help.aspx" />
     <Content Include="App_Themes\Plain\fonts.css" />
     <Content Include="App_Themes\Plain\forms.css" />
     <Content Include="App_Themes\Plain\layout.css" />
@@ -102,6 +103,13 @@
     <Compile Include="Api\Footprint.svc.cs">
       <DependentUpon>Footprint.svc</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Api\Help.aspx.cs">
+      <DependentUpon>Help.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Api\Help.aspx.designer.cs">
+      <DependentUpon>Help.aspx</DependentUpon>
     </Compile>
     <Compile Include="Api\TextResponseMessageBodyWriter.cs" />
     <Compile Include="Api\TextResponseMessageFormatter.cs" />
@@ -175,6 +183,7 @@
     <Compile Include="Util\Astro.cs" />
     <Compile Include="Util\JQuery.cs" />
     <Compile Include="Util\QueryString.cs" />
+    <Compile Include="Util\Url.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Masters\Herschel.Master" />
