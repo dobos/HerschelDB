@@ -28,6 +28,15 @@
                                     </tr>
                                     <tr>
                                         <td class="label">
+                                            <asp:Label runat="server" ID="fineTimeLabel" Text="Fine Time:" /></td>
+                                        <td class="field" style="width: 520px">
+                                            <asp:TextBox runat="server" ID="fineTimeStart" />
+                                            -
+                                            <asp:TextBox runat="server" ID="fineTimeEnd" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="label">
                                             <asp:Label runat="server" ID="searchMethodLabel" Text="Method:" /></td>
                                         <td class="field" style="width: 520px">
                                             <asp:RadioButtonList ID="searchMethod" runat="server" AutoPostBack="True" RepeatDirection="Horizontal" OnSelectedIndexChanged="searchMethod_SelectedIndexChanged">
@@ -37,13 +46,6 @@
                                             </asp:RadioButtonList>
                                         </td>
                                     </tr>
-                                    <%--<tr>
-                                        <td class="label">
-                                            <asp:Label runat="server" ID="fineTimeLabel" Text="Fine Time:" /></td>
-                                        <td class="field" style="width: 520px">
-                                            <asp:TextBox runat="server" ID="fineTime" />
-                                        </td>
-                                    </tr>--%>
                                     <tr runat="server" id="pointTr">
                                         <td class="label">
                                             <asp:Label ID="pointLabel" runat="server" Text="Coordinates:" /></td>
@@ -98,8 +100,8 @@
                                 <Columns>
                                     <hwc:SelectionField ItemStyle-HorizontalAlign="Center" />
                                     <asp:BoundField HeaderText="obs ID" DataField="ObsID" />
-                                    <asp:BoundField HeaderText="fine time start" DataField="FineTime.Start" />
-                                    <asp:BoundField HeaderText="fine time end" DataField="FineTime.End" />
+                                    <asp:BoundField HeaderText="fine time start" DataField="FineTimeStart" />
+                                    <asp:BoundField HeaderText="fine time end" DataField="FineTimeEnd" />
                                     <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="AV" />
                                     <asp:BoundField HeaderText="area" DataField="Region.Area" DataFormatString="{0:0.00000}" />
                                 </Columns>

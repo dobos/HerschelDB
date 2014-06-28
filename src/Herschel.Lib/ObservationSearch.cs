@@ -15,7 +15,8 @@ namespace Herschel.Lib
         public Instrument Instrument { get; set; }
         public Cartesian Point { get; set; }
         public Region Region { get; set; }
-        public FineTimeInterval FineTimeInterval { get; set; }
+        public FineTime FineTimeStart { get; set; }
+        public FineTime FineTimeEnd { get; set; }
 
         public IEnumerable<Observation> Find()
         {
@@ -79,19 +80,21 @@ ORDER BY obs.ObsID";
 
         public IEnumerable<Observation> FindEq()
         {
-            var sql = 
+            var sql =
 @"
 SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, region
-FROM [dbo].[FindObservationEq](@ra, @dec, @fineTimeStart, @fineTimeEnd) ids
+FROM [dbo].[FindObservationEq](@ra, @dec) ids
 INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
-    ON obs.obsID = ids.obsID
+      ON obs.obsID = ids.obsID
+WHERE (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
+      AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
 ORDER BY obs.ObsID";
 
             var cmd = new SqlCommand(sql);
             cmd.Parameters.Add("@ra", SqlDbType.Float).Value = Point.RA;
             cmd.Parameters.Add("@dec", SqlDbType.Float).Value = Point.Dec;
-            cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = DBNull.Value;
-            cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = DBNull.Value;
+            cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
+            cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeEnd) ? (object)DBNull.Value : FineTimeEnd.Value;
 
             return ExecuteCommandReader<Observation>(cmd);
         }
@@ -101,33 +104,17 @@ ORDER BY obs.ObsID";
             var sql =
 @"
 SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, obs.region
-FROM [dbo].[FindObservationRegionIntersect](@region, NULL, NULL) ids
+FROM [dbo].[FindObservationRegionIntersect](@region) ids
 INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
     ON obs.obsID = ids.obsID
+WHERE (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
+      AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
 ORDER BY obs.ObsID";
 
             var cmd = new SqlCommand(sql);
             cmd.Parameters.Add("@region", SqlDbType.VarBinary).Value = Region.ToSqlBytes().Value;
-            cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = DBNull.Value;
-            cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = DBNull.Value;
-
-            return ExecuteCommandReader<Observation>(cmd);
-        }
-
-        public IEnumerable<Observation> FindRegionCover()
-        {
-            var sql =
-@"
-SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, obs.region
-FROM [dbo].[FindObservationRegionCover](@region, NULL, NULL) ids
-INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
-    ON obs.obsID = ids.obsID
-ORDER BY obs.ObsID";
-
-            var cmd = new SqlCommand(sql);
-            cmd.Parameters.Add("@region", SqlDbType.VarBinary).Value = Region.ToSqlBytes().Value;
-            cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = DBNull.Value;
-            cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = DBNull.Value;
+            cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
+            cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeEnd) ? (object)DBNull.Value : FineTimeEnd.Value;
 
             return ExecuteCommandReader<Observation>(cmd);
         }

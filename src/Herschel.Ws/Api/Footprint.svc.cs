@@ -35,60 +35,89 @@ namespace Herschel.Ws.Api
             [Description("Start of search interval, fine time.")]
             long start,
             [Description("End of search interval, fine time.")]
-            long end
-            );
+            long end);
 
         [OperationContract]
         [DynamicResponseFormat]
         [Description("Finds observations by an intersecting region.")]
         [WebGet(UriTemplate = "Observations?findby=intersect&inst={inst}&region={region}&start={start}&end={end}")]
-        IEnumerable<Observation> FindObservationIntersect(string inst, string region, long start, long end);
+        IEnumerable<Observation> FindObservationIntersect(
+            [Description("A comma separated list of instrument identifiers.")]
+            string inst,
+            [Description("A region description string, see documentation.")]
+            string region,
+            [Description("Start of search interval, fine time.")]
+            long start,
+            [Description("End of search interval, fine time.")]
+            long end);
 
         [OperationContract]
         [WebGet(UriTemplate = "Observations/{obsID}")]
         [DynamicResponseFormat]
         [Description("Returns the details of a single observation by obsID.")]
-        Observation GetObservation(string obsID);
+        Observation GetObservation(
+            [Description("Observation ID.")]
+            string obsID);
 
         [OperationContract]
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint")]
         [Description("Returns the footprint of an observation.")]
-        string GetObservationFootprint(string obsID);
+        string GetObservationFootprint(
+            [Description("Observation ID.")]
+            string obsID);
 
         [OperationContract]
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline")]
         [Description("Returns the outline of the footprint of an observation.")]
-        string GetObservationOutline(string obsID);
+        string GetObservationOutline(
+            [Description("Observation ID.")]
+            string obsID);
 
         [OperationContract]
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline/Points")]
         [Description("Returns the arc endpoints of the outline of the footprint of an observation.")]
-        string GetObservationOutlinePoints(string obsID);
+        string GetObservationOutlinePoints(
+            [Description("Observation ID.")]
+            string obsID);
 
         [OperationContract]
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline/Reduced?limit={limit}")]
         [Description("Returns the reduced outline of the footprint of an observation.")]
-        string GetObservationOutlineReduced(string obsID, double limit);
+        string GetObservationOutlineReduced(
+            [Description("Observation ID.")]
+            string obsID,
+            [Description("Limit of the reduction algorithm, arc sec.")]
+            double limit);
 
         [OperationContract]
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline/Reduced/Points?limit={limit}")]
         [Description("Returns the arc endpoints of the reduced outline of the footprint of an observation.")]
-        string GetObservationOutlineReducedPoints(string obsID, double limit);
+        string GetObservationOutlineReducedPoints(
+            [Description("Observation ID.")]
+            string obsID,
+            [Description("Limit of the reduction algorithm, arc sec.")]
+            double limit);
 
         [OperationContract]
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/ConvexHull")]
         [Description("Returns the convex hull of the footprint of an observation.")]
-        string GetObservationConvexHull(string obsID);
+        string GetObservationConvexHull(
+            [Description("Observation ID.")]
+            string obsID);
 
         [OperationContract]
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/ConvexHull/Outline")]
         [Description("Returns the outline of the convex hull of the footprint of an observation.")]
-        string GetObservationConvexHullOutline(string obsID);
+        string GetObservationConvexHullOutline(
+            [Description("Observation ID.")]
+            string obsID);
 
         [OperationContract]
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/ConvexHull/Outline/Points")]
         [Description("Returns the arc endpoints of the outline of the convex hull of the footprint of an observation.")]
-        string GetObservationConvexHullOutlinePoints(string obsID);
+        string GetObservationConvexHullOutlinePoints(
+            [Description("Observation ID.")]
+            string obsID);
     }
 
     public class Footprint : ISearch

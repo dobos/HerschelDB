@@ -38,15 +38,15 @@ namespace Herschel.Ws.Observations
             set { ViewState["SearchMethod"] = value; }
         }
 
-        protected long SearchFineTimeStart
+        protected FineTime SearchFineTimeStart
         {
-            get { return (long)ViewState["SearchFineTimeStart"]; }
+            get { return (FineTime)ViewState["SearchFineTimeStart"]; }
             set { ViewState["SearchFineTimeStart"] = value; }
         }
 
-        protected long SearchFineTimeEnd
+        protected FineTime SearchFineTimeEnd
         {
-            get { return (long)ViewState["SearchFineTimeEnd"]; }
+            get { return (FineTime)ViewState["SearchFineTimeEnd"]; }
             set { ViewState["SearchFineTimeEnd"] = value; }
         }
 
@@ -182,6 +182,25 @@ namespace Herschel.Ws.Observations
 
                 SearchInstrument = instrument;
 
+                // Fine time interval
+                if (fineTimeStart.Text.Trim() != String.Empty)
+                {
+                    SearchFineTimeStart = FineTime.Parse(fineTimeStart.Text);
+                }
+                else
+                {
+                    SearchFineTimeStart = FineTime.Undefined;
+                }
+
+                if (fineTimeEnd.Text.Trim() != String.Empty)
+                {
+                    SearchFineTimeEnd = FineTime.Parse(fineTimeEnd.Text);
+                }
+                else
+                {
+                    SearchFineTimeEnd = FineTime.Undefined;
+                }
+
                 // SearchMethod
                 ObservationSearchMethod method;
                 Enum.TryParse<ObservationSearchMethod>(searchMethod.SelectedValue, out method);
@@ -217,6 +236,8 @@ namespace Herschel.Ws.Observations
         {
             searchObject = new Lib.ObservationSearch();
 
+            searchObject.FineTimeStart = SearchFineTimeStart;
+            searchObject.FineTimeEnd = SearchFineTimeEnd;
             searchObject.SearchMethod = SearchMethod;
 
             switch (SearchMethod)

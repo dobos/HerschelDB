@@ -15,15 +15,15 @@
         </LayoutTemplate>
         <ItemTemplate>
             <p><b>GET</b> <%# HttpUtility.HtmlEncode((string)Eval("UriTemplate")) %></p>
-            <p><%# Eval("Description") %></p>
+            <p style="margin-left:30px"><%# Eval("Description") %></p>
             <asp:ListView runat="server" ID="parameterList" DataSource='<%# Eval("Parameters") %>'>
                 <LayoutTemplate>
-                    <ul>
+                    <p style="margin-left:30px">
                         <asp:PlaceHolder runat="server" ID="itemPlaceholder" />
-                    </ul>
+                    </p>
                 </LayoutTemplate>
                 <ItemTemplate>
-                    <li><b><%# Eval("Name") %>:</b> <%# Eval("Description") %></li>
+                    <b><%# Eval("Name") %>:</b> <%# Eval("Description") %><br />
                 </ItemTemplate>
             </asp:ListView>
         </ItemTemplate>

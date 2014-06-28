@@ -40,6 +40,33 @@ namespace Herschel.Ws.Observations {
         protected global::System.Web.UI.WebControls.CheckBoxList instrumentList;
         
         /// <summary>
+        /// fineTimeLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label fineTimeLabel;
+        
+        /// <summary>
+        /// fineTimeStart control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox fineTimeStart;
+        
+        /// <summary>
+        /// fineTimeEnd control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox fineTimeEnd;
+        
+        /// <summary>
         /// searchMethodLabel control.
         /// </summary>
         /// <remarks>

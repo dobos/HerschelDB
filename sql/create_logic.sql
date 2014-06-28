@@ -6,9 +6,7 @@ GO
 CREATE FUNCTION [dbo].[FindObservationEq]
 (	
 	@ra float,
-	@dec float,
-	@fineTimeStart float = NULL,
-	@fineTimeEnd float = NULL
+	@dec float
 )
 RETURNS TABLE 
 AS
@@ -18,19 +16,15 @@ RETURN
 	(
 		SELECT DISTINCT obsID
 		FROM ObservationHtm htm
-		WHERE htm.FromEq(@ra, @dec) BETWEEN htmIDStart AND htmIDEnd
-			  AND partial = 0
-			  AND (@fineTimeStart IS NULL OR @fineTimeStart <= htm.fineTimeStart)
-			  AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= htm.fineTimeEnd)
+		WHERE htm.FromEq(@ra, @dec) BETWEEN htmIDStart AND htmIDEnd AND [partial] = 0
 
 		UNION
 
 		SELECT DISTINCT htm.obsID
 		FROM ObservationHtm htm
 		INNER JOIN Observation r ON r.obsID = htm.obsID
-		WHERE htm.FromEq(@ra, @dec) BETWEEN htmIDStart AND htmIDEnd
-			  AND (@fineTimeStart IS NULL OR @fineTimeStart <= htm.fineTimeStart)
-			  AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= htm.fineTimeEnd)
+		WHERE htm.FromEq(@ra, @dec) BETWEEN htmIDStart AND htmIDEnd AND [partial] = 1
+		-- TODO: add containment filter
 	)
 	SELECT q.obsID
 	FROM q
@@ -50,9 +44,7 @@ GO
 
 CREATE FUNCTION [dbo].[FindObservationRegionIntersect]
 (	
-	@region varbinary(max),
-	@fineTimeStart float = NULL,
-	@fineTimeEnd float = NULL
+	@region varbinary(max)
 )
 RETURNS TABLE 
 AS
@@ -100,8 +92,6 @@ RETURN
 	FROM q
 	INNER JOIN Observation o WITH (FORCESEEK)
 		ON o.obsID = q.obsID
-	WHERE (@fineTimeStart IS NULL OR o.fineTimeStart > @fineTimeStart) AND
-	      (@fineTimeEnd IS NULL OR o.fineTimeEnd < @fineTimeEnd)
 )
 
 GO

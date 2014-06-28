@@ -61,7 +61,6 @@
     <Compile Include="Detector.cs" />
     <Compile Include="Enum.cs" />
     <Compile Include="FineTime.cs" />
-    <Compile Include="FineTimeInterval.cs" />
     <Compile Include="IDatabaseTableObject.cs" />
     <Compile Include="Observation.cs" />
     <Compile Include="ObservationSearch.cs" />
