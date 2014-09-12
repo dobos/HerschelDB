@@ -25,6 +25,10 @@ namespace Herschel.Lib
         public double AVYError;
         public double AVZ;
         public double AVZError;
+        public double AV;
         public long Utc;
+        public double SampleTime;
+        public double CorrTime;
+        
     }
 }

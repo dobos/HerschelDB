@@ -32,7 +32,10 @@ namespace Herschel.Loader
             writer.Write("{0} ", p.AVYError);
             writer.Write("{0} ", p.AVZ);
             writer.Write("{0} ", p.AVZError);
-            writer.WriteLine("{0}", p.Utc);
+            writer.Write("{0} ", p.AV);
+            writer.Write("{0}", p.Utc);
+            writer.Write("{0}", p.SampleTime);
+            writer.WriteLine("{0}", p.CorrTime);
         }
 
         public void PreparePointings(string path, string output, int fnum)
@@ -68,6 +71,9 @@ namespace Herschel.Loader
                         }
                     }
 
+                    // TODO: observationid from infile
+
+
                     ConvertPointingsFile(infile, String.Format(output, i), true);
                     Console.WriteLine("{0}: {1}", qq, infile);
                 }
@@ -98,7 +104,7 @@ namespace Herschel.Loader
         /// </summary>
         /// <param name="inputFile"></param>
         /// <param name="outputFile"></param>
-        void ConvertPointingsFile(string inputFile, string outputFile, bool append)
+        protected virtual void ConvertPointingsFile(string inputFile, string outputFile, bool append)
         {
             using (var outfile = new StreamWriter(outputFile, append))
             {

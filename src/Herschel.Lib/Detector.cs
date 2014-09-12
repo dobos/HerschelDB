@@ -33,15 +33,42 @@ namespace Herschel.Lib
         {
             get
             {
-                throw new NotImplementedException();
+                double a = 23.5;
+                double b = 23.5;
+
+                return new Detector()
+                {
+                    Name = DetectorFootprint.PacsPhoto.ToString(),
+                    Corners = new Cartesian[]
+                                {
+                                    new Cartesian(a, b),
+                                    new Cartesian(-a, b),
+                                    new Cartesian(-a, -b),
+                                    new Cartesian(a, -b)
+                                }
+                };
             }
+
         }
 
         public static Detector SpirePhoto
         {
             get
             {
-                throw new NotImplementedException();
+                double a = 4.0 / 60.0;
+                double b = 2.0 / 60.0;
+
+                return new Detector()
+                {
+                    Name = DetectorFootprint.PacsPhoto.ToString(),
+                    Corners = new Cartesian[]
+                                {
+                                    new Cartesian(a, b),
+                                    new Cartesian(-a, b),
+                                    new Cartesian(-a, -b),
+                                    new Cartesian(a, -b)
+                                }
+                };
             }
         }
 

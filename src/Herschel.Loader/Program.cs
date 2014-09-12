@@ -66,6 +66,10 @@ namespace Herschel.Loader
                 case "pacs":
                     return new PointingsFilePacs();
                 case "spire":
+                    return new PointingsFileSpire()
+                    {
+                        ObservationID = int.Parse()
+                    };
                 default:
                     throw new NotImplementedException();
             }
