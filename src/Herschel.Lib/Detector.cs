@@ -8,7 +8,7 @@ namespace Herschel.Lib
 {
     public class Detector
     {
-        public static Detector Blue
+        public static Detector PacsPhoto
         {
             get
             {
@@ -17,7 +17,7 @@ namespace Herschel.Lib
 
                 return new Detector()
                 {
-                    Name = "Blue",
+                    Name = DetectorFootprint.PacsPhoto.ToString(),
                     Corners = new Cartesian[]
                                 {
                                     new Cartesian(a, b),
@@ -29,22 +29,45 @@ namespace Herschel.Lib
             }
         }
 
-        public static Detector Red
+        public static Detector PacsSpectro
         {
             get
             {
-                return null;
+                throw new NotImplementedException();
+            }
+        }
+
+        public static Detector SpirePhoto
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public static Detector SpireSpectro
+        {
+            get
+            {
+                throw new NotImplementedException();
             }
         }
 
         public static Detector Create(string name)
         {
-            switch (name)
+            DetectorFootprint det;
+            Enum.TryParse(name, out det);
+
+            switch (det)
             {
-                case "Blue":
-                    return Detector.Blue;
-                case "Red":
-                    return Detector.Red;
+                case DetectorFootprint.PacsPhoto:
+                    return Detector.PacsPhoto;
+                case DetectorFootprint.PacsSpectro:
+                    return Detector.PacsSpectro;
+                case DetectorFootprint.SpirePhoto:
+                    return Detector.SpirePhoto;
+                case DetectorFootprint.SpireSpectro:
+                    return Detector.SpireSpectro;
                 default:
                     throw new NotImplementedException();
             }

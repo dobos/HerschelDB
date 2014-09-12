@@ -14,6 +14,27 @@ namespace Herschel.Loader
     {
         protected abstract Pointing Parse(string[] parts);
 
+        protected void Write(Pointing p, TextWriter writer)
+        {
+            writer.Write("{0} ", p.ObsID);
+            writer.Write("{0} ", p.FineTime);
+            writer.Write("{0} ", (byte)p.Instrument);
+            writer.Write("{0} ", p.BuldingBlockType);
+            writer.Write("{0} ", p.Ra);
+            writer.Write("{0} ", p.RaError);
+            writer.Write("{0} ", p.Dec);
+            writer.Write("{0} ", p.DecError);
+            writer.Write("{0} ", p.Pa);
+            writer.Write("{0} ", p.PaError);
+            writer.Write("{0} ", p.AVX);
+            writer.Write("{0} ", p.AVXError);
+            writer.Write("{0} ", p.AVY);
+            writer.Write("{0} ", p.AVYError);
+            writer.Write("{0} ", p.AVZ);
+            writer.Write("{0} ", p.AVZError);
+            writer.WriteLine("{0}", p.Utc);
+        }
+
         public void PreparePointings(string path, string output, int fnum)
         {
             var dir = Path.GetDirectoryName(path);
@@ -83,7 +104,7 @@ namespace Herschel.Loader
             {
                 foreach (var p in ReadPointingsFile(inputFile))
                 {
-                    p.Write(outfile);
+                    Write(p, outfile);
                 }
             }
         }

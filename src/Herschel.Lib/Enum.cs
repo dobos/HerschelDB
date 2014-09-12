@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 
 namespace Herschel.Lib
 {
+    public enum DetectorFootprint
+    {
+        None = 0,
+        PacsPhoto = 1,
+        PacsSpectro = 2,
+        SpirePhoto = 3,
+        SpireSpectro = 4
+        // TODO: Hifi
+    }
+
     [Flags]
     public enum Instrument : byte
     {
