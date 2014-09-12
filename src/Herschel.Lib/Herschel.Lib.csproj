@@ -59,6 +59,10 @@
     <Compile Include="DataReaderEnumerator.cs" />
     <Compile Include="DbObjectBase.cs" />
     <Compile Include="Detector.cs" />
+    <Compile Include="DetectorPacsPhoto.cs" />
+    <Compile Include="DetectorPacsSpectro.cs" />
+    <Compile Include="DetectorSpirePhoto.cs" />
+    <Compile Include="DetectorSpireSpectro.cs" />
     <Compile Include="Enum.cs" />
     <Compile Include="FineTime.cs" />
     <Compile Include="IDatabaseTableObject.cs" />
