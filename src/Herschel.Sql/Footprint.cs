@@ -60,11 +60,7 @@ public partial class UserDefinedFunctions
     {
         var d = Detector.Create(detector.Value);
 
-        var cc = d.GetCorners(new Cartesian(ra.Value, dec.Value), pa.Value);
-
-        var r = new Region();
-        r.Add(new Convex(new List<Cartesian>(cc), PointOrder.CW));
-        r.Simplify();
+        var r = d.GetFootprint(new Cartesian(ra.Value, dec.Value), pa.Value);
 
         return Util.SetRegion(r);
     }

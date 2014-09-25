@@ -11,8 +11,7 @@ namespace Herschel.Lib.Test
         [TestMethod]
         public void TestGetCorners()
         {
-            var d = Detector.PacsPhoto;
-
+            var d = new DetectorPacsPhoto();
             var c = d.GetCorners(new Cartesian(0, 0), 0);
         }
     }

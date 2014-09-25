@@ -6,80 +6,8 @@ using Jhu.Spherical;
 
 namespace Herschel.Lib
 {
-    public class Detector
+    public abstract class Detector
     {
-        public static Detector PacsPhoto
-        {
-            get
-            {
-                double a = 1.75 / 60.0;
-                double b = 0.875 / 60.0;
-
-                return new Detector()
-                {
-                    Name = DetectorFootprint.PacsPhoto.ToString(),
-                    Corners = new Cartesian[]
-                                {
-                                    new Cartesian(a, b),
-                                    new Cartesian(-a, b),
-                                    new Cartesian(-a, -b),
-                                    new Cartesian(a, -b)
-                                }
-                };
-            }
-        }
-
-        public static Detector PacsSpectro
-        {
-            get
-            {
-                double a = 23.5;
-                double b = 23.5;
-
-                return new Detector()
-                {
-                    Name = DetectorFootprint.PacsPhoto.ToString(),
-                    Corners = new Cartesian[]
-                                {
-                                    new Cartesian(a, b),
-                                    new Cartesian(-a, b),
-                                    new Cartesian(-a, -b),
-                                    new Cartesian(a, -b)
-                                }
-                };
-            }
-
-        }
-
-        public static Detector SpirePhoto
-        {
-            get
-            {
-                double a = 4.0 / 60.0;
-                double b = 2.0 / 60.0;
-
-                return new Detector()
-                {
-                    Name = DetectorFootprint.PacsPhoto.ToString(),
-                    Corners = new Cartesian[]
-                                {
-                                    new Cartesian(a, b),
-                                    new Cartesian(-a, b),
-                                    new Cartesian(-a, -b),
-                                    new Cartesian(a, -b)
-                                }
-                };
-            }
-        }
-
-        public static Detector SpireSpectro
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         public static Detector Create(string name)
         {
             DetectorFootprint det;
@@ -88,23 +16,43 @@ namespace Herschel.Lib
             switch (det)
             {
                 case DetectorFootprint.PacsPhoto:
-                    return Detector.PacsPhoto;
+                    return new DetectorPacsPhoto();
                 case DetectorFootprint.PacsSpectro:
-                    return Detector.PacsSpectro;
+                    return new DetectorPacsSpectro();
                 case DetectorFootprint.SpirePhoto:
-                    return Detector.SpirePhoto;
+                    return new DetectorSpirePhoto();
                 case DetectorFootprint.SpireSpectro:
-                    return Detector.SpireSpectro;
+                    return new DetectorSpireSpectro();
                 default:
                     throw new NotImplementedException();
             }
         }
 
         public string Name { get; protected set; }
-        public Cartesian[] Corners { get; protected set; }
+
+        public abstract Cartesian[] Corners { get; }
 
         protected Detector()
         {
+        }
+
+        public abstract Region GetFootprint(Cartesian pointing, double pa);
+
+        protected Region GetFootprintRectangle(Cartesian pointing, double pa)
+        {
+            var corners = GetCorners(pointing, pa);
+
+            var r = new Region();
+            r.Add(new Convex(new List<Cartesian>(corners), PointOrder.CW));
+            r.Simplify();
+
+            return r;
+        }
+
+        protected Region GetFootprintCircle(Cartesian pointing, double radius)
+        {
+            // TODO:
+            throw new NotImplementedException();
         }
 
         /// <summary>

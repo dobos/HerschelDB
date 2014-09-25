@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 using Herschel.Lib;
 
@@ -29,7 +30,8 @@ namespace Herschel.Loader
 
         protected override void ConvertPointingsFile(string inputFile, string outputFile, bool append)
         {
-            ObservationID = long.Parse( inputFile.Substring(8, 17));
+            var file = Path.GetFileName(inputFile);
+            ObservationID = long.Parse(file.Substring(8, 10));
 
             base.ConvertPointingsFile(inputFile, outputFile, append);
         }

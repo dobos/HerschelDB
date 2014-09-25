@@ -33,9 +33,9 @@ namespace Herschel.Loader
             writer.Write("{0} ", p.AVZ);
             writer.Write("{0} ", p.AVZError);
             writer.Write("{0} ", p.AV);
-            writer.Write("{0}", p.Utc);
-            writer.Write("{0}", p.SampleTime);
-            writer.WriteLine("{0}", p.CorrTime);
+            writer.Write("{0} ", p.Utc);
+            writer.Write("{0} ", p.SampleTime);
+            writer.WriteLine("{0} ", p.CorrTime);
         }
 
         public void PreparePointings(string path, string output, int fnum)
@@ -106,6 +106,8 @@ namespace Herschel.Loader
         /// <param name="outputFile"></param>
         protected virtual void ConvertPointingsFile(string inputFile, string outputFile, bool append)
         {
+            append &= File.Exists(outputFile);
+
             using (var outfile = new StreamWriter(outputFile, append))
             {
                 foreach (var p in ReadPointingsFile(inputFile))

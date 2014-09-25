@@ -13,6 +13,7 @@ CREATE TABLE [load].[RawPointing]
 (
 	[obsID] [bigint] NOT NULL,
 	[fineTime] [bigint] NOT NULL,
+	[Inst] [tinyint] NOT NULL,
 	[bbID] [bigint] NOT NULL,
 	[ra] [float] NOT NULL,
 	[raError] [float] NOT NULL,
@@ -26,7 +27,10 @@ CREATE TABLE [load].[RawPointing]
 	[avYError] [float] NOT NULL,
 	[avZ] [float] NOT NULL,
 	[avZError] [float] NOT NULL,
-	[utc] [bigint] NOT NULL
+	[av] [float] NOT NULL,
+	[utc] [bigint] NOT NULL,
+	[sampleTime] [float] NOT NULL,
+	[corrTime] [float] NOT NULL
 ) ON [LOAD]
 
 GO
