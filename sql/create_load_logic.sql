@@ -1,17 +1,17 @@
-IF OBJECT_ID ('load.MergePointing', N'P') IS NOT NULL
-DROP PROC [load].[MergePointing]
+IF OBJECT_ID ('load.MergePointing_PACS', N'P') IS NOT NULL
+DROP PROC [load].[MergePointing_PACS]
 
 GO
 
-CREATE PROC [load].[MergePointing]
+CREATE PROC [load].[MergePointing_PACS]
 AS
-	CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
+	/*CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
 	(
 		[obsID] ASC,
 		[fineTime] ASC
 	)
 	WITH (SORT_IN_TEMPDB = ON)
-	ON [LOAD]
+	ON [LOAD]*/
 
 	-- Check duplicates
 
@@ -19,19 +19,69 @@ AS
 	(
 		SELECT obsID, fineTime, COUNT(*)
 		FROM [load].[RawPointing]
+		WHERE inst = 1
 		GROUP BY obsID, fineTime
 		HAVING COUNT(*) > 1
 	))
 	THROW 51000, 'Duplicate key.', 1;
 
-	TRUNCATE TABLE [Pointing]
+	--TRUNCATE TABLE [Pointing]
 
 	INSERT [Pointing] WITH (TABLOCKX)
-	SELECT * FROM [load].[RawPointing]
+		(ObsID, fineTime, inst, ra, dec, pa, av, utc)
+	SELECT
+		ObsID, fineTime, inst, ra, dec, pa, SQRT(avy*avy + avz*avz), 0
+	FROM [load].[RawPointing]
+	WHERE inst = 1	-- only PACS
+	  AND bbID = 215131301	-- only scan lines, no turn-around
 
-	TRUNCATE TABLE [load].[RawPointing];
+	--TRUNCATE TABLE [load].[RawPointing];
 
 GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.MergePointing_SPIRE', N'P') IS NOT NULL
+DROP PROC [load].[MergePointing_SPIRE]
+
+GO
+
+CREATE PROC [load].[MergePointing_SPIRE]
+AS
+	/*CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
+	(
+		[obsID] ASC,
+		[fineTime] ASC
+	)
+	WITH (SORT_IN_TEMPDB = ON)
+	ON [LOAD]*/
+
+	-- Check duplicates
+
+	IF (EXISTS
+	(
+		SELECT obsID, CONVERT(bigint, ROUND(sampleTime * 1e6, 0)), COUNT(*)
+		FROM [load].[RawPointing]
+		WHERE inst = 2
+		GROUP BY obsID, CONVERT(bigint, ROUND(sampleTime * 1e6, 0))
+		HAVING COUNT(*) > 1
+	))
+	THROW 51000, 'Duplicate key.', 1;
+
+	--TRUNCATE TABLE [Pointing]
+
+	INSERT [Pointing] WITH (TABLOCKX)
+		(ObsID, fineTime, inst, ra, dec, pa, av, utc)
+	SELECT
+		ObsID, CONVERT(bigint, ROUND(sampleTime * 1e6, 0)), inst, ra, dec, pa, av * 3600.00000000, 0
+	FROM [load].[RawPointing]
+	WHERE inst = 2	-- only SPIRE
+
+	--TRUNCATE TABLE [load].[RawPointing];
+
+GO
+
+---------------------------------------------------------------
 
 
 IF OBJECT_ID ('load.DetectObservations', N'P') IS NOT NULL
@@ -57,26 +107,26 @@ TODO: add minimum enclosing circle center, coverage, area, pointing count etc.
 	WITH
 	velhist AS
 	(
-		SELECT obsID, ROUND(SQRT(avy*avy + avz*avz) / @binsize, 0) * @binsize vvv, COUNT(*) cnt
+		SELECT obsID, inst, ROUND(av / @binsize, 0) * @binsize vvv, COUNT(*) cnt
 		FROM Pointing
-		GROUP BY obsID, ROUND(SQRT(avy*avy + avz*avz) / @binsize, 0) * @binsize
+		GROUP BY obsID, inst, ROUND(av / @binsize, 0) * @binsize
 	),
 	velhistmax AS
 	(
 		SELECT *, ROW_NUMBER() OVER(PARTITION BY obsID ORDER BY cnt DESC) rn
 		FROM velhist
-		WHERE vvv > 2	-- velocity is low at turn around
+		--WHERE vvv > 2	-- velocity is low at turn around
 	),
 	minmax AS
 	(
-		SELECT obsID, MIN(fineTime) fineTimeStart, MAX(fineTime) fineTimeEnd
+		SELECT obsID, inst, MIN(fineTime) fineTimeStart, MAX(fineTime) fineTimeEnd
 		FROM Pointing
-		GROUP BY obsID
+		GROUP BY obsID, inst
 	)
 	INSERT Observation
-		(obsID, fineTimeOrigStart, fineTimeOrigEnd, av, fineTimeStart, fineTimeEnd, region)
+		(obsID, inst, fineTimeStart, fineTimeEnd, av, region)
 	SELECT
-		o.obsID, o.fineTimeStart, o.fineTimeEnd, v.vvv, 0, 0, NULL
+		o.obsID, o.inst, o.fineTimeStart, o.fineTimeEnd, v.vvv, NULL
 	FROM minmax o
 	INNER JOIN velhistmax v ON v.obsID = o.obsID AND v.rn = 1
 
@@ -90,46 +140,24 @@ GO
 
 CREATE FUNCTION [load].[FilterPointingTurnaround]
 (
-	@avDiffMax float,
-	@avVarMax float
 )
 RETURNS TABLE
 AS
 RETURN
 (
 	WITH
-	a AS	-- average velocities over +/-5 bins
-	(
-		SELECT
-			*,
-			SQRT(avy*avy + avz*avz) av,
-			AVG(SQRT(avy*avy + avz*avz))
-				OVER (PARTITION BY ObsID
-					  ORDER BY fineTime
-					  ROWS BETWEEN 5 PRECEDING
-							   AND 5 FOLLOWING) av_avg,
-			VAR(SQRT(avy*avy + avz*avz))
-				OVER (PARTITION BY ObsID
-					  ORDER BY fineTime
-					  ROWS BETWEEN 5 PRECEDING
-							   AND 5 FOLLOWING) av_var
-		FROM Pointing
-	),
 	b AS
 	(
 		SELECT a.*,
-			a.fineTime - LAG(a.fineTime, 1, NULL) OVER(PARTITION BY a.ObsID ORDER BY a.obsID, a.fineTime) deltaLag,
-			a.fineTime - LEAD(a.fineTime, 1, NULL) OVER(PARTITION BY a.ObsID ORDER BY a.obsID, a.fineTime) deltaLead
-		FROM a
-		INNER JOIN Observation o ON o.obsID = a.obsID
-		WHERE av_avg BETWEEN o.av - o.av * @avDiffMax / 100.0 AND o.av + o.av * @avDiffMax / 100.0
-			AND (@avVarMax IS NULL OR av_var < @avVarMax)
+			a.fineTime - LAG(a.fineTime, 1, NULL) OVER(PARTITION BY a.inst, a.ObsID ORDER BY a.fineTime) deltaLag,
+			a.fineTime - LEAD(a.fineTime, 1, NULL) OVER(PARTITION BY a.inst, a.ObsID ORDER BY a.fineTime) deltaLead
+		FROM Pointing a
+		INNER JOIN Observation o ON o.inst = a.inst AND o.obsID = a.obsID
 	)
 	SELECT * FROM b
 )
 
 GO
-
 
 IF OBJECT_ID(N'load.FindLegEnds') IS NOT NULL
 DROP FUNCTION [load].[FindLegEnds]
@@ -138,8 +166,6 @@ GO
 
 CREATE FUNCTION [load].[FindLegEnds]
 (
-	@avDiffMax float,
-	@avVarMax float,
 	@legMinGap float
 )
 RETURNS TABLE
@@ -149,18 +175,19 @@ RETURN
 	WITH
 	b AS
 	(
-		SELECT * FROM [load].FilterPointingTurnaround(@avDiffMax, @avVarMax)
+		SELECT * FROM [load].FilterPointingTurnaround()
 	),
 	leg AS
 	(
-		SELECT b.*,
-			(ROW_NUMBER() OVER(PARTITION BY ObsID ORDER BY fineTime) + 1) / 2 leg,
+		SELECT inst, obsID,
+			(ROW_NUMBER() OVER(PARTITION BY inst, obsID ORDER BY fineTime) + 1) / 2 leg,
 			CASE
 				WHEN (deltaLead < -@legMinGap OR deltaLead IS NULL) AND (deltaLag > @legMinGap OR deltaLag IS NULL) THEN -1
 				WHEN deltaLead < -@legMinGap OR deltaLead IS NULL THEN 0
 				WHEN deltaLag > @legMinGap OR deltaLag IS NULL THEN 1
 				ELSE NULL
-			END start
+			END start,
+			fineTime, ra, dec, pa
 		FROM b
 		WHERE (deltaLead < -@legMinGap OR deltaLead IS NULL) OR 
 			  (deltaLag > @legMinGap OR deltaLag IS NULL) AND
@@ -171,38 +198,32 @@ RETURN
 
 GO
 
-
 IF OBJECT_ID ('load.DetectLegs', N'P') IS NOT NULL
 DROP PROC [load].[DetectLegs]
 
 GO
 
 CREATE PROC [load].[DetectLegs]
-	@avDiffMax float = 25.0,			-- max deviation from observation velocity (turnaround removal)
-	@avVarMax float = NULL,				-- max variance in velocity in moving window
 	@legMinGap bigint = 5e6				-- minimum gap to start new leg
-	
 AS
 /*
 Detect scan legs from raw pointings
 
-Raw points are filtered for scan legs. Legs are defined by almost constant
-scan velocity along straight lines. Rolling average and variance of velocity
-along scan curve is computed to find leg ends.
+Raw points are filtered for scan legs. Legs are detected from gaps in pointings.
 */
 
 	TRUNCATE TABLE [load].[LegEnds];
 
 	INSERT [load].[LegEnds] WITH(TABLOCKX)
-	SELECT obsID, leg, start, fineTime, ra, dec, pa
-	FROM [load].[FindLegEnds](@avDiffMax, @avVarMax, @legMinGap)
+	SELECT inst, obsID, leg, start, fineTime, ra, dec, pa
+	FROM [load].[FindLegEnds](@legMinGap)
 	WHERE start IN (0, 1)
 	ORDER BY obsID, fineTime;
 
-	TRUNCATE TABLE [load].[Leg];
+	--TRUNCATE TABLE [load].[Leg];
 
 	INSERT [load].[Leg] WITH(TABLOCKX)
-	SELECT a.obsID, a.legID, a.fineTime, b.fineTime, a.ra, a.dec, a.pa, b.ra, b.dec, b.pa
+	SELECT a.inst, a.obsID, a.legID, a.fineTime, b.fineTime, a.ra, a.dec, a.pa, b.ra, b.dec, b.pa
 	FROM [load].[LegEnds] a
 	INNER JOIN [load].[LegEnds] b ON a.obsID = b.obsID AND a.legID = b.legID
 	WHERE a.start = 1 AND b.start = 0;

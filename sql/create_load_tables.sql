@@ -41,6 +41,7 @@ DROP TABLE [load].[LegEnds]
 
 CREATE TABLE [load].[LegEnds]
 (
+	[inst] tinyint,
 	[obsID] bigint,
 	[legID] smallint,
 	[start] tinyint,
@@ -51,6 +52,7 @@ CREATE TABLE [load].[LegEnds]
 
 	CONSTRAINT PK_LegTemp PRIMARY KEY CLUSTERED 
 	(
+		[inst] ASC,
 		[obsID] ASC,
 		[legID] ASC,
 		[start] ASC
@@ -65,6 +67,7 @@ DROP TABLE [load].[Leg]
 
 CREATE TABLE [load].[Leg]
 (
+	[inst] tinyint NOT NULL,
 	[obsID] bigint NOT NULL,
 	[legID] smallint NOT NULL,
 	[fineTimeStart] bigint NOT NULL,
@@ -78,6 +81,7 @@ CREATE TABLE [load].[Leg]
 
 	CONSTRAINT [PK_Leg] PRIMARY KEY CLUSTERED 
 	(
+		[inst] ASC,
 		[obsID] ASC,
 		[legID] ASC
 	)
