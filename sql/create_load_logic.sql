@@ -225,7 +225,7 @@ Raw points are filtered for scan legs. Legs are detected from gaps in pointings.
 	INSERT [load].[Leg] WITH(TABLOCKX)
 	SELECT a.inst, a.obsID, a.legID, a.fineTime, b.fineTime, a.ra, a.dec, a.pa, b.ra, b.dec, b.pa
 	FROM [load].[LegEnds] a
-	INNER JOIN [load].[LegEnds] b ON a.obsID = b.obsID AND a.legID = b.legID
+	INNER JOIN [load].[LegEnds] b ON a.inst = b.inst AND a.obsID = b.obsID AND a.legID = b.legID
 	WHERE a.start = 1 AND b.start = 0;
 
 	TRUNCATE TABLE [load].[LegEnds];
