@@ -39,9 +39,6 @@
     <Reference Include="Jhu.Spherical.Htm">
       <HintPath>..\..\lib\Jhu.Spherical.Htm.dll</HintPath>
     </Reference>
-    <Reference Include="Jhu.Spherical.Visualizer">
-      <HintPath>..\..\lib\Jhu.Spherical.Visualizer.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />

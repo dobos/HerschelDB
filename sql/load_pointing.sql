@@ -1,5 +1,5 @@
 BULK INSERT [load].[RawPointing]
-FROM '[$datafile]'
+FROM '\\retdb01.vo.elte.hu\Data\Temp\vo\everebelyi\0_pp.dat'
 WITH 
 ( 
    DATAFILETYPE = 'char',
