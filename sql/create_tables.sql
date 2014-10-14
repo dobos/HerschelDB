@@ -12,7 +12,6 @@ CREATE TABLE [Pointing]
 	[dec] [float] NOT NULL,				--/ <column unit="deg">Declination of instrument center</column>
 	[pa] [float] NOT NULL,				--/ <column unit="deg">Position angle of instrument</column>
 	[av] [float] NOT NULL,				--/ <column unit="arcsec s-1">Telescope's angular velocity</column>
-	[utc] [bigint] NOT NULL,			--/ <column unit="1e-6 s">Time of pointing (UTC)</column>
 
 	CONSTRAINT [PK_Pointing] PRIMARY KEY CLUSTERED 
 	(

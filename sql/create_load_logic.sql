@@ -29,9 +29,9 @@ AS
 	--TRUNCATE TABLE [Pointing]
 
 	INSERT [Pointing] WITH (TABLOCKX)
-		(ObsID, fineTime, inst, ra, dec, pa, av, utc)
+		(ObsID, fineTime, inst, ra, dec, pa, av)
 	SELECT
-		ObsID, fineTime, inst, ra, dec, pa, av, 0
+		ObsID, fineTime, inst, ra, dec, pa, av
 	FROM [load].[RawPointing]
 
 	--TRUNCATE TABLE [load].[RawPointing];
@@ -85,7 +85,7 @@ TODO: add minimum enclosing circle center, coverage, area, pointing count etc.
 	SELECT
 		o.obsID, o.inst, o.fineTimeStart, o.fineTimeEnd, v.vvv, NULL
 	FROM minmax o
-	INNER JOIN velhistmax v ON v.obsID = o.obsID AND v.rn = 1
+	INNER JOIN velhistmax v ON v.inst = o.inst AND v.obsID = o.obsID AND v.rn = 1
 
 GO
 

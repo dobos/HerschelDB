@@ -16,6 +16,5 @@ namespace Herschel.Lib
         public double Dec;
         public double Pa;
         public double AV;
-        public long Utc;
     }
 }

@@ -22,8 +22,7 @@ namespace Herschel.Loader
             writer.Write("{0} ", p.Ra);
             writer.Write("{0} ", p.Dec);
             writer.Write("{0} ", p.Pa);
-            writer.Write("{0} ", p.AV);
-            writer.WriteLine("{0} ", p.Utc);
+            writer.WriteLine("{0} ", p.AV);
         }
 
         public void PreparePointings(string path, string output, int fnum)
