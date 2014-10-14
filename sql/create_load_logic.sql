@@ -1,12 +1,13 @@
-IF OBJECT_ID ('load.MergePointing_PACS', N'P') IS NOT NULL
-DROP PROC [load].[MergePointing_PACS]
+IF OBJECT_ID ('load.MergePointing', N'P') IS NOT NULL
+DROP PROC [load].[MergePointing]
 
 GO
 
-CREATE PROC [load].[MergePointing_PACS]
+CREATE PROC [load].[MergePointing]
 AS
 	/*CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
 	(
+		[inst] ASC,
 		[obsID] ASC,
 		[fineTime] ASC
 	)
@@ -30,52 +31,8 @@ AS
 	INSERT [Pointing] WITH (TABLOCKX)
 		(ObsID, fineTime, inst, ra, dec, pa, av, utc)
 	SELECT
-		ObsID, fineTime, inst, ra, dec, pa, SQRT(avy*avy + avz*avz), 0
+		ObsID, fineTime, inst, ra, dec, pa, av, 0
 	FROM [load].[RawPointing]
-	WHERE inst = 1	-- only PACS
-	  AND bbID = 215131301	-- only scan lines, no turn-around
-
-	--TRUNCATE TABLE [load].[RawPointing];
-
-GO
-
----------------------------------------------------------------
-
-IF OBJECT_ID ('load.MergePointing_SPIRE', N'P') IS NOT NULL
-DROP PROC [load].[MergePointing_SPIRE]
-
-GO
-
-CREATE PROC [load].[MergePointing_SPIRE]
-AS
-	/*CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
-	(
-		[obsID] ASC,
-		[fineTime] ASC
-	)
-	WITH (SORT_IN_TEMPDB = ON)
-	ON [LOAD]*/
-
-	-- Check duplicates
-
-	IF (EXISTS
-	(
-		SELECT obsID, CONVERT(bigint, ROUND(sampleTime * 1e6, 0)), COUNT(*)
-		FROM [load].[RawPointing]
-		WHERE inst = 2
-		GROUP BY obsID, CONVERT(bigint, ROUND(sampleTime * 1e6, 0))
-		HAVING COUNT(*) > 1
-	))
-	THROW 51000, 'Duplicate key.', 1;
-
-	--TRUNCATE TABLE [Pointing]
-
-	INSERT [Pointing] WITH (TABLOCKX)
-		(ObsID, fineTime, inst, ra, dec, pa, av, utc)
-	SELECT
-		ObsID, CONVERT(bigint, ROUND(sampleTime * 1e6, 0)), inst, ra, dec, pa, av * 3600.00000000, 0
-	FROM [load].[RawPointing]
-	WHERE inst = 2	-- only SPIRE
 
 	--TRUNCATE TABLE [load].[RawPointing];
 
@@ -249,14 +206,16 @@ AS
 	DBCC SETCPUWEIGHT(1000); 
 
 	INSERT [load].[LegRegion] WITH (TABLOCKX)
-	SELECT leg.obsID, leg.legID, leg.fineTimeStart, leg.fineTimeEnd,
-		   dbo.GetLegRegion(leg.raStart, leg.decStart, leg.paStart, leg.raEnd, leg.decEnd, leg.paEnd, 'Blue')
+	SELECT leg.inst, leg.obsID, leg.legID, leg.fineTimeStart, leg.fineTimeEnd,
+		   dbo.GetLegRegion(leg.raStart, leg.decStart, leg.paStart, leg.raEnd, leg.decEnd, leg.paEnd,
+		    CASE inst
+			WHEN 1 THEN 'PacsPhoto'
+			WHEN 2 THEN 'SpirePhoto'
+			END)
 	FROM [load].Leg leg
 
 	UPDATE [Observation]
-	SET fineTimeStart = leg.fineTimeStart,
-		fineTimeEnd = leg.fineTimeEnd,
-		region = leg.region
+	SET region = leg.region
 	FROM [Observation] obs
 	INNER JOIN
 		(SELECT obsID, MIN(fineTimeStart) fineTimeStart, Max(fineTimeEnd) fineTimeEnd, region.UnionEvery(region) region
