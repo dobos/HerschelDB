@@ -70,7 +70,7 @@ TODO: add minimum enclosing circle center, coverage, area, pointing count etc.
 	),
 	velhistmax AS
 	(
-		SELECT *, ROW_NUMBER() OVER(PARTITION BY obsID ORDER BY cnt DESC) rn
+		SELECT *, ROW_NUMBER() OVER(PARTITION BY obsID, inst ORDER BY cnt DESC) rn
 		FROM velhist
 		--WHERE vvv > 2	-- velocity is low at turn around
 	),
@@ -177,7 +177,7 @@ Raw points are filtered for scan legs. Legs are detected from gaps in pointings.
 	WHERE start IN (0, 1)
 	ORDER BY obsID, fineTime;
 
-	--TRUNCATE TABLE [load].[Leg];
+	TRUNCATE TABLE [load].[Leg];
 
 	INSERT [load].[Leg] WITH(TABLOCKX)
 	SELECT a.inst, a.obsID, a.legID, a.fineTime, b.fineTime, a.ra, a.dec, a.pa, b.ra, b.dec, b.pa
@@ -218,10 +218,10 @@ AS
 	SET region = leg.region
 	FROM [Observation] obs
 	INNER JOIN
-		(SELECT obsID, MIN(fineTimeStart) fineTimeStart, Max(fineTimeEnd) fineTimeEnd, region.UnionEvery(region) region
+		(SELECT inst, obsID, MIN(fineTimeStart) fineTimeStart, Max(fineTimeEnd) fineTimeEnd, region.UnionEvery(region) region
 		 FROM [load].LegRegion
-		 GROUP BY obsID) leg
-		ON leg.obsID = obs.obsID;
+		 GROUP BY inst, obsID) leg
+		ON leg.inst = obs.inst AND leg.obsID = obs.obsID;
 
 	DBCC SETCPUWEIGHT(1); 
 
