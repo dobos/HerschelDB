@@ -36,7 +36,7 @@ namespace Herschel.Sql.Plot
                             index++;
 
                             var bytes = dr.GetSqlBytes(0);
-                            region = Herschel.Lib.Util.GetRegion(bytes);
+                            region = Region.FromSqlBytes(bytes);
 
                             switch (verb)
                             {
