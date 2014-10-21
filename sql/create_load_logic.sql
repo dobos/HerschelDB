@@ -228,6 +228,30 @@ AS
 GO
 
 
+IF OBJECT_ID ('load.GeneratePacsSpireParallel', N'P') IS NOT NULL
+DROP PROC [load].[GeneratePacsSpireParallel]
+
+GO
+
+CREATE PROC [load].[GeneratePacsSpireParallel]
+AS
+/*
+	Generate entries for PACS-SPIRE parallel observations, compute footprint
+*/
+
+	INSERT Observation WITH (TABLOCKX)
+	SELECT
+		3 AS inst,			-- Parallel
+		a.obsID, a.fineTimeStart, a.fineTimeEnd, a.av,
+		region.[Intersect](a.region, b.region) AS region
+	FROM Observation a
+	INNER JOIN Observation b ON a.obsID = b.obsID
+	WHERE a.inst = 1		-- PACS
+		  AND b.inst = 2	-- SPIRE
+
+GO
+
+
 IF OBJECT_ID ('load.GenerateHtm', N'P') IS NOT NULL
 DROP PROC [load].[GenerateHtm]
 
@@ -244,7 +268,7 @@ AS
 	DBCC SETCPUWEIGHT(1000); 
 
 	INSERT ObservationHtm WITH (TABLOCKX)
-	SELECT obsID, htm.htmIDstart, htm.htmIDEnd, fineTimeStart, fineTimeEnd, htm.partial
+	SELECT inst, obsID, htm.htmIDstart, htm.htmIDEnd, fineTimeStart, fineTimeEnd, htm.partial
 	FROM Observation
 	CROSS APPLY htm.Cover(region) htm;
 
