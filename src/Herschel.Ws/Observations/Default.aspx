@@ -19,10 +19,10 @@
                                         </td>
                                         <td class="field" style="width: 520px">
                                             <asp:CheckBoxList ID="instrumentList" runat="server" RepeatDirection="Horizontal">
-                                                <asp:ListItem Value="PACS" Text="PACS" Selected="True" />
-                                                <asp:ListItem Value="SPIRE" Text="SPIRE" Enabled="false" />
-                                                <asp:ListItem Value="PARALLEL" Text="PACS/SPIRE parallel" Enabled="false" />
-                                                <asp:ListItem Value="HIFI" Text="HIFI" Enabled="false" />
+                                                <asp:ListItem Value="Pacs" Text="PACS" Selected="True" />
+                                                <asp:ListItem Value="Spire" Text="SPIRE"/>
+                                                <asp:ListItem Value="Parallel" Text="PACS/SPIRE parallel"/>
+                                                <asp:ListItem Value="Hifi" Text="HIFI" Enabled="false" />
                                             </asp:CheckBoxList>
                                         </td>
                                     </tr>
@@ -99,6 +99,7 @@
                                 Width="100%">
                                 <Columns>
                                     <hwc:SelectionField ItemStyle-HorizontalAlign="Center" />
+                                    <asp:BoundField HeaderText="instrument" DataField="Instrument" />
                                     <asp:BoundField HeaderText="obs ID" DataField="ObsID" />
                                     <asp:BoundField HeaderText="fine time start" DataField="FineTimeStart" />
                                     <asp:BoundField HeaderText="fine time end" DataField="FineTimeEnd" />
