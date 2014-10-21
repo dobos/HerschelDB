@@ -61,6 +61,7 @@ CREATE TABLE [ObservationHtm]
 --/ <summary>HTM index for observation footprints</summary>
 --/ <remarks></remarks>
 
+	[inst] tinyint NOT NULL,			--/ <column>Instrument</column>
 	[obsID] bigint NOT NULL,			--/ <column>Unique ID of the observation</column>
 	[htmIDStart] bigint NOT NULL,		--/ <column>HTM ID range start</column>
 	[htmIDEnd] bigint NOT NULL,			--/ <column>HTM ID range end</column>
