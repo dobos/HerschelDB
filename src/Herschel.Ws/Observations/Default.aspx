@@ -95,7 +95,7 @@
                                 OnObjectCreating="observationDataSource_ObjectCreating" TypeName="Herschel.Lib.ObservationSearch"
                                 SelectMethod="Find" />
                             <hwc:MultiSelectGridView runat="server" ID="observationList" DataSourceID="observationDataSource"
-                                AutoGenerateColumns="false" DataKeyNames="ObsID"
+                                AutoGenerateColumns="false" DataKeyNames="Instrument,ObsID"
                                 Width="100%">
                                 <Columns>
                                     <hwc:SelectionField ItemStyle-HorizontalAlign="Center" />

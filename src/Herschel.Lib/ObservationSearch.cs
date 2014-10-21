@@ -32,7 +32,7 @@ namespace Herschel.Lib
             }
         }
 
-        public Observation Get(long obsID)
+        public Observation Get(ObservationID obsId)
         {
             var sql =
 @"
@@ -43,15 +43,15 @@ WHERE (obs.inst IS NULL OR (obs.inst & @inst) > 0)
 ORDER BY obs.ObsID";
 
             var cmd = new SqlCommand(sql);
-            cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;
-            cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = obsID;
+            cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = obsId.Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)obsId.Instrument;
+            cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = obsId.ID;
 
             return ExecuteCommandReader<Observation>(cmd).FirstOrDefault();
         }
 
-        public IEnumerable<Observation> FindID(IList<long> ids)
+        public IEnumerable<Observation> FindID(IList<ObservationID> obsIds)
         {
-            if (ids.Count == 0)
+            if (obsIds.Count == 0)
             {
                 return new Observation[0];
             }
@@ -60,24 +60,23 @@ ORDER BY obs.ObsID";
 @"
 SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, region
 FROM [dbo].[Observation] obs
-WHERE (obs.inst IS NULL OR (obs.inst & @inst) > 0)
-      AND obs.obsID IN ({0})
-ORDER BY obs.ObsID";
+WHERE {0}
+ORDER BY inst, obs.ObsID";
 
             var idlist = String.Empty;
-            for (int i = 0; i < ids.Count; i++)
+            for (int i = 0; i < obsIds.Count; i++)
             {
                 if (i > 0)
                 {
-                    idlist += ",";
+                    idlist += "OR";
                 }
-                idlist += ids[i];
+
+                idlist += String.Format("(inst = {0} AND obsID = {1})", (byte)obsIds[i].Instrument, obsIds[i].ID);
             }
 
             sql = String.Format(sql, idlist);
 
             var cmd = new SqlCommand(sql);
-            cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;
 
             return ExecuteCommandReader<Observation>(cmd);
         }

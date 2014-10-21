@@ -318,7 +318,7 @@ namespace Herschel.Ws.Observations
 
             // Find regions
             var s = new Lib.ObservationSearch();
-            var ids = observationList.SelectedDataKeys.Select(id => long.Parse(id)).ToArray();
+            var ids = observationList.SelectedDataKeys.Select(id => ObservationID.Parse(id)).ToArray();
             var observations = new List<Observation>(searchObject.FindID(ids));
 
             // Apply region transformations
