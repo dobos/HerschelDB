@@ -202,8 +202,10 @@ namespace Herschel.Ws.Api
         {
             var s = new ObservationSearch()
             {
-                Instrument = Instrument.Pacs,
+                Instrument = (Instrument)Enum.Parse(typeof(Instrument), inst),
                 Point = new Jhu.Spherical.Cartesian(ra, dec),
+                FineTimeStart = start,
+                FineTimeEnd = end,
             };
 
             return s.FindEq();

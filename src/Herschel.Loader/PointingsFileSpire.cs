@@ -16,7 +16,7 @@ namespace Herschel.Loader
         {
             var ps = new PointingSpire();
 
-            ps.Instrument = Instrument.Spire;
+            ps.Instrument = Instrument.SpirePhoto;
 
             ps.ObsID = ObservationID;
             ps.Ra = double.Parse(parts[0]);

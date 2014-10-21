@@ -210,7 +210,7 @@ AS
 		   dbo.GetLegRegion(leg.raStart, leg.decStart, leg.paStart, leg.raEnd, leg.decEnd, leg.paEnd,
 		    CASE inst
 			WHEN 1 THEN 'PacsPhoto'
-			WHEN 2 THEN 'SpirePhoto'
+			WHEN 4 THEN 'SpirePhoto'
 			END)
 	FROM [load].Leg leg
 
@@ -241,13 +241,13 @@ AS
 
 	INSERT Observation WITH (TABLOCKX)
 	SELECT
-		3 AS inst,			-- Parallel
+		16 AS inst,			-- Parallel
 		a.obsID, a.fineTimeStart, a.fineTimeEnd, a.av,
 		region.[Intersect](a.region, b.region) AS region
 	FROM Observation a
 	INNER JOIN Observation b ON a.obsID = b.obsID
 	WHERE a.inst = 1		-- PACS
-		  AND b.inst = 2	-- SPIRE
+		  AND b.inst = 4	-- SPIRE
 
 GO
 

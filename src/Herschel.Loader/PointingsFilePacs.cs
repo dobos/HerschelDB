@@ -14,7 +14,7 @@ namespace Herschel.Loader
         {
             var pp = new PointingPacs();
 
-            pp.Instrument = Instrument.Pacs;
+            pp.Instrument = Instrument.PacsPhoto;
 
             pp.ObsID = long.Parse(parts[1]);
             pp.FineTime = long.Parse(parts[6]);

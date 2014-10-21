@@ -14,14 +14,35 @@ namespace Herschel.Ws.Observations
 {
     public partial class Default : PageBase
     {
-        static readonly Brush[] HerschelBrushes = new Brush[]
+        static Brush[] HerschelBrushes;
+
+        static Default()
+        {
+            HerschelBrushes = new Brush[(int)Instrument.Hifi + 1];
+
+            for (int i = 0; i < HerschelBrushes.Length; i ++)
             {
-                new SolidBrush(Color.FromArgb(64, Color.Yellow)),
-                new SolidBrush(Color.FromArgb(64, Color.Blue)),
-                new SolidBrush(Color.FromArgb(64, Color.Red)),
-                new SolidBrush(Color.FromArgb(64, Color.Orange)),
-                new SolidBrush(Color.FromArgb(64, Color.Green)),
-            };
+                HerschelBrushes[i] = Brushes.White;
+            }
+
+            HerschelBrushes[0] =
+                new SolidBrush(Color.FromArgb(64, Color.Yellow));
+
+            HerschelBrushes[(int)Instrument.PacsPhoto] =
+            HerschelBrushes[(int)Instrument.PacsSpectro] =
+                new SolidBrush(Color.FromArgb(64, Color.Blue));
+
+            HerschelBrushes[(int)Instrument.SpirePhoto] =
+            HerschelBrushes[(int)Instrument.SpireSpectro] =
+                new SolidBrush(Color.FromArgb(64, Color.Red));
+
+            HerschelBrushes[(int)Instrument.Parallel] =
+                new SolidBrush(Color.FromArgb(64, Color.Orange));
+
+            HerschelBrushes[(int)Instrument.Hifi] =
+                new SolidBrush(Color.FromArgb(64, Color.Green));
+            
+        }
 
         private enum RenderMode
         {
