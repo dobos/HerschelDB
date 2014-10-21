@@ -96,6 +96,6 @@ RETURN
 
 GO
 
-GRANT SELECT ON [dbo].[FindObservationRegion] TO [User]
+GRANT SELECT ON [dbo].[FindObservationRegionIntersect] TO [User]
 
 GO
