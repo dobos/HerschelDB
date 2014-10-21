@@ -35,7 +35,6 @@ namespace Herschel.Loader
                 Dec = ps.Dec,
                 Pa = ps.Pa,
                 AV = ps.AV * 3600,  // convert from deg s-1 to arcsec s-1
-                // TODO: Utc
             };
             
             return true;

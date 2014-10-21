@@ -44,7 +44,6 @@ namespace Herschel.Loader
                 Dec = pp.Dec,
                 Pa = pp.Pa,
                 AV = Math.Sqrt(pp.AVY * pp.AVY + pp.AVZ * pp.AVZ),
-                // TODO: Utc
             };
 
             // TODO: change this to accept all valid BBIDs
