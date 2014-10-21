@@ -22,8 +22,8 @@ namespace Herschel.Lib
         None = 0,
         Pacs = 1,
         Spire = 2,
-        Parallel = 4,
-        Hifi = 8
+        Parallel = 3,
+        Hifi = 4
     }
 
     public enum ObservationSearchMethod

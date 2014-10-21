@@ -36,12 +36,14 @@ namespace Herschel.Lib
         {
             var sql =
 @"
-SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, region
+SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, region
 FROM [dbo].[Observation] obs
-WHERE obs.obsID = @obsID
+WHERE (obs.inst IS NULL OR (obs.inst & @inst) > 0)
+      AND obs.obsID = @obsID
 ORDER BY obs.ObsID";
 
             var cmd = new SqlCommand(sql);
+            cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;
             cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = obsID;
 
             return ExecuteCommandReader<Observation>(cmd).FirstOrDefault();
@@ -56,9 +58,10 @@ ORDER BY obs.ObsID";
 
             var sql =
 @"
-SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, region
+SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, region
 FROM [dbo].[Observation] obs
-WHERE obs.obsID IN ({0})
+WHERE (obs.inst IS NULL OR (obs.inst & @inst) > 0)
+      AND obs.obsID IN ({0})
 ORDER BY obs.ObsID";
 
             var idlist = String.Empty;
@@ -74,6 +77,7 @@ ORDER BY obs.ObsID";
             sql = String.Format(sql, idlist);
 
             var cmd = new SqlCommand(sql);
+            cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;
 
             return ExecuteCommandReader<Observation>(cmd);
         }
@@ -82,15 +86,17 @@ ORDER BY obs.ObsID";
         {
             var sql =
 @"
-SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, region
+SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, region
 FROM [dbo].[FindObservationEq](@ra, @dec) ids
 INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
-      ON obs.obsID = ids.obsID
-WHERE (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
+      ON obs.inst = ids.inst AND obs.obsID = ids.obsID
+WHERE (obs.inst IS NULL OR (obs.inst & @inst) > 0)
+      AND (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
       AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
 ORDER BY obs.ObsID";
 
             var cmd = new SqlCommand(sql);
+            cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;
             cmd.Parameters.Add("@ra", SqlDbType.Float).Value = Point.RA;
             cmd.Parameters.Add("@dec", SqlDbType.Float).Value = Point.Dec;
             cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
@@ -103,15 +109,17 @@ ORDER BY obs.ObsID";
         {
             var sql =
 @"
-SELECT obs.obsID, fineTimeStart, fineTimeEnd, av, obs.region
+SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, obs.region
 FROM [dbo].[FindObservationRegionIntersect](@region) ids
 INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
-    ON obs.obsID = ids.obsID
-WHERE (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
+    ON obs.inst = ids.inst AND obs.obsID = ids.obsID
+WHERE (obs.inst IS NULL OR (obs.inst & @inst) > 0)
+      AND (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
       AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
 ORDER BY obs.ObsID";
 
             var cmd = new SqlCommand(sql);
+            cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;
             cmd.Parameters.Add("@region", SqlDbType.VarBinary).Value = Region.ToSqlBytes().Value;
             cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
             cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeEnd) ? (object)DBNull.Value : FineTimeEnd.Value;
