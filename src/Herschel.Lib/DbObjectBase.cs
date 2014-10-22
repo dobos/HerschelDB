@@ -13,7 +13,7 @@ namespace Herschel.Lib
     {
         protected string ConnectionString
         {
-            get { return ConfigurationManager.ConnectionStrings["everebelyi"].ConnectionString; }
+            get { return ConfigurationManager.ConnectionStrings["Herschel"].ConnectionString; }
         }
 
         protected SqlConnection OpenConnection()
