@@ -76,6 +76,21 @@ CREATE CLUSTERED INDEX [CI_ObservationHtm] ON [ObservationHtm]
 	[htmIDEnd] ASC
 )
 
+CREATE NONCLUSTERED INDEX [IX_ObservationHtm_Reverse] ON [dbo].[ObservationHtm]
+(
+	[htmIDEnd] ASC,
+	[htmIDStart] ASC
+)
+INCLUDE 
+( 	[inst],
+	[obsID],
+	[fineTimeStart],
+	[fineTimeEnd],
+	[partial]
+) WITH (SORT_IN_TEMPDB = ON)
+
+GO
+
 GRANT SELECT ON [ObservationHtm] TO [User]
 
 GO

@@ -9,7 +9,7 @@ using Jhu.Spherical;
 
 namespace Herschel.Lib
 {
-    public class ObservationSearch : DbObjectBase
+    public class ObservationSearch
     {
         public ObservationSearchMethod SearchMethod { get; set; }
         public Instrument Instrument { get; set; }
@@ -46,7 +46,7 @@ ORDER BY obs.ObsID";
             cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = obsId.Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)obsId.Instrument;
             cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = obsId.ID;
 
-            return ExecuteCommandReader<Observation>(cmd).FirstOrDefault();
+            return DbHelper.ExecuteCommandReader<Observation>(cmd).FirstOrDefault();
         }
 
         public IEnumerable<Observation> FindID(IList<ObservationID> obsIds)
@@ -78,7 +78,7 @@ ORDER BY inst, obs.ObsID";
 
             var cmd = new SqlCommand(sql);
 
-            return ExecuteCommandReader<Observation>(cmd);
+            return DbHelper.ExecuteCommandReader<Observation>(cmd);
         }
 
         public IEnumerable<Observation> FindEq()
@@ -101,7 +101,7 @@ ORDER BY obs.ObsID";
             cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
             cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeEnd) ? (object)DBNull.Value : FineTimeEnd.Value;
 
-            return ExecuteCommandReader<Observation>(cmd);
+            return DbHelper.ExecuteCommandReader<Observation>(cmd);
         }
 
         public IEnumerable<Observation> FindRegionIntersect()
@@ -123,7 +123,7 @@ ORDER BY obs.ObsID";
             cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
             cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeEnd) ? (object)DBNull.Value : FineTimeEnd.Value;
 
-            return ExecuteCommandReader<Observation>(cmd);
+            return DbHelper.ExecuteCommandReader<Observation>(cmd);
         }
     }
 }

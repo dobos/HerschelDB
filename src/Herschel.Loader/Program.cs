@@ -33,6 +33,12 @@ namespace Herschel.Loader
                 case "load":
                     LoadPointings(args);
                     break;
+                case "merge":
+                    MergePointings(args);
+                    break;
+                case "cleanup":
+                    CleanupPointings(args);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -51,12 +57,56 @@ namespace Herschel.Loader
 
         private static void LoadPointings(string[] args)
         {
-            var inst = args[1].ToLowerInvariant();
-            var path = args[2];
-            int fnum = int.Parse(args[3]);
+            var path = args[1];
+            int fnum = int.Parse(args[2]);
 
-            var file = GetPointingsFile(inst);
-            file.LoadPointings(path, fnum);
+            LoadPointings(path, fnum);
+        }
+
+        private static void LoadPointings(string filename, int fnum)
+        {
+            Parallel.For(0, fnum, i =>
+            {
+                var infile = Path.GetFullPath(String.Format(filename, i));
+
+                Console.WriteLine("Loading from {0}...", infile);
+
+                var sql = SqlScripts.LoadPointing;
+                sql = sql.Replace("[$datafile]", infile);
+
+                using (var cmd = new SqlCommand(sql))
+                {
+                    cmd.CommandTimeout = 3600;  // 1h should be enough for bulk inserts
+                    DbHelper.ExecuteCommandNonQuery(cmd);
+                }
+            });
+        }
+
+        private static void MergePointings(string[] args)
+        {
+            ExecuteScript(SqlScripts.MergePointing);
+        }
+
+        private static void CleanupPointings(string[] args)
+        {
+            ExecuteScript(SqlScripts.CleanupPointing);
+        }
+
+        private static void ExecuteScript(string script)
+        {
+            // Split query
+            var sql = DbHelper.SplitQuery(script);
+
+            for (int i = 0; i < sql.Length; i++)
+            {
+                Console.WriteLine("Executing query:");
+                Console.WriteLine(sql[i]);
+
+                using (var cmd = new SqlCommand(sql[i]))
+                {
+                    DbHelper.ExecuteCommandNonQuery(cmd);
+                }
+            }
         }
 
         private static PointingsFile GetPointingsFile(string inst)

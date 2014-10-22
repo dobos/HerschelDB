@@ -121,4 +121,10 @@
   <data name="LoadPointing" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\sql\load_pointing.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1250</value>
   </data>
+  <data name="MergePointing" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\sql\merge_pointing.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1250</value>
+  </data>
+  <data name="CleanupPointing" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\sql\cleanup_pointing.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1250</value>
+  </data>
 </root>
