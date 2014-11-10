@@ -53,6 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="ObservationID.cs" />
+    <Compile Include="PointingSpire.cs" />
+    <Compile Include="PointingPacs.cs" />
     <Compile Include="DataReaderEnumerator.cs" />
     <Compile Include="DbObjectBase.cs" />
     <Compile Include="Detector.cs" />

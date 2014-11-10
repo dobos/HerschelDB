@@ -16,6 +16,7 @@ namespace Herschel.Lib
         [IgnoreDataMember]
         public bool Selected { get; set; }
 
+        public Instrument Instrument { get; set; }
         public Int64 ObsID { get; set; }
 
         public FineTime FineTimeStart { get; set; }
@@ -28,6 +29,7 @@ namespace Herschel.Lib
 
         public void LoadFromDataReader(SqlDataReader reader)
         {
+            Instrument = (Instrument)reader.GetByte(reader.GetOrdinal("inst"));
             ObsID = reader.GetInt64(reader.GetOrdinal("obsID"));
             FineTimeStart = reader.GetInt64(reader.GetOrdinal("fineTimeStart"));
             FineTimeEnd = reader.GetInt64(reader.GetOrdinal("fineTimeEnd"));

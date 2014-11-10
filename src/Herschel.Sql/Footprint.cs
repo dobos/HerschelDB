@@ -62,7 +62,7 @@ public partial class UserDefinedFunctions
 
         var r = d.GetFootprint(new Cartesian(ra.Value, dec.Value), pa.Value);
 
-        return Util.SetRegion(r);
+        return r.ToSqlBytes();
     }
 
     [SqlFunction(Name = "GetLegCornersEq", TableDefinition = "id tinyint, ra float, dec float",

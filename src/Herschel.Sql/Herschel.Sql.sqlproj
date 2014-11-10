@@ -26,6 +26,7 @@
     <GenerateCreateScript>True</GenerateCreateScript>
     <TargetFrameworkProfile />
     <AssemblyOwner>dbo</AssemblyOwner>
+    <Trustworthy>True</Trustworthy>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>

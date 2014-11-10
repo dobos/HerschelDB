@@ -56,6 +56,8 @@ namespace Herschel.Ws.Api
         [DynamicResponseFormat]
         [Description("Returns the details of a single observation by obsID.")]
         Observation GetObservation(
+            [Description("An instrument identifier.")]
+            string inst,
             [Description("Observation ID.")]
             string obsID);
 
@@ -64,6 +66,8 @@ namespace Herschel.Ws.Api
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint")]
         [Description("Returns the footprint of an observation.")]
         string GetObservationFootprint(
+            [Description("An instrument identifier.")]
+            string inst,
             [Description("Observation ID.")]
             string obsID);
 
@@ -72,6 +76,8 @@ namespace Herschel.Ws.Api
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline")]
         [Description("Returns the outline of the footprint of an observation.")]
         string GetObservationOutline(
+            [Description("An instrument identifier.")]
+            string inst,
             [Description("Observation ID.")]
             string obsID);
 
@@ -80,6 +86,8 @@ namespace Herschel.Ws.Api
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline/Points")]
         [Description("Returns the arc endpoints of the outline of the footprint of an observation.")]
         string GetObservationOutlinePoints(
+            [Description("An instrument identifier.")]
+            string inst,
             [Description("Observation ID.")]
             string obsID);
 
@@ -88,6 +96,8 @@ namespace Herschel.Ws.Api
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline/Reduced?limit={limit}")]
         [Description("Returns the reduced outline of the footprint of an observation.")]
         string GetObservationOutlineReduced(
+            [Description("An instrument identifier.")]
+            string inst,
             [Description("Observation ID.")]
             string obsID,
             [Description("Limit of the reduction algorithm, arc sec.")]
@@ -98,6 +108,8 @@ namespace Herschel.Ws.Api
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline/Reduced/Points?limit={limit}")]
         [Description("Returns the arc endpoints of the reduced outline of the footprint of an observation.")]
         string GetObservationOutlineReducedPoints(
+            [Description("An instrument identifier.")]
+            string inst,
             [Description("Observation ID.")]
             string obsID,
             [Description("Limit of the reduction algorithm, arc sec.")]
@@ -108,6 +120,8 @@ namespace Herschel.Ws.Api
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/ConvexHull")]
         [Description("Returns the convex hull of the footprint of an observation.")]
         string GetObservationConvexHull(
+            [Description("An instrument identifier.")]
+            string inst,
             [Description("Observation ID.")]
             string obsID);
 
@@ -116,6 +130,8 @@ namespace Herschel.Ws.Api
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/ConvexHull/Outline")]
         [Description("Returns the outline of the convex hull of the footprint of an observation.")]
         string GetObservationConvexHullOutline(
+            [Description("An instrument identifier.")]
+            string inst,
             [Description("Observation ID.")]
             string obsID);
 
@@ -124,6 +140,8 @@ namespace Herschel.Ws.Api
         [WebGet(UriTemplate = "Observations/{obsID}/Footprint/ConvexHull/Outline/Points")]
         [Description("Returns the arc endpoints of the outline of the convex hull of the footprint of an observation.")]
         string GetObservationConvexHullOutlinePoints(
+            [Description("An instrument identifier.")]
+            string inst,
             [Description("Observation ID.")]
             string obsID);
     }
@@ -132,7 +150,7 @@ namespace Herschel.Ws.Api
     {
         #region Private utility functions
 
-        private Observation GetObservation(long obsID)
+        private Observation GetObservation(ObservationID obsID)
         {
             var s = new ObservationSearch();
             var obs = s.Get(obsID);
@@ -184,8 +202,10 @@ namespace Herschel.Ws.Api
         {
             var s = new ObservationSearch()
             {
-                Instrument = Instrument.Pacs,
+                Instrument = (Instrument)Enum.Parse(typeof(Instrument), inst),
                 Point = new Jhu.Spherical.Cartesian(ra, dec),
+                FineTimeStart = start,
+                FineTimeEnd = end,
             };
 
             return s.FindEq();
@@ -196,53 +216,53 @@ namespace Herschel.Ws.Api
             return null;
         }
 
-        public Observation GetObservation(string obsID)
+        public Observation GetObservation(string instrument, string obsID)
         {
-            var obs = GetObservation(long.Parse(obsID));
+            var obs = GetObservation(ObservationID.Parse(instrument, obsID));
             return obs;
         }
 
-        public string GetObservationFootprint(string obsID)
+        public string GetObservationFootprint(string instrument, string obsID)
         {
-            var obs = GetObservation(long.Parse(obsID));
+            var obs = GetObservation(ObservationID.Parse(instrument, obsID));
             return obs.Region.ToString();
         }
 
-        public string GetObservationOutline(string obsID)
+        public string GetObservationOutline(string instrument, string obsID)
         {
-            var obs = GetObservation(long.Parse(obsID));
+            var obs = GetObservation(ObservationID.Parse(instrument, obsID));
             return obs.Region.Outline.ToString();
         }
 
-        public string GetObservationOutlinePoints(string obsID)
+        public string GetObservationOutlinePoints(string instrument, string obsID)
         {
-            var obs = GetObservation(long.Parse(obsID));
+            var obs = GetObservation(ObservationID.Parse(instrument, obsID));
             return FormatOutlinePoints(obs.Region.Outline);
         }
 
-        public string GetObservationOutlineReduced(string obsID, double limit)
+        public string GetObservationOutlineReduced(string instrument, string obsID, double limit)
         {
-            var obs = GetObservation(long.Parse(obsID));
+            var obs = GetObservation(ObservationID.Parse(instrument, obsID));
             obs.Region.Outline.Reduce(limit);
             return obs.Region.Outline.ToString();
         }
 
-        public string GetObservationOutlineReducedPoints(string obsID, double limit)
+        public string GetObservationOutlineReducedPoints(string instrument, string obsID, double limit)
         {
-            var obs = GetObservation(long.Parse(obsID));
+            var obs = GetObservation(ObservationID.Parse(instrument, obsID));
             obs.Region.Outline.Reduce(limit);
             return FormatOutlinePoints(obs.Region.Outline);
         }
 
-        public string GetObservationConvexHull(string obsID)
+        public string GetObservationConvexHull(string instrument, string obsID)
         {
-            var obs = GetObservation(long.Parse(obsID));
+            var obs = GetObservation(ObservationID.Parse(instrument, obsID));
             return obs.Region.Outline.GetConvexHull().ToString();
         }
 
-        public string GetObservationConvexHullOutline(string obsID)
+        public string GetObservationConvexHullOutline(string instrument, string obsID)
         {
-            var obs = GetObservation(long.Parse(obsID));
+            var obs = GetObservation(ObservationID.Parse(instrument, obsID));
 
             var chull = obs.Region.Outline.GetConvexHull();
             chull.Simplify();
@@ -250,9 +270,9 @@ namespace Herschel.Ws.Api
             return chull.Outline.ToString();
         }
 
-        public string GetObservationConvexHullOutlinePoints(string obsID)
+        public string GetObservationConvexHullOutlinePoints(string instrument, string obsID)
         {
-            var obs = GetObservation(long.Parse(obsID));
+            var obs = GetObservation(ObservationID.Parse(instrument, obsID));
 
             var chull = obs.Region.Outline.GetConvexHull();
             chull.Simplify();

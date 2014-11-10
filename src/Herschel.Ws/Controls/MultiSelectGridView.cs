@@ -161,10 +161,13 @@ namespace Herschel.Ws.Controls
 
         protected override void OnPreRender(EventArgs e)
         {
-            selectAllCheckbox.Checked = SelectedDataKeys.Count > 0;
-
             if (!this.DesignMode)
             {
+                if (selectAllCheckbox != null)
+                {
+                    selectAllCheckbox.Checked = SelectedDataKeys.Count > 0;
+                }
+
                 var scriptManager = ScriptManager.GetCurrent(this.Page);
                 if (scriptManager != null)
                 {

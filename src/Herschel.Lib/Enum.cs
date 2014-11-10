@@ -20,10 +20,12 @@ namespace Herschel.Lib
     public enum Instrument : byte
     {
         None = 0,
-        Pacs = 1,
-        Spire = 2,
-        Parallel = 4,
-        Hifi = 8
+        PacsPhoto = 1,
+        PacsSpectro = 2,
+        SpirePhoto = 4,
+        SpireSpectro = 8,
+        Parallel = 16,
+        Hifi = 32
     }
 
     public enum ObservationSearchMethod

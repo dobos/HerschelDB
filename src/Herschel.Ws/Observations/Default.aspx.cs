@@ -14,6 +14,36 @@ namespace Herschel.Ws.Observations
 {
     public partial class Default : PageBase
     {
+        static Brush[] HerschelBrushes;
+
+        static Default()
+        {
+            HerschelBrushes = new Brush[(int)Instrument.Hifi + 1];
+
+            for (int i = 0; i < HerschelBrushes.Length; i ++)
+            {
+                HerschelBrushes[i] = Brushes.White;
+            }
+
+            HerschelBrushes[0] =
+                new SolidBrush(Color.FromArgb(64, Color.Yellow));
+
+            HerschelBrushes[(int)Instrument.PacsPhoto] =
+            HerschelBrushes[(int)Instrument.PacsSpectro] =
+                new SolidBrush(Color.FromArgb(64, Color.Blue));
+
+            HerschelBrushes[(int)Instrument.SpirePhoto] =
+            HerschelBrushes[(int)Instrument.SpireSpectro] =
+                new SolidBrush(Color.FromArgb(64, Color.Red));
+
+            HerschelBrushes[(int)Instrument.Parallel] =
+                new SolidBrush(Color.FromArgb(64, Color.Orange));
+
+            HerschelBrushes[(int)Instrument.Hifi] =
+                new SolidBrush(Color.FromArgb(64, Color.Green));
+            
+        }
+
         private enum RenderMode
         {
             Normal,
@@ -236,6 +266,7 @@ namespace Herschel.Ws.Observations
         {
             searchObject = new Lib.ObservationSearch();
 
+            searchObject.Instrument = SearchInstrument;
             searchObject.FineTimeStart = SearchFineTimeStart;
             searchObject.FineTimeEnd = SearchFineTimeEnd;
             searchObject.SearchMethod = SearchMethod;
@@ -286,7 +317,7 @@ namespace Herschel.Ws.Observations
                 case ObservationSearchMethod.Point:
                     {
                         var qp = new PointsLayer();
-                        qp.DataSource = new ListDataSource(searchObject.Point);
+                        qp.DataSource = new ObjectListDataSource(new Cartesian[] { searchObject.Point });
                         qp.Figure = FigureType.CrossHair;
                         qp.Size = new SizeF(15, 15);
                         qp.Fill.Visible = false;
@@ -297,7 +328,7 @@ namespace Herschel.Ws.Observations
                 case ObservationSearchMethod.Intersect:
                 case ObservationSearchMethod.Cover:
                     var qr = new RegionsLayer();
-                    qr.DataSource = new ListDataSource(searchObject.Region);
+                    qr.DataSource = new ObjectListDataSource(new Jhu.Spherical.Region[] { searchObject.Region });
                     qr.Fill.Visible = false;
                     qr.Outline.Pens = new[] { Pens.Red };
                     queryLayer = qr;
@@ -308,8 +339,8 @@ namespace Herschel.Ws.Observations
 
             // Find regions
             var s = new Lib.ObservationSearch();
-            var ids = observationList.SelectedDataKeys.Select(id => long.Parse(id)).ToArray();
-            var regions = new List<Jhu.Spherical.Region>(searchObject.FindID(ids).Select(o => o.Region));
+            var ids = observationList.SelectedDataKeys.Select(id => ObservationID.Parse(id)).ToArray();
+            var observations = new List<Observation>(searchObject.FindID(ids));
 
             // Apply region transformations
             double epsilon = 0;
@@ -320,13 +351,13 @@ namespace Herschel.Ws.Observations
 
             if (plotConvexHull.Checked)
             {
-                for (int i = 0; i < regions.Count; i++)
+                for (int i = 0; i < observations.Count; i++)
                 {
-                    regions[i] = regions[i].Outline.GetConvexHull();
+                    observations[i].Region = observations[i].Region.Outline.GetConvexHull();
                 }
             }
 
-            var regionds = new ListDataSource(regions);
+            var regionds = new ObjectListDataSource(observations);
 
             // Create plot
             canvas.Plot.Projection = new OrthographicProjection();
@@ -345,6 +376,10 @@ namespace Herschel.Ws.Observations
             {
                 var r1 = new RegionsLayer();
                 r1.DataSource = regionds;
+                r1.RegionDataField = "Region";
+                r1.Fill.Brushes = HerschelBrushes;
+                r1.Fill.PaletteSelection = PaletteSelection.Field;
+                r1.Fill.Field = "Instrument";
                 r1.Outline.Visible = false;
                 canvas.Plot.Layers.Add(r1);
 
@@ -359,6 +394,7 @@ namespace Herschel.Ws.Observations
             {
                 var r2 = new RegionsLayer();
                 r2.DataSource = regionds;
+                r2.RegionDataField = "Region";
                 r2.Fill.Visible = false;
                 r2.Outline.Pens = new[] { Pens.Black };
                 canvas.Plot.Layers.Add(r2);

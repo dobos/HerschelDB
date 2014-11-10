@@ -1,12 +1,13 @@
-IF OBJECT_ID ('load.MergePointing_PACS', N'P') IS NOT NULL
-DROP PROC [load].[MergePointing_PACS]
+IF OBJECT_ID ('load.MergePointing', N'P') IS NOT NULL
+DROP PROC [load].[MergePointing]
 
 GO
 
-CREATE PROC [load].[MergePointing_PACS]
+CREATE PROC [load].[MergePointing]
 AS
 	/*CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
 	(
+		[inst] ASC,
 		[obsID] ASC,
 		[fineTime] ASC
 	)
@@ -28,54 +29,10 @@ AS
 	--TRUNCATE TABLE [Pointing]
 
 	INSERT [Pointing] WITH (TABLOCKX)
-		(ObsID, fineTime, inst, ra, dec, pa, av, utc)
+		(ObsID, fineTime, inst, ra, dec, pa, av)
 	SELECT
-		ObsID, fineTime, inst, ra, dec, pa, SQRT(avy*avy + avz*avz), 0
+		ObsID, fineTime, inst, ra, dec, pa, av
 	FROM [load].[RawPointing]
-	WHERE inst = 1	-- only PACS
-	  AND bbID = 215131301	-- only scan lines, no turn-around
-
-	--TRUNCATE TABLE [load].[RawPointing];
-
-GO
-
----------------------------------------------------------------
-
-IF OBJECT_ID ('load.MergePointing_SPIRE', N'P') IS NOT NULL
-DROP PROC [load].[MergePointing_SPIRE]
-
-GO
-
-CREATE PROC [load].[MergePointing_SPIRE]
-AS
-	/*CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
-	(
-		[obsID] ASC,
-		[fineTime] ASC
-	)
-	WITH (SORT_IN_TEMPDB = ON)
-	ON [LOAD]*/
-
-	-- Check duplicates
-
-	IF (EXISTS
-	(
-		SELECT obsID, CONVERT(bigint, ROUND(sampleTime * 1e6, 0)), COUNT(*)
-		FROM [load].[RawPointing]
-		WHERE inst = 2
-		GROUP BY obsID, CONVERT(bigint, ROUND(sampleTime * 1e6, 0))
-		HAVING COUNT(*) > 1
-	))
-	THROW 51000, 'Duplicate key.', 1;
-
-	--TRUNCATE TABLE [Pointing]
-
-	INSERT [Pointing] WITH (TABLOCKX)
-		(ObsID, fineTime, inst, ra, dec, pa, av, utc)
-	SELECT
-		ObsID, CONVERT(bigint, ROUND(sampleTime * 1e6, 0)), inst, ra, dec, pa, av * 3600.00000000, 0
-	FROM [load].[RawPointing]
-	WHERE inst = 2	-- only SPIRE
 
 	--TRUNCATE TABLE [load].[RawPointing];
 
@@ -113,7 +70,7 @@ TODO: add minimum enclosing circle center, coverage, area, pointing count etc.
 	),
 	velhistmax AS
 	(
-		SELECT *, ROW_NUMBER() OVER(PARTITION BY obsID ORDER BY cnt DESC) rn
+		SELECT *, ROW_NUMBER() OVER(PARTITION BY obsID, inst ORDER BY cnt DESC) rn
 		FROM velhist
 		--WHERE vvv > 2	-- velocity is low at turn around
 	),
@@ -128,7 +85,7 @@ TODO: add minimum enclosing circle center, coverage, area, pointing count etc.
 	SELECT
 		o.obsID, o.inst, o.fineTimeStart, o.fineTimeEnd, v.vvv, NULL
 	FROM minmax o
-	INNER JOIN velhistmax v ON v.obsID = o.obsID AND v.rn = 1
+	INNER JOIN velhistmax v ON v.inst = o.inst AND v.obsID = o.obsID AND v.rn = 1
 
 GO
 
@@ -220,12 +177,12 @@ Raw points are filtered for scan legs. Legs are detected from gaps in pointings.
 	WHERE start IN (0, 1)
 	ORDER BY obsID, fineTime;
 
-	--TRUNCATE TABLE [load].[Leg];
+	TRUNCATE TABLE [load].[Leg];
 
 	INSERT [load].[Leg] WITH(TABLOCKX)
 	SELECT a.inst, a.obsID, a.legID, a.fineTime, b.fineTime, a.ra, a.dec, a.pa, b.ra, b.dec, b.pa
 	FROM [load].[LegEnds] a
-	INNER JOIN [load].[LegEnds] b ON a.obsID = b.obsID AND a.legID = b.legID
+	INNER JOIN [load].[LegEnds] b ON a.inst = b.inst AND a.obsID = b.obsID AND a.legID = b.legID
 	WHERE a.start = 1 AND b.start = 0;
 
 	TRUNCATE TABLE [load].[LegEnds];
@@ -249,22 +206,48 @@ AS
 	DBCC SETCPUWEIGHT(1000); 
 
 	INSERT [load].[LegRegion] WITH (TABLOCKX)
-	SELECT leg.obsID, leg.legID, leg.fineTimeStart, leg.fineTimeEnd,
-		   dbo.GetLegRegion(leg.raStart, leg.decStart, leg.paStart, leg.raEnd, leg.decEnd, leg.paEnd, 'Blue')
+	SELECT leg.inst, leg.obsID, leg.legID, leg.fineTimeStart, leg.fineTimeEnd,
+		   dbo.GetLegRegion(leg.raStart, leg.decStart, leg.paStart, leg.raEnd, leg.decEnd, leg.paEnd,
+		    CASE inst
+			WHEN 1 THEN 'PacsPhoto'
+			WHEN 4 THEN 'SpirePhoto'
+			END)
 	FROM [load].Leg leg
 
 	UPDATE [Observation]
-	SET fineTimeStart = leg.fineTimeStart,
-		fineTimeEnd = leg.fineTimeEnd,
-		region = leg.region
+	SET region = leg.region
 	FROM [Observation] obs
 	INNER JOIN
-		(SELECT obsID, MIN(fineTimeStart) fineTimeStart, Max(fineTimeEnd) fineTimeEnd, region.UnionEvery(region) region
+		(SELECT inst, obsID, MIN(fineTimeStart) fineTimeStart, Max(fineTimeEnd) fineTimeEnd, region.UnionEvery(region) region
 		 FROM [load].LegRegion
-		 GROUP BY obsID) leg
-		ON leg.obsID = obs.obsID;
+		 GROUP BY inst, obsID) leg
+		ON leg.inst = obs.inst AND leg.obsID = obs.obsID;
 
 	DBCC SETCPUWEIGHT(1); 
+
+GO
+
+
+IF OBJECT_ID ('load.GeneratePacsSpireParallel', N'P') IS NOT NULL
+DROP PROC [load].[GeneratePacsSpireParallel]
+
+GO
+
+CREATE PROC [load].[GeneratePacsSpireParallel]
+AS
+/*
+	Generate entries for PACS-SPIRE parallel observations, compute footprint
+*/
+
+	INSERT Observation WITH (TABLOCKX)
+	SELECT
+		16 AS inst,			-- Parallel
+		a.obsID, a.fineTimeStart, a.fineTimeEnd, a.av,
+		region.[Intersect](a.region, b.region) AS region
+	FROM Observation a
+	INNER JOIN Observation b ON a.obsID = b.obsID
+	WHERE a.inst = 1		-- PACS
+		  AND b.inst = 4	-- SPIRE
 
 GO
 
@@ -285,7 +268,7 @@ AS
 	DBCC SETCPUWEIGHT(1000); 
 
 	INSERT ObservationHtm WITH (TABLOCKX)
-	SELECT obsID, htm.htmIDstart, htm.htmIDEnd, fineTimeStart, fineTimeEnd, htm.partial
+	SELECT inst, obsID, htm.htmIDstart, htm.htmIDEnd, fineTimeStart, fineTimeEnd, htm.partial
 	FROM Observation
 	CROSS APPLY htm.Cover(region) htm;
 

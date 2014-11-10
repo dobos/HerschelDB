@@ -12,30 +12,17 @@ namespace Herschel.Loader
 {
     abstract class PointingsFile : DbObjectBase
     {
-        protected abstract Pointing Parse(string[] parts);
+        protected abstract bool Parse(string[] parts, out Pointing pointing);
 
         protected void Write(Pointing p, TextWriter writer)
         {
+            writer.Write("{0} ", (byte)p.Instrument);
             writer.Write("{0} ", p.ObsID);
             writer.Write("{0} ", p.FineTime);
-            writer.Write("{0} ", (byte)p.Instrument);
-            writer.Write("{0} ", p.BuldingBlockType);
             writer.Write("{0} ", p.Ra);
-            writer.Write("{0} ", p.RaError);
             writer.Write("{0} ", p.Dec);
-            writer.Write("{0} ", p.DecError);
             writer.Write("{0} ", p.Pa);
-            writer.Write("{0} ", p.PaError);
-            writer.Write("{0} ", p.AVX);
-            writer.Write("{0} ", p.AVXError);
-            writer.Write("{0} ", p.AVY);
-            writer.Write("{0} ", p.AVYError);
-            writer.Write("{0} ", p.AVZ);
-            writer.Write("{0} ", p.AVZError);
-            writer.Write("{0} ", p.AV);
-            writer.Write("{0} ", p.Utc);
-            writer.Write("{0} ", p.SampleTime);
-            writer.WriteLine("{0} ", p.CorrTime);
+            writer.WriteLine("{0} ", p.AV);
         }
 
         public void PreparePointings(string path, string output, int fnum)
@@ -94,7 +81,11 @@ namespace Herschel.Loader
                 string line;
                 while ((line = infile.ReadLine()) != null)
                 {
-                    yield return Parse(line.Split(' '));
+                    Pointing p;
+                    if (Parse(line.Split(' '), out p))
+                    {
+                        yield return p;
+                    }
                 }
             }
         }
