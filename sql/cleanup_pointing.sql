@@ -1,0 +1,2 @@
+EXEC [load].[CleanUp]
+GO

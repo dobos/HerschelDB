@@ -5,14 +5,14 @@ GO
 
 CREATE PROC [load].[MergePointing]
 AS
-	/*CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
+	CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
 	(
 		[inst] ASC,
 		[obsID] ASC,
 		[fineTime] ASC
 	)
 	WITH (SORT_IN_TEMPDB = ON)
-	ON [LOAD]*/
+	ON [LOAD]
 
 	-- Check duplicates
 
@@ -26,7 +26,7 @@ AS
 	))
 	THROW 51000, 'Duplicate key.', 1;
 
-	--TRUNCATE TABLE [Pointing]
+	TRUNCATE TABLE [Pointing]
 
 	INSERT [Pointing] WITH (TABLOCKX)
 		(ObsID, fineTime, inst, ra, dec, pa, av)
@@ -34,7 +34,7 @@ AS
 		ObsID, fineTime, inst, ra, dec, pa, av
 	FROM [load].[RawPointing]
 
-	--TRUNCATE TABLE [load].[RawPointing];
+	DROP INDEX [IC_RawPointing] ON [load].[RawPointing]
 
 GO
 
@@ -284,8 +284,11 @@ GO
 
 CREATE PROC [load].[CleanUp]
 AS
+	TRUNCATE TABLE [load].[RawPointing];
 
 	TRUNCATE TABLE [load].[LegRegion];
+
+	TRUNCATE TABLE [load].[LegEnds]
 
 	TRUNCATE TABLE [load].[Leg]
 

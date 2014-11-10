@@ -10,7 +10,7 @@ using Herschel.Lib;
 
 namespace Herschel.Loader
 {
-    abstract class PointingsFile : DbObjectBase
+    abstract class PointingsFile
     {
         protected abstract bool Parse(string[] parts, out Pointing pointing);
 
@@ -108,23 +108,5 @@ namespace Herschel.Loader
             }
         }
 
-        public void LoadPointings(string filename, int fnum)
-        {
-            Parallel.For(0, fnum, i =>
-            {
-                var infile = String.Format(filename, i);
-
-                Console.WriteLine("Loading from {0}...", infile);
-
-                var sql = SqlScripts.LoadPointing;
-                sql = sql.Replace("[$datafile]", infile);
-
-                using (var cmd = new SqlCommand(sql))
-                {
-                    cmd.CommandTimeout = 3600;  // 1h should be enough for bulk inserts
-                    ExecuteCommandNonQuery(cmd);
-                }
-            });
-        }
     }
 }
