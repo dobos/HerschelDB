@@ -31,7 +31,7 @@ namespace Herschel.Loader
             pp.AVYError = double.Parse(parts[54]);
             pp.AVZ = double.Parse(parts[52]);
             pp.AVZError = double.Parse(parts[55]);
-            pp.Utc = long.Parse(parts[56]);
+            //pp.Utc = long.Parse(parts[56]);
 
             // Convert PACS pointing to unified format
 
