@@ -11,14 +11,14 @@ DROP TABLE [load].[RawPointing]
 
 CREATE TABLE [load].[RawPointing]
 (
-	[Inst] [tinyint] NOT NULL,
+	[inst] [tinyint] NOT NULL,
 	[obsID] [bigint] NOT NULL,
+	[obsType] [tinyint] NOT NULL,
 	[fineTime] [bigint] NOT NULL,
 	[ra] [float] NOT NULL,
 	[dec] [float] NOT NULL,
 	[pa] [float] NOT NULL,
-	[av] [float] NOT NULL,
-	[utc] [bigint] NOT NULL
+	[av] [float] NOT NULL
 ) ON [LOAD]
 
 GO

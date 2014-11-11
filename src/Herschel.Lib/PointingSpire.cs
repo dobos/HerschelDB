@@ -9,8 +9,9 @@ namespace Herschel.Lib
 {
     public struct PointingSpire
     {
-        public long ObsID;
         public Instrument Instrument;
+        public long ObsID;
+        public SpireObsType ObsType;
         public double Ra;
         public double Dec;
         public double Pa;

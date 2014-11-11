@@ -28,15 +28,13 @@ namespace Herschel.Ws.Observations
             HerschelBrushes[0] =
                 new SolidBrush(Color.FromArgb(64, Color.Yellow));
 
-            HerschelBrushes[(int)Instrument.PacsPhoto] =
-            HerschelBrushes[(int)Instrument.PacsSpectro] =
+            HerschelBrushes[(int)Instrument.Pacs] =
                 new SolidBrush(Color.FromArgb(64, Color.Blue));
 
-            HerschelBrushes[(int)Instrument.SpirePhoto] =
-            HerschelBrushes[(int)Instrument.SpireSpectro] =
+            HerschelBrushes[(int)Instrument.Spire] =
                 new SolidBrush(Color.FromArgb(64, Color.Red));
 
-            HerschelBrushes[(int)Instrument.Parallel] =
+            HerschelBrushes[(int)Instrument.PacsSpireParallel] =
                 new SolidBrush(Color.FromArgb(64, Color.Orange));
 
             HerschelBrushes[(int)Instrument.Hifi] =

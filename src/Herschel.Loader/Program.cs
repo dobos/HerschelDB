@@ -47,11 +47,12 @@ namespace Herschel.Loader
         private static void PreparePointings(string[] args)
         {
             var inst = args[1].ToLowerInvariant();
-            var path = args[2];
-            var output = args[3];
-            int fnum = int.Parse(args[4]);
+            var type = byte.Parse(args[2]);
+            var path = args[3];
+            var output = args[4];
+            int fnum = int.Parse(args[5]);
 
-            var file = GetPointingsFile(inst);
+            var file = GetPointingsFile(inst, type);
             file.PreparePointings(path, output, fnum);
         }
 
@@ -109,17 +110,25 @@ namespace Herschel.Loader
             }
         }
 
-        private static PointingsFile GetPointingsFile(string inst)
+        private static PointingsFile GetPointingsFile(string inst, byte type)
         {
+            PointingsFile file = null;
+
             switch (inst.ToLowerInvariant())
             {
                 case "pacs":
-                    return new PointingsFilePacs();
+                    file = new PointingsFilePacs();
+                    break;
                 case "spire":
-                    return new PointingsFileSpire();
+                    file = new PointingsFileSpire();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
+
+            file.ObservationType = type;
+
+            return file;
         }
 
         static long GetID(string filename)

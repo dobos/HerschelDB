@@ -16,27 +16,42 @@ namespace Herschel.Loader
         {
             var ps = new PointingSpire();
 
-            ps.Instrument = Instrument.SpirePhoto;
+            ps.Instrument = Instrument.Spire;
 
-            ps.ObsID = ObservationID;
-            ps.Ra = double.Parse(parts[0]);
-            ps.Dec = double.Parse(parts[1]);
-            ps.AV = double.Parse(parts[2]);
-            ps.Pa = double.Parse(parts[3]);
-            ps.SampleTime = double.Parse(parts[4]);
-            ps.CorrTime = double.Parse(parts[5]);
+            // Parse columns
+
+            switch ((SpireObsType)ObservationType)
+            {
+                case SpireObsType.Photo:
+                    ps.ObsID = ObservationID;
+                    ps.Ra = double.Parse(parts[0]);
+                    ps.Dec = double.Parse(parts[1]);
+                    ps.AV = double.Parse(parts[2]);
+                    ps.Pa = double.Parse(parts[3]);
+                    ps.SampleTime = double.Parse(parts[4]);
+                    ps.CorrTime = double.Parse(parts[5]);
+                    break;
+                case SpireObsType.Spectro:
+                    // ...
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            // Convert to common format
 
             pointing = new Pointing()
             {
                 Instrument = ps.Instrument,
                 ObsID = ps.ObsID,
+                ObsType = ObservationType,
                 FineTime = (long)Math.Floor(ps.SampleTime * 1e6),
                 Ra = ps.Ra,
                 Dec = ps.Dec,
                 Pa = ps.Pa,
                 AV = ps.AV * 3600,  // convert from deg s-1 to arcsec s-1
             };
-            
+
             return true;
         }
 

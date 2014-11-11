@@ -14,24 +14,33 @@ namespace Herschel.Loader
         {
             var pp = new PointingPacs();
 
-            pp.Instrument = Instrument.PacsPhoto;
+            pp.Instrument = Instrument.Pacs;
 
-            pp.ObsID = long.Parse(parts[1]);
-            pp.FineTime = long.Parse(parts[6]);
-            pp.BBID = long.Parse(parts[2]);
-            pp.Ra = double.Parse(parts[27]);
-            pp.RaError = double.Parse(parts[30]);
-            pp.Dec = double.Parse(parts[28]);
-            pp.DecError = double.Parse(parts[31]);
-            pp.Pa = double.Parse(parts[29]);
-            pp.PaError = double.Parse(parts[32]);
-            pp.AVX = double.Parse(parts[50]);
-            pp.AVXError = double.Parse(parts[53]);
-            pp.AVY = double.Parse(parts[51]);
-            pp.AVYError = double.Parse(parts[54]);
-            pp.AVZ = double.Parse(parts[52]);
-            pp.AVZError = double.Parse(parts[55]);
-            //pp.Utc = long.Parse(parts[56]);
+            // Parse columns
+
+            switch ((PacsObsType)ObservationType)
+            {
+                case PacsObsType.Photo:
+                    pp.ObsID = long.Parse(parts[1]);
+                    pp.FineTime = long.Parse(parts[6]);
+                    pp.BBID = long.Parse(parts[2]);
+                    pp.Ra = double.Parse(parts[27]);
+                    pp.RaError = double.Parse(parts[30]);
+                    pp.Dec = double.Parse(parts[28]);
+                    pp.DecError = double.Parse(parts[31]);
+                    pp.Pa = double.Parse(parts[29]);
+                    pp.PaError = double.Parse(parts[32]);
+                    pp.AVX = double.Parse(parts[50]);
+                    pp.AVXError = double.Parse(parts[53]);
+                    pp.AVY = double.Parse(parts[51]);
+                    pp.AVYError = double.Parse(parts[54]);
+                    pp.AVZ = double.Parse(parts[52]);
+                    pp.AVZError = double.Parse(parts[55]);
+                    break;
+                default:
+                    throw new NotImplementedException();
+
+            }
 
             // Convert PACS pointing to unified format
 
@@ -39,6 +48,7 @@ namespace Herschel.Loader
             {
                 Instrument = pp.Instrument,
                 ObsID = pp.ObsID,
+                ObsType = ObservationType,
                 FineTime = pp.FineTime,
                 Ra = pp.Ra,
                 Dec = pp.Dec,
@@ -47,7 +57,9 @@ namespace Herschel.Loader
             };
 
             // TODO: change this to accept all valid BBIDs
-            return pp.BBID == 215131301;
+            // return pp.BBID == 215131301;
+
+            return true;
         }
     }
 }

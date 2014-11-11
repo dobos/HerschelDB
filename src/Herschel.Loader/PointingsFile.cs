@@ -12,12 +12,21 @@ namespace Herschel.Loader
 {
     abstract class PointingsFile
     {
+        private byte observationType;
+
+        public byte ObservationType
+        {
+            get { return observationType; }
+            set { observationType = value; }
+        }
+
         protected abstract bool Parse(string[] parts, out Pointing pointing);
 
         protected void Write(Pointing p, TextWriter writer)
         {
             writer.Write("{0} ", (byte)p.Instrument);
             writer.Write("{0} ", p.ObsID);
+            writer.Write("{0} ", p.ObsType);
             writer.Write("{0} ", p.FineTime);
             writer.Write("{0} ", p.Ra);
             writer.Write("{0} ", p.Dec);
