@@ -31,8 +31,45 @@ namespace Herschel.Loader
                     ps.SampleTime = double.Parse(parts[4]);
                     ps.CorrTime = double.Parse(parts[5]);
                     break;
+                case SpireObsType.PhotoSmallMap:
+                    ps.ObsID = ObservationID;
+                    ps.Ra = double.Parse(parts[0]);
+                    ps.Dec = double.Parse(parts[1]);
+                    ps.AV = double.Parse(parts[2]);
+                    ps.Pa = double.Parse(parts[3]);
+                    ps.SampleTime = double.Parse(parts[4]);
+                    ps.CorrTime = double.Parse(parts[5]);
+                    break;
+                case SpireObsType.PhotoLargeMap:
+                    ps.ObsID = ObservationID;
+                    ps.Ra = double.Parse(parts[0]);
+                    ps.Dec = double.Parse(parts[1]);
+                    ps.AV = double.Parse(parts[2]);
+                    ps.Pa = double.Parse(parts[3]);
+                    ps.SampleTime = double.Parse(parts[4]);
+                    ps.CorrTime = double.Parse(parts[5]);
+                    break;
                 case SpireObsType.Spectro:
-                    // ...
+                     ps.ObsID = ObservationID;
+                    ps.Ra = double.Parse(parts[0]);
+                    ps.Dec = double.Parse(parts[1]);
+                    ps.Pa = double.Parse(parts[2]);
+                    ps.SampleTime = double.Parse(parts[3]);
+                    break;
+                case SpireObsType.Spectro7:
+                    ps.ObsID = ObservationID;
+                    ps.Ra = double.Parse(parts[0]);
+                    ps.Dec = double.Parse(parts[1]);
+                    ps.Pa = double.Parse(parts[2]);
+                    ps.SampleTime = double.Parse(parts[3]);
+                    break;
+                case SpireObsType.Spectro64:
+                    ps.ObsID = ObservationID;
+                    ps.Ra = double.Parse(parts[0]);
+                    ps.Dec = double.Parse(parts[1]);
+                    ps.AV = double.Parse(parts[2]);
+                    ps.Pa = double.Parse(parts[3]);
+                    ps.SampleTime = double.Parse(parts[4]);
                     break;
                 default:
                     throw new NotImplementedException();
