@@ -122,6 +122,9 @@ namespace Herschel.Loader
                 case "spire":
                     file = new PointingsFileSpire();
                     break;
+                case "hifi":
+                    file = new PointingsFileHifi();
+                    break;
                 default:
                     throw new NotImplementedException();
             }
