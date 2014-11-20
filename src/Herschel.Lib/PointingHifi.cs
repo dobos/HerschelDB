@@ -18,5 +18,8 @@ namespace Herschel.Lib
         public double AV;
         public double SampleTime;
         public double CorrTime;
+        public double mapwidth;
+        public double maphigh;
+        public double pattangle;
     }
 }

@@ -16,68 +16,38 @@ namespace Herschel.Loader
         {
             var ps = new PointingHifi();
 
-            ps.Instrument = Instrument.Spire;
+            ps.Instrument = Instrument.Hifi;
 
             // Parse columns
 
-            switch ((SpireObsType)ObservationType)
+            switch ((HifiObsType)ObservationType)
             {
-                case SpireObsType.Photo:
-                    ps.ObsID = ObservationID;
-                    ps.Ra = double.Parse(parts[0]);
-                    ps.Dec = double.Parse(parts[1]);
-                    ps.AV = double.Parse(parts[2]);
-                    ps.Pa = double.Parse(parts[3]);
-                    ps.SampleTime = double.Parse(parts[4]);
-                    ps.CorrTime = double.Parse(parts[5]);
-                    break;
-                case SpireObsType.PhotoSmallMap:
-                    ps.ObsID = ObservationID;
-                    ps.Ra = double.Parse(parts[0]);
-                    ps.Dec = double.Parse(parts[1]);
-                    ps.AV = double.Parse(parts[2]);
-                    ps.Pa = double.Parse(parts[3]);
-                    ps.SampleTime = double.Parse(parts[4]);
-                    ps.CorrTime = double.Parse(parts[5]);
-                    break;
-                case SpireObsType.PhotoLargeMap:
-                    ps.ObsID = ObservationID;
-                    ps.Ra = double.Parse(parts[0]);
-                    ps.Dec = double.Parse(parts[1]);
-                    ps.AV = double.Parse(parts[2]);
-                    ps.Pa = double.Parse(parts[3]);
-                    ps.SampleTime = double.Parse(parts[4]);
-                    ps.CorrTime = double.Parse(parts[5]);
-                    break;
-                case SpireObsType.Spectro:
-                     ps.ObsID = ObservationID;
-                    ps.Ra = double.Parse(parts[0]);
-                    ps.Dec = double.Parse(parts[1]);
-                    ps.Pa = double.Parse(parts[2]);
-                    ps.SampleTime = double.Parse(parts[3]);
-                    break;
-                case SpireObsType.Spectro1:
+                case HifiObsType.Point:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
                     ps.Pa = double.Parse(parts[2]);
                     ps.SampleTime = double.Parse(parts[3]);
                     break;
-                case SpireObsType.Spectro7:
+                case HifiObsType.SpectralScan:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
                     ps.Pa = double.Parse(parts[2]);
-                    ps.SampleTime = double.Parse(parts[3]);
+                    ps.SampleTime = double.Parse(parts[4]);
                     break;
-                case SpireObsType.Spectro64:
+                case HifiObsType.Mapping:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
-                    ps.AV = double.Parse(parts[2]);
-                    ps.Pa = double.Parse(parts[3]);
+                    ps.Pa = double.Parse(parts[2]);
                     ps.SampleTime = double.Parse(parts[4]);
+                    ps.mapwidth = double.Parse(parts[6]);
+                    ps.maphigh = double.Parse(parts[7]);
+                    ps.pattangle = double.Parse(parts[8]);
                     break;
+
+
                 default:
                     throw new NotImplementedException();
             }
