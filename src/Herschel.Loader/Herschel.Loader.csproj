@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PointingsFileHifi.cs" />
     <Compile Include="PointingsFile.cs" />
     <Compile Include="PointingsFilePacs.cs" />
     <Compile Include="Program.cs" />

@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="PointingHifi.cs" />
     <Compile Include="DbHelper.cs" />
     <Compile Include="ObservationID.cs" />
     <Compile Include="PointingSpire.cs" />
