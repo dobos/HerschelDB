@@ -56,6 +56,13 @@ namespace Herschel.Loader
                     ps.Pa = double.Parse(parts[2]);
                     ps.SampleTime = double.Parse(parts[3]);
                     break;
+                case SpireObsType.Spectro1:
+                    ps.ObsID = ObservationID;
+                    ps.Ra = double.Parse(parts[0]);
+                    ps.Dec = double.Parse(parts[1]);
+                    ps.Pa = double.Parse(parts[2]);
+                    ps.SampleTime = double.Parse(parts[3]);
+                    break;
                 case SpireObsType.Spectro7:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
