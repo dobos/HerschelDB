@@ -16,10 +16,6 @@ namespace Herschel.Lib
         public double Dec;
         public double Pa;
         public double AV;
-        public double SampleTime;
-        public double CorrTime;
-        public double mapwidth;
-        public double maphigh;
-        public double pattangle;
+        public long FineTime;
     }
 }

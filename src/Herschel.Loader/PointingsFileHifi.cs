@@ -27,27 +27,17 @@ namespace Herschel.Loader
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
                     ps.Pa = double.Parse(parts[2]);
-                    ps.SampleTime = double.Parse(parts[3]);
+                    ps.FineTime = long.Parse(parts[3]);
                     break;
                 case HifiObsType.SpectralScan:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
                     ps.Pa = double.Parse(parts[2]);
-                    ps.SampleTime = double.Parse(parts[4]);
+                    ps.FineTime = long.Parse(parts[4]);
                     break;
                 case HifiObsType.Mapping:
-                    ps.ObsID = ObservationID;
-                    ps.Ra = double.Parse(parts[0]);
-                    ps.Dec = double.Parse(parts[1]);
-                    ps.Pa = double.Parse(parts[2]);
-                    ps.SampleTime = double.Parse(parts[4]);
-                    ps.mapwidth = double.Parse(parts[6]);
-                    ps.maphigh = double.Parse(parts[7]);
-                    ps.pattangle = double.Parse(parts[8]);
-                    break;
-
-
+                    // Special
                 default:
                     throw new NotImplementedException();
             }
@@ -59,7 +49,7 @@ namespace Herschel.Loader
                 Instrument = ps.Instrument,
                 ObsID = ps.ObsID,
                 ObsType = ObservationType,
-                FineTime = (long)Math.Floor(ps.SampleTime * 1e6),
+                FineTime = ps.FineTime,
                 Ra = ps.Ra,
                 Dec = ps.Dec,
                 Pa = ps.Pa,
