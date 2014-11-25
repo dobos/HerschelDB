@@ -14,19 +14,19 @@ RETURN
 (
 	WITH q AS
 	(
-		SELECT DISTINCT obsID
+		SELECT DISTINCT inst, obsID
 		FROM ObservationHtm htm
 		WHERE htm.FromEq(@ra, @dec) BETWEEN htmIDStart AND htmIDEnd AND [partial] = 0
 
 		UNION
 
-		SELECT DISTINCT htm.obsID
+		SELECT DISTINCT htm.inst, htm.obsID
 		FROM ObservationHtm htm
 		INNER JOIN Observation r ON r.obsID = htm.obsID
 		WHERE htm.FromEq(@ra, @dec) BETWEEN htmIDStart AND htmIDEnd AND [partial] = 1
 		-- TODO: add containment filter
 	)
-	SELECT q.obsID
+	SELECT inst, obsID
 	FROM q
 )
 
@@ -56,14 +56,14 @@ RETURN
 	),
 	q AS
 	(
-		SELECT DISTINCT obsID
+		SELECT DISTINCT inst,obsID
 		FROM ObservationHtm htm WITH(FORCESEEK)
 		INNER JOIN cover ON
 			htm.htmIDStart BETWEEN cover.htmIDStart AND cover.htmIDEnd
 
 		UNION
 
-		SELECT DISTINCT obsID
+		SELECT DISTINCT inst, obsID
 		FROM ObservationHtm htm WITH(FORCESEEK)
 		INNER JOIN cover ON
 			(htm.htmIDStart = cover.htmIDStart OR

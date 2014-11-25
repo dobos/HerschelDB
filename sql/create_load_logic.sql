@@ -18,10 +18,9 @@ AS
 
 	IF (EXISTS
 	(
-		SELECT obsID, fineTime, COUNT(*)
+		SELECT inst, obsID, fineTime, COUNT(*)
 		FROM [load].[RawPointing]
-		WHERE inst = 1
-		GROUP BY obsID, fineTime
+		GROUP BY inst, obsID, fineTime
 		HAVING COUNT(*) > 1
 	))
 	THROW 51000, 'Duplicate key.', 1;
@@ -29,9 +28,9 @@ AS
 	TRUNCATE TABLE [Pointing]
 
 	INSERT [Pointing] WITH (TABLOCKX)
-		(ObsID, fineTime, inst, ra, dec, pa, av)
-	SELECT
-		ObsID, fineTime, inst, ra, dec, pa, av
+		(inst, ObsID, fineTime, ra, dec, pa, av)
+	SELECT DISTINCT
+		inst, ObsID, fineTime, ra, dec, pa, av
 	FROM [load].[RawPointing]
 
 	DROP INDEX [IC_RawPointing] ON [load].[RawPointing]
@@ -80,7 +79,7 @@ TODO: add minimum enclosing circle center, coverage, area, pointing count etc.
 		FROM Pointing
 		GROUP BY obsID, inst
 	)
-	INSERT Observation
+	INSERT Observation WITH (TABLOCKX)
 		(obsID, inst, fineTimeStart, fineTimeEnd, av, region)
 	SELECT
 		o.obsID, o.inst, o.fineTimeStart, o.fineTimeEnd, v.vvv, NULL
@@ -210,7 +209,7 @@ AS
 		   dbo.GetLegRegion(leg.raStart, leg.decStart, leg.paStart, leg.raEnd, leg.decEnd, leg.paEnd,
 		    CASE inst
 			WHEN 1 THEN 'PacsPhoto'
-			WHEN 4 THEN 'SpirePhoto'
+			WHEN 2 THEN 'SpirePhoto'
 			END)
 	FROM [load].Leg leg
 
@@ -241,13 +240,13 @@ AS
 
 	INSERT Observation WITH (TABLOCKX)
 	SELECT
-		16 AS inst,			-- Parallel
+		3 AS inst,			-- Parallel
 		a.obsID, a.fineTimeStart, a.fineTimeEnd, a.av,
 		region.[Intersect](a.region, b.region) AS region
 	FROM Observation a
 	INNER JOIN Observation b ON a.obsID = b.obsID
 	WHERE a.inst = 1		-- PACS
-		  AND b.inst = 4	-- SPIRE
+		  AND b.inst = 2	-- SPIRE
 
 GO
 
@@ -270,7 +269,8 @@ AS
 	INSERT ObservationHtm WITH (TABLOCKX)
 	SELECT inst, obsID, htm.htmIDstart, htm.htmIDEnd, fineTimeStart, fineTimeEnd, htm.partial
 	FROM Observation
-	CROSS APPLY htm.Cover(region) htm;
+	CROSS APPLY htm.Cover(region) htm
+	WHERE region IS NOT NULL		-- for debugging only
 
 	DBCC SETCPUWEIGHT(1); 
 

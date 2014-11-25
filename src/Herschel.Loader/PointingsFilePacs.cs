@@ -12,6 +12,7 @@ namespace Herschel.Loader
 
         protected override bool Parse(string[] parts, out Pointing pointing)
         {
+            bool keep = true;
             var pp = new PointingPacs();
 
             pp.Instrument = Instrument.Pacs;
@@ -36,23 +37,9 @@ namespace Herschel.Loader
                     pp.AVYError = double.Parse(parts[54]);
                     pp.AVZ = double.Parse(parts[52]);
                     pp.AVZError = double.Parse(parts[55]);
-                    break;
-                case PacsObsType.Spectro:
-                    pp.ObsID = long.Parse(parts[1]);
-                    pp.FineTime = long.Parse(parts[6]);
-                    pp.BBID = long.Parse(parts[2]);
-                    pp.Ra = double.Parse(parts[30]);
-                    pp.RaError = double.Parse(parts[33]);
-                    pp.Dec = double.Parse(parts[31]);
-                    pp.DecError = double.Parse(parts[34]);
-                    pp.Pa = double.Parse(parts[32]);
-                    pp.PaError = double.Parse(parts[35]);
-                    pp.AVX = double.Parse(parts[55]);
-                    pp.AVXError = double.Parse(parts[56]);
-                    pp.AVY = double.Parse(parts[54]);
-                    pp.AVYError = double.Parse(parts[57]);
-                    pp.AVZ = double.Parse(parts[55]);
-                    pp.AVZError = double.Parse(parts[58]);
+
+                    keep &= pp.BBID == 215131301;
+
                     break;
                 case PacsObsType.SpectroRange:
                     pp.ObsID = long.Parse(parts[1]);
@@ -70,17 +57,49 @@ namespace Herschel.Loader
                     pp.AVYError = double.Parse(parts[57]);
                     pp.AVZ = double.Parse(parts[55]);
                     pp.AVZError = double.Parse(parts[58]);
+
+                    keep &= bool.Parse(parts[40]);  // onTarget
+                    keep &= !bool.Parse(parts[43]); // isOffPosition
+                    keep &= !bool.Parse(parts[50]); // isOutOfField
                     break;
                 case PacsObsType.SpectroLine:
-                    pp.ObsID = long.Parse(parts[0]);
-                    pp.FineTime = long.Parse(parts[2]);
-                    pp.BBID = long.Parse(parts[1]);
-                    pp.Ra = double.Parse(parts[3]);
-                    pp.Dec = double.Parse(parts[4]);
-                    pp.Pa = double.Parse(parts[5]);
-                    pp.AVX = double.Parse(parts[6]);
-                    pp.AVY = double.Parse(parts[7]);
-                    pp.AVZ = double.Parse(parts[8]);
+                    // There are two different format here
+                    var first = long.Parse(parts[0]);
+
+                    if (first < 1000000000)
+                    {
+                        pp.ObsID = long.Parse(parts[1]);
+                        pp.FineTime = long.Parse(parts[6]);
+                        pp.BBID = long.Parse(parts[2]);
+                        pp.Ra = double.Parse(parts[30]);
+                        pp.RaError = double.Parse(parts[33]);
+                        pp.Dec = double.Parse(parts[31]);
+                        pp.DecError = double.Parse(parts[34]);
+                        pp.Pa = double.Parse(parts[32]);
+                        pp.PaError = double.Parse(parts[35]);
+                        pp.AVX = double.Parse(parts[55]);
+                        pp.AVXError = double.Parse(parts[56]);
+                        pp.AVY = double.Parse(parts[54]);
+                        pp.AVYError = double.Parse(parts[57]);
+                        pp.AVZ = double.Parse(parts[55]);
+                        pp.AVZError = double.Parse(parts[58]);
+
+                        keep &= bool.Parse(parts[40]);  // onTarget
+                        keep &= !bool.Parse(parts[43]); // isOffPosition
+                        keep &= !bool.Parse(parts[50]); // isOutOfField
+                    }
+                    else
+                    {
+                        pp.ObsID = long.Parse(parts[0]);
+                        pp.BBID = long.Parse(parts[1]);
+                        pp.FineTime = long.Parse(parts[2]);
+                        pp.Ra = double.Parse(parts[3]);
+                        pp.Dec = double.Parse(parts[4]);
+                        pp.Pa = double.Parse(parts[5]);
+                        pp.AVX = double.Parse(parts[6]);
+                        pp.AVY = double.Parse(parts[7]);
+                        pp.AVZ = double.Parse(parts[8]);
+                    }
                     break;
                 default:
                     throw new NotImplementedException();
@@ -101,10 +120,8 @@ namespace Herschel.Loader
                 AV = Math.Sqrt(pp.AVY * pp.AVY + pp.AVZ * pp.AVZ),
             };
 
-            // TODO: change this to accept all valid BBIDs
-            // return pp.BBID == 215131301;
-
-            return true;
+            // Accept only valid BBIDs
+            return keep;
         }
     }
 }

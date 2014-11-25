@@ -38,7 +38,7 @@ namespace Herschel.Lib
 @"
 SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, region
 FROM [dbo].[Observation] obs
-WHERE (obs.inst IS NULL OR (obs.inst & @inst) > 0)
+WHERE (@inst IS NULL OR (obs.inst & @inst) > 0)
       AND obs.obsID = @obsID
 ORDER BY obs.ObsID";
 
@@ -89,7 +89,7 @@ SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, region
 FROM [dbo].[FindObservationEq](@ra, @dec) ids
 INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
       ON obs.inst = ids.inst AND obs.obsID = ids.obsID
-WHERE (obs.inst IS NULL OR (obs.inst & @inst) > 0)
+WHERE (@inst IS NULL OR (obs.inst & @inst) > 0)
       AND (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
       AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
 ORDER BY obs.ObsID";
@@ -112,7 +112,7 @@ SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, obs.region
 FROM [dbo].[FindObservationRegionIntersect](@region) ids
 INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
     ON obs.inst = ids.inst AND obs.obsID = ids.obsID
-WHERE (obs.inst IS NULL OR (obs.inst & @inst) > 0)
+WHERE (@inst IS NULL OR (obs.inst & @inst) > 0)
       AND (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
       AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
 ORDER BY obs.ObsID";
