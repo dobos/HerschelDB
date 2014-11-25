@@ -52,8 +52,44 @@ namespace Herschel.Loader
             var output = args[4];
             int fnum = int.Parse(args[5]);
 
-            var file = GetPointingsFile(inst, type);
-            file.PreparePointings(path, output, fnum);
+            // Run processing on multiple threads
+
+            var dir = Path.GetDirectoryName(path);
+            var pattern = Path.GetFileName(path);
+
+            var files = Directory.GetFiles(dir, pattern);
+            var queue = new Queue<string>(files);
+
+            Console.WriteLine("Preparing pointing files for bulk load...", files.Length);
+            Console.WriteLine("Found {0} files.", files.Length);
+
+            int q = 0;
+
+            Parallel.For(0, fnum, i =>
+            {
+                while (true)
+                {
+                    int qq;
+                    string infile = null;
+
+                    lock (queue)
+                    {
+                        if (queue.Count > 0)
+                        {
+                            infile = queue.Dequeue();
+                            qq = q++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    var file = GetPointingsFile(inst, type);
+                    file.ConvertPointingsFile(infile, String.Format(output, i), true);
+                    Console.WriteLine("{0}: {1}", qq, infile);
+                }
+            });
         }
 
         private static void LoadPointings(string[] args)

@@ -33,49 +33,7 @@ namespace Herschel.Loader
             writer.Write("{0} ", p.Pa);
             writer.WriteLine("{0} ", p.AV);
         }
-
-        public void PreparePointings(string path, string output, int fnum)
-        {
-            var dir = Path.GetDirectoryName(path);
-            var pattern = Path.GetFileName(path);
-
-            var files = Directory.GetFiles(dir, pattern);
-            var queue = new Queue<string>(files);
-
-            Console.WriteLine("Preparing pointing files for bulk load...", files.Length);
-            Console.WriteLine("Found {0} files.", files.Length);
-
-            int q = 0;
-
-            Parallel.For(0, fnum, i =>
-            {
-                while (true)
-                {
-                    int qq;
-                    string infile = null;
-
-                    lock (queue)
-                    {
-                        if (queue.Count > 0)
-                        {
-                            infile = queue.Dequeue();
-                            qq = q++;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    // TODO: observationid from infile
-
-
-                    ConvertPointingsFile(infile, String.Format(output, i), true);
-                    Console.WriteLine("{0}: {1}", qq, infile);
-                }
-            });
-        }
-
+        
         protected IEnumerable<Pointing> ReadPointingsFile(string filename)
         {
             // Open file
@@ -104,7 +62,7 @@ namespace Herschel.Loader
         /// </summary>
         /// <param name="inputFile"></param>
         /// <param name="outputFile"></param>
-        protected virtual void ConvertPointingsFile(string inputFile, string outputFile, bool append)
+        public virtual void ConvertPointingsFile(string inputFile, string outputFile, bool append)
         {
             append &= File.Exists(outputFile);
 

@@ -59,7 +59,7 @@ namespace Herschel.Loader
             return true;
         }
 
-        protected override void ConvertPointingsFile(string inputFile, string outputFile, bool append)
+        public override void ConvertPointingsFile(string inputFile, string outputFile, bool append)
         {
             var file = Path.GetFileName(inputFile);
             ObservationID = long.Parse(file.Substring(8, 10));
