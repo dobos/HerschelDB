@@ -97,19 +97,26 @@ namespace Herschel.Loader
             var path = args[1];
             int fnum = int.Parse(args[2]);
 
-            LoadPointings(path, fnum);
-        }
+            var dir = Path.GetDirectoryName(path);
+            var pattern = Path.GetFileName(path);
 
-        private static void LoadPointings(string filename, int fnum)
-        {
-            Parallel.For(0, fnum, i =>
+            var files = Directory.GetFiles(dir, pattern);
+            var queue = new Queue<string>(files);
+
+            Console.WriteLine("Bulk loading files...");
+            Console.WriteLine("Found {0} files.", files.Length);
+
+            var options = new ParallelOptions()
             {
-                var infile = Path.GetFullPath(String.Format(filename, i));
+                MaxDegreeOfParallelism = fnum
+            };
 
+            Parallel.ForEach(files, options, infile =>
+            {
                 Console.WriteLine("Loading from {0}...", infile);
 
                 var sql = SqlScripts.LoadPointing;
-                sql = sql.Replace("[$datafile]", infile);
+                sql = sql.Replace("[$datafile]", Path.GetFullPath(infile));
 
                 using (var cmd = new SqlCommand(sql))
                 {
