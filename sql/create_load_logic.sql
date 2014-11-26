@@ -15,7 +15,7 @@ AS
 	ON [LOAD]
 
 	-- Check duplicates
-
+	/*
 	IF (EXISTS
 	(
 		SELECT inst, obsID, fineTime, COUNT(*)
@@ -24,9 +24,11 @@ AS
 		HAVING COUNT(*) > 1
 	))
 	THROW 51000, 'Duplicate key.', 1;
+	*/
 
 	TRUNCATE TABLE [Pointing]
 
+	-- Skip duplicates by using DISTINCT
 	INSERT [Pointing] WITH (TABLOCKX)
 		(inst, ObsID, fineTime, ra, dec, pa, av)
 	SELECT DISTINCT
@@ -240,7 +242,7 @@ AS
 
 	INSERT Observation WITH (TABLOCKX)
 	SELECT
-		3 AS inst,			-- Parallel
+		4 AS inst,			-- Parallel
 		a.obsID, a.fineTimeStart, a.fineTimeEnd, a.av,
 		region.[Intersect](a.region, b.region) AS region
 	FROM Observation a
@@ -262,6 +264,8 @@ AS
 	Generate HTM from observation regions
 */
 
+	DROP INDEX [IX_ObservationHtm_Reverse] ON ObservationHtm;
+
 	TRUNCATE TABLE ObservationHtm;
 
 	DBCC SETCPUWEIGHT(1000); 
@@ -273,6 +277,17 @@ AS
 	WHERE region IS NOT NULL		-- for debugging only
 
 	DBCC SETCPUWEIGHT(1); 
+
+	CREATE NONCLUSTERED INDEX [IX_ObservationHtm_Reverse] ON [dbo].[ObservationHtm]
+	(
+		[htmIDEnd] ASC,
+		[htmIDStart] ASC
+	)
+	INCLUDE ( 	[inst],
+		[obsID],
+		[fineTimeStart],
+		[fineTimeEnd],
+		[partial]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
 GO
 
