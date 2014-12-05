@@ -215,6 +215,8 @@ AS
 			END)
 	FROM [load].Leg leg
 
+	-- Generate region using standard 'UNION' method
+
 	UPDATE [Observation]
 	SET region = leg.region
 	FROM [Observation] obs
@@ -222,7 +224,37 @@ AS
 		(SELECT inst, obsID, MIN(fineTimeStart) fineTimeStart, Max(fineTimeEnd) fineTimeEnd, region.UnionEvery(region) region
 		 FROM [load].LegRegion
 		 GROUP BY inst, obsID) leg
-		ON leg.inst = obs.inst AND leg.obsID = obs.obsID;
+		ON leg.inst = obs.inst AND leg.obsID = obs.obsID
+	WHERE obs.region IS NULL;
+
+	-- Fill in problematic ones with 'CHULL' method
+	
+	WITH points AS
+	(
+		SELECT leg.inst, leg.obsid, arcs.x1 x, arcs.y1 y, arcs.z1 z
+		FROM Observation obs
+		INNER JOIN [load].LegRegion leg
+			ON leg.inst = obs.inst AND leg.obsID = obs.obsID
+		CROSS APPLY region.GetArcs(leg.region) arcs
+
+		UNION
+
+		SELECT leg.inst, leg.obsid, arcs.x2 x, arcs.y2 y, arcs.z2 z
+		FROM Observation obs
+		INNER JOIN [load].LegRegion leg
+			ON leg.inst = obs.inst AND leg.obsID = obs.obsID
+		CROSS APPLY region.GetArcs(leg.region) arcs
+	), chull AS
+	(
+		SELECT inst, obsid, region.ConvexHullXyz(x,y,z) region
+		FROM points
+		GROUP BY inst, obsid
+	)
+	UPDATE [Observation]
+	SET region = chull.region
+	FROM [Observation] obs
+	INNER JOIN chull ON chull.inst = obs.inst AND chull.obsID = obs.obsID
+	WHERE region.HasError(obs.region) = 1
 
 	DBCC SETCPUWEIGHT(1); 
 
@@ -249,6 +281,73 @@ AS
 	INNER JOIN Observation b ON a.obsID = b.obsID
 	WHERE a.inst = 1		-- PACS
 		  AND b.inst = 2	-- SPIRE
+
+GO
+
+
+IF OBJECT_ID ('load.UpdatePacsSpireParallel', N'P') IS NOT NULL
+DROP PROC [load].[UpdatePacsSpireParallel]
+
+GO
+
+CREATE PROC [load].[UpdatePacsSpireParallel]
+AS
+/*
+	Update region for PACS-SPIRE parallel observations
+*/
+
+	DBCC SETCPUWEIGHT(1000); 
+
+	-- Attempt to compute intersection directly
+
+	WITH parallel AS
+	(
+		SELECT obs.inst, obs.obsID, region.IntersectAdvanced(a.region, b.region, 1, 1000) region
+		FROM [Observation] obs WITH (FORCESCAN)
+		INNER JOIN Observation a ON a.inst = 1 AND a.obsID = obs.obsID
+		INNER JOIN Observation b ON b.inst = 2 AND b.obsID = obs.obsID
+		WHERE obs.inst = 4
+	)
+	UPDATE obs WITH (TABLOCKX)
+	SET region = parallel.region
+	FROM [Observation] obs
+	INNER JOIN parallel ON parallel.inst = obs.inst AND parallel.obsID = obs.obsID
+
+	--WHERE obs.inst = 4 AND region.HasError(region) = 1;		-- Parallel
+
+-- Fill in problematic ones with 'CHULL' method
+	
+	WITH points AS
+	(
+		SELECT obs.inst, obs.obsid, arcs.x1 x, arcs.y1 y, arcs.z1 z
+		FROM Observation obs
+		CROSS APPLY region.GetArcs(obs.region) arcs
+
+		UNION
+
+		SELECT obs.inst, obs.obsid, arcs.x2 x, arcs.y2 y, arcs.z2 z
+		FROM Observation obs
+		CROSS APPLY region.GetArcs(obs.region) arcs
+	), chull AS
+	(
+		SELECT inst, obsid, region.ConvexHullXyz(x,y,z) region
+		FROM points
+		GROUP BY inst, obsid
+	), parallel AS
+	(
+		SELECT a.obsID, a.region r1, b.region r2
+		FROM chull a
+		INNER JOIN chull b ON a.obsID = b.obsID
+		WHERE a.inst = 1		-- PACS
+			  AND b.inst = 2	-- SPIRE
+	)
+	UPDATE [Observation] WITH (TABLOCKX)
+	SET region = region.IntersectAdvanced(r1, r2, 1, 1000)
+	FROM [Observation] obs
+	INNER JOIN parallel ON obs.inst = 4 AND parallel.obsID = obs.obsID
+	WHERE obs.inst = 4 AND region.HasError(obs.region) = 1		-- Parallel
+
+	DBCC SETCPUWEIGHT(1); 
 
 GO
 
