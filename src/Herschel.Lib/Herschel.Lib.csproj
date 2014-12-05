@@ -79,6 +79,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>copy $(SolutionDir)..\Spherical\bin\$(ConfigurationName)\*.dll $(SolutionDir)lib
+
 copy $(SolutionDir)lib\* $(SolutionDir)$(OutDir)</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
