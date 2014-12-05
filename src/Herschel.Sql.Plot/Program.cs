@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Configuration;
+using System.IO;
 using Jhu.Spherical;
 
 namespace Herschel.Sql.Plot
@@ -40,6 +41,9 @@ namespace Herschel.Sql.Plot
 
                             switch (verb)
                             {
+                                case "binary":
+                                    WriteBinary(index, region);
+                                    break;
                                 case "arcs":
                                     PrintArcs(index, region);
                                     break;
@@ -64,6 +68,14 @@ namespace Herschel.Sql.Plot
                         }
                     }
                 }
+            }
+        }
+
+        static void WriteBinary(int index, Region region)
+        {
+            using (var rw = new Jhu.Spherical.IO.RegionWriter(Console.OpenStandardOutput()))
+            {
+                rw.Write(region);
             }
         }
 
