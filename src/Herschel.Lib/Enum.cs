@@ -22,8 +22,8 @@ namespace Herschel.Lib
         None = 0,
         Pacs = 1,
         Spire = 2,
-        PacsSpireParallel = Pacs | Spire,
-        Hifi = 4
+        PacsSpireParallel = 4,
+        Hifi = 8
     }
 
     [Flags]
