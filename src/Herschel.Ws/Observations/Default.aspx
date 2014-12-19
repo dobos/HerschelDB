@@ -103,7 +103,7 @@
                                     <asp:BoundField HeaderText="obs ID" DataField="ObsID" />
                                     <asp:BoundField HeaderText="fine time start" DataField="FineTimeStart" />
                                     <asp:BoundField HeaderText="fine time end" DataField="FineTimeEnd" />
-                                    <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="AV" />
+                                    <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="MapScanSpeed" />
                                     <asp:BoundField HeaderText="area" DataField="Region.Area" DataFormatString="{0:0.00000}" />
                                 </Columns>
                                 <EmptyDataTemplate>
