@@ -19,16 +19,17 @@ namespace Herschel.Lib
         public Instrument Instrument { get; set; }
         public Int64 ID { get; set; }
         public ObservationLevel Level { get; set; }
-        public ObservationMode Mode { get; set; }
+        public ObservationType Type { get; set; }
         public InstrumentMode InstrumentMode { get; set; }
+        public PointingMode PointingMode { get; set; }
         public string @Object { get; set; }
         public bool Calibration { get; set; }
-        public PointingMode PointingMode { get; set; }
         public FineTime FineTimeStart { get; set; }
         public FineTime FineTimeEnd { get; set; }
         public double RA { get; set; }
         public double Dec { get; set; }
         public double PA { get; set; }
+        public double Aperture { get; set; }
         public int Repetition { get; set; }
         public double MapScanSpeed { get; set; }
         public double MapHeight { get; set; }
@@ -38,10 +39,11 @@ namespace Herschel.Lib
         public int RasterLine { get; set; }
         public int RasterColumn { get; set; }
 
+        // Temporary fields, will need to be parsed further
         public int SpecNumLine { get; set; }
+        public string SpecRange { get; set; }
 
         // Temporary field, will need to be parsed further
-        public string SpecRange { get; set; }
         public string AORLabel { get; set; }
         public string AOT { get; set; }
         

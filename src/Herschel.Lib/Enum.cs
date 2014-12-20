@@ -21,6 +21,7 @@ namespace Herschel.Lib
     /// </summary>
     public enum ObservationLevel : sbyte
     {
+        None = -2,
         Created = -1,
         Level0 = 0,
         Level0_5 = 5,
@@ -30,33 +31,14 @@ namespace Herschel.Lib
         Level3 = 30,
     }
 
-    /// <summary>
-    /// Observation coverage mode
-    /// </summary>
-    public enum ObservationMode : sbyte
+    public enum ObservationType : sbyte
     {
-        Pointed = 1,
-        Raster = 2,
-        Mapping = 3,
-        Parallel = 4,
+        Photometry = 0,
+        Spectroscopy = 1,
     }
 
     [Flags]
-    public enum PointingMode : short
-    {
-        // 0-1: Telescope pointing mode
-        // 2:   Nodding
-
-        Pointed = 0x0000,
-        LineScan = 0x0001,
-        CrossScan = 0x0002,
-        Raster = 0x0003,
-
-        Nodding = 0x0004,
-    }
-
-    [Flags]
-    public enum InstrumentMode : short
+    public enum InstrumentMode : int
     {
         // 0-3: Instrument
         //      0: PACS
@@ -79,25 +61,36 @@ namespace Herschel.Lib
         // 8:   PACS blue/green photometry
         // 9:   PACS line/range spectroscopy
 
-        PacsPhotoBlue = Pacs | Photometry | 0x0000,
-        PacsPhotoGreen = Pacs | Photometry | 0x0100,
-        PacsSpectroRange = Pacs | Spectroscopy | 0x0000,
-        PacsSpectroLine = Pacs | Spectroscopy | 0x0200,
+        PacsPhotoBlue = Pacs | Photometry | 0x00010000,
+        PacsPhotoGreen = Pacs | Photometry | 0x00020000,
 
-        PacsChopperOff = 0x0000,
-        PacsChopperOn = 0x0400,
+        PacsSpectroRange = Pacs | Spectroscopy | 0x00040000,
+        PacsSpectroLine = Pacs | Spectroscopy | 0x00080000,
+
+        PacsChopperOff = Pacs | 0x00000000,
+        PacsChopperOn = Pacs | 0x00100000,
+        PacsChopperRaster = Pacs | 0x00200000,
 
         // *** SPIRE specific settings (BSM)
 
         SpirePhoto = Spire | Photometry,
         SpireSpectro = Spire | Spectroscopy,
 
-        SpireJiggleOff = 0x0000,
-        SpireJiggleOn = 0x0100,
+        SpirePhotoPointJiggle = SpirePhoto | 0x00010000,
+        SpirePhotoSmallScan = SpirePhoto | 0x00020000,
+        SpirePhotoLargeScan = SpirePhoto | 0x00030000,
 
-        SpireSamplingSparse = 0x0200,
-        SpireSamplingIntermediate = 0x0400,
-        SpireSamplingFull = 0x0600,
+        SpireSpectroPoint = SpireSpectro | 0x00010000,
+        SpireSpectroRaster = SpireSpectro | 0x00020000,
+
+        SpireSpectroSamplingSparse = SpireSpectro | 0x00100000,
+        SpireSpectroSamplingIntermediate = SpireSpectro | 0x00200000,
+        SpireSpectroSamplingFull = SpireSpectro | 0x00300000,
+
+        SpireSpectroResolutionLow = SpireSpectro | 0x01000000,
+        SpireSpectroResolutionMedium = SpireSpectro | 0x02000000,
+        SpireSpectroResolutionHigh = SpireSpectro | 0x04000000,
+        SpireSpectroResolutionLowHigh = SpireSpectroResolutionLow | SpireSpectroResolutionHigh,
 
         // *** HIFI specific settings (DBS,)
 
@@ -108,14 +101,38 @@ namespace Herschel.Lib
         // 13:    Calibration done with Frequency Switch
         // 14:    Calibration done with Load target
         
-        HifiSingleBand = 0x0100,
-        HifiSpectralScan = 0x0200,
+        HifiSingleBand = Hifi | 0x00010000,
+        HifiSpectralScan = Hifi | 0x00020000,
 
-        HifiCalibrationOffPosition = 0x0400,                // Off-point calibration reference used
-        HifiCalibrationDualBeamSwitchSlow = 0x0800,         // DBS slow
-        HifiCalibrationDualBeamSwitchFast = 0x1000,         // DBS fast
-        HifiCalibrationFrequencySwitch = 0x2000,            // Frequency switch calibration
-        HifiCalibrationLoadChop = 0x4000,                   // Load chop calibration
+        HifiCalibrationOffPosition = Hifi | 0x00040000,                // Off-point calibration reference used
+        HifiCalibrationDualBeamSwitchSlow = Hifi | 0x00080000,         // DBS slow
+        HifiCalibrationDualBeamSwitchFast = Hifi | 0x00100000,         // DBS fast
+        HifiCalibrationDualBeamSwitchRaster = Hifi | 0x00200000,       // DBS raster mode
+        HifiCalibrationDualBeamSwitchCross = Hifi | 0x00400000,        // DBS cross mode
+        HifiCalibrationFrequencySwitch = Hifi | 0x00800000,            // Frequency switch calibration
+        HifiCalibrationLoadChop = Hifi | 0x01000000,                   // Load chop calibration
+    }
+
+    [Flags]
+    public enum PointingMode : sbyte
+    {
+        // 0-2: Telescope pointing mode
+        // 3-4: Line/cross scan
+        // 5:   PACS/SPIRE parallel
+        // 6:   Nodding on
+
+        None = 0,
+
+        Pointed = 0x0001,
+        Raster = 0x0002,
+        Mapping = 0x0004,
+
+        ScanLine = 0x0008,
+        ScanCross = 0x0010,
+
+        PacsSpireParallel = 0x0020,
+
+        Nodding = 0x0040,
     }
 
     // ----------------------------------------

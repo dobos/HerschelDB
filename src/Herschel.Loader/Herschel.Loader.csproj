@@ -57,6 +57,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ObservationsFileSpire.cs" />
+    <Compile Include="ObservationsFilePacs.cs" />
+    <Compile Include="ObservationsFileHifi.cs" />
+    <Compile Include="ObservationsFile.cs" />
     <Compile Include="PointingsFileHifi.cs" />
     <Compile Include="PointingsFile.cs" />
     <Compile Include="PointingsFilePacs.cs" />

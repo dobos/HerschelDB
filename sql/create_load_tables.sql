@@ -13,76 +13,8 @@ CREATE TABLE [load].[RawObservation]
 (
 	[inst] tinyint NOT NULL,
 	[obsID] bigint NOT NULL,
-	[obsLevel] tinyint NOT NULL,
-		/*
-			PACS photo (13)
-			PACS parallel (13)
-			PACS line spec (16)
-			PACS range spec (16)
-			SPIRE photo (15)
-			SPIRE parallel (8)
-			SPIRE spectro (16)
-			HIFI (10)
-
-			-- LEVEL3_PROCESSED
-			-- LEVEL2_PROCESSED
-			-- LEVEL2_5_PROCESSED
-			-- LEVEL1_PROCESSED
-			-- LEVEL0_PROCESSED
-			-- LEVEL0_5_PROCESSED
-			-- CREATED
-		*/
-	[obsMode] tinyint NOT NULL,
-		/*  
-			PACS photo: (5)													20237
-			-- Scan map						Mapping							18016
-			-- Point-source photometry		(only calibration)				 2185
-			-- Small-source photometry		(only calibration)				   23
-			-- Chopped raster				(only calibration)				   13
-			
-			PACS parallel: (5) 
-			-- Parallel Mode				Parallel						  856
-			
-			PACS spec line:	(7)												 2840
-			-- Pointed						Pointed							 1925
-			-- Pointed with dither			(only calibration)					2
-			-- Mapping						Raster							  913
-			
-			PACS spec range: (7)											 3317
-			-- Pointed						Pointed							 3142
-			-- Mapping						Raster							  175
-			
-			SPIRE photo: (7)												 6593
-			-- Point Source					Pointed							  286
-			-- Small Map					Mapping							 4311
-			-- Large Map					Mapping							 1908
-			-- Mode: null					(only calibrations)				   88
-			
-			SPIRE parallel: (4)
-			-- "Parallel Mode"				Parallel						  856
-			
-			SPIRE spec (7)													 2175
-			-- "Mode: null"					(only calibration)				   29
-			-- "Single Pointing"			Pointed							 2124
-			-- "Raster"						Raster							   22
-
-			HIFI (5)														 9998
-			-- "Position Switch"											  920
-			-- "DBS Cross fastChop"											   26
-			-- "DBS Raster fastChop"										  435
-			-- "DBS fastChop"												 6393
-			-- "DBS slowChop"												  302
-			-- "Frequency Switch Ref"										  147
-			-- "Frequency Switch noRef"										  219
-			-- "Load Chop													 1556
-			-- "OTF - Frequency Switch Ref"									   15
-			-- "OTF - Position Switch"										  539
-			-- "OTF - Load Chop Ref"										  439
-			-- "OTF - Load Chop noRef"										    6
-				DBS: dual-beam switch
-				OTF: on-the-fly
-		*/
-	[instMode] smallint NOT NULL,
+	[obsType] tinyint NOT NULL,
+	[instMode] int NOT NULL,
 		/*
 			PACS photo: (2)													20237
 			-- none															  261
@@ -98,19 +30,48 @@ CREATE TABLE [load].[RawObservation]
 
 			PACS range spec: (5)
 			-- PacsRangeSpec				PacsSpecRange					 3317
+
+			http://research.uleth.ca/spire/documents/pdf/Sibthorpe_et_al2004.pdf
+			SPIRE photo (5,6)												 6593
+			-- POF10 = SpirePhotoSmallScan									 4269
+			-- POF2  = SpirePhotoPointJiggle								  286
+			-- POF3	 = SpirePhotoSmall		(only calibration)				   42
+			-- POF5  = SpirePhotoLargeScan									 1908
+			-- SpirePhotoSample				(only calibration)				   88
+
+			??? Mi a parallel mód POF-ja ???
+			SPIRE parallel (2)
+			-- PARALLEL						PacsSpireParallel				  856
+
+			SPIRE spectro (-)
+	
+			http://herschel.esac.esa.int/hcss-doc-13.0/load/pdd/html/SPIREproducts.html
+			cat Spire_Spectro/spire_spectro_header.txt | grep Cal -v | sed -r -e 's/"([^"]*)"/xxx/g' | cut -d" " -f 5,6,10,12 | sort | uniq
+			SOF1: Spectrometer single pointing/raster (sparse sampling) 
+			SOF2: Spectrometer jiggle map/raster (intermediate or full sampling)
+			SPIRE spectro: (5,6)
+			-- SOF1 -- point source	(jiggle)								 1822
+			-- SOF2	-- small map (scan + jiggle)							  324
+			-- SpireSpectroPeakup			(only calibration)				    2
+			-- SpireSpectroSample			(only calibration)				    3
+			-- SpireSpectroScalOff			(only calibration)				    4
+			-- SpireSpectroScalOn			(only calibration)				   20
+
+			SPIRE spectro: (12)
+			-- none
+			-- sparse
+			-- intermediate
+			-- full
+
+			SPIRE spectro: (20)												 2175
+			-- none							(only 23 non-cal)				  190
+			-- LR															  456
+			-- MR															   74
+			-- HR															 1094
+			-- CR															  283
+			-- H+LR															   78
 		*/
-	[object] varchar(50) NOT NULL,
-		/*
-			PACS photo (14)
-			PACS parallel (14)
-			PACS line spec (17)
-			PACS range spec (17)
-			SPIRE photo (17)
-			SPIRE parallel (9)
-			SPIRE spec (18)
-		*/
-	[calibration] bit NOT NULL,
-	[pointingMode] smallint NOT NULL,
+	[pointingMode] tinyint NOT NULL,
 		/*
 			PACS photo:	(11)												20237
 			-- Line_scan					LineScan						18016
@@ -148,39 +109,6 @@ CREATE TABLE [load].[RawObservation]
 			-- Basic-fine					BasicFine						 2129
 			-- Custom-map-pointing			Raster (only 16 non-calib)		   22
 
-
-			http://research.uleth.ca/spire/documents/pdf/Sibthorpe_et_al2004.pdf
-			SPIRE photo (5,6)												 6593
-			-- POF10 = SpirePhotoSmallScan									 4269
-			-- POF2  = SpirePhotoPointJiggle								  286
-			-- POF3	 = SpirePhotoSmall		(only calibration)				   42
-			-- POF5  = SpirePhotoLargeScan									 1908
-			-- SpirePhotoSample				(only calibration)				   88
-
-			??? Mi a parallel mód POF-ja ???
-			SPIRE parallel (2)
-			-- PARALLEL						PacsSpireParallel				  856
-
-			SPIRE spectro (-)
-	
-			http://herschel.esac.esa.int/hcss-doc-13.0/load/pdd/html/SPIREproducts.html
-			cat Spire_Spectro/spire_spectro_header.txt | grep Cal -v | sed -r -e 's/"([^"]*)"/xxx/g' | cut -d" " -f 5,6,10,12 | sort | uniq
-			SOF1: Spectrometer single pointing/raster (sparse sampling) 
-			SOF2: Spectrometer jiggle map/raster (intermediate or full sampling)
-			SPIRE spectro: (5,6)
-			-- SOF1 -- point source	(jiggle)								 1822
-			-- SOF2	-- small map (scan + jiggle)							  324
-			-- SpireSpectroPeakup			(only calibration)				    2
-			-- SpireSpectroSample			(only calibration)				    3
-			-- SpireSpectroScalOff			(only calibration)				    4
-			-- SpireSpectroScalOn			(only calibration)				   20
-
-			SPIRE spectro: (12)
-			-- none
-			-- sparse
-			-- intermediate
-			-- full
-
 			HIFI: (3)
 			-- HifiMappingModeDBSCross
 			-- HifiMappingModeDBSRaster
@@ -205,7 +133,38 @@ CREATE TABLE [load].[RawObservation]
 			-- HifiSScanModeLoadChopNoRef
 
 		*/
-	[ra] float,
+	[object] varchar(50) NOT NULL,
+		/*
+			PACS photo (14)
+			PACS parallel (14)
+			PACS line spec (17)
+			PACS range spec (17)
+			SPIRE photo (17)
+			SPIRE parallel (9)
+			SPIRE spec (18)
+			HIFI (11)
+		*/
+	[calibration] bit NOT NULL,
+	[obsLevel] tinyint NOT NULL,
+		/*
+			PACS photo (13)
+			PACS parallel (13)
+			PACS line spec (16)
+			PACS range spec (16)
+			SPIRE photo (15)
+			SPIRE parallel (8)
+			SPIRE spectro (16)
+			HIFI (10)
+
+			-- LEVEL3_PROCESSED
+			-- LEVEL2_PROCESSED
+			-- LEVEL2_5_PROCESSED
+			-- LEVEL1_PROCESSED
+			-- LEVEL0_PROCESSED
+			-- LEVEL0_5_PROCESSED
+			-- CREATED
+		*/
+	[ra] float NOT NULL,
 		/*
 			PACS photo (-)
 			PACS parallel (-)
@@ -214,7 +173,7 @@ CREATE TABLE [load].[RawObservation]
 			SPIRE parallel (-)
 			SPIRE spectro (2)
 		*/
-	[dec] float,
+	[dec] float NOT NULL,
 		/*
 			PACS photo (-)
 			PACS parallel (-)
@@ -223,7 +182,7 @@ CREATE TABLE [load].[RawObservation]
 			SPIRE parallel (-)
 			SPIRE spectro (3)
 		*/
-	[pa] float,
+	[pa] float NOT NULL,
 		/*
 			PACS photo (-)
 			PACS parallel (-)
@@ -232,7 +191,7 @@ CREATE TABLE [load].[RawObservation]
 			SPIRE parallel (-)
 			SPIRE spectro (4)
 		*/
-	[aperture] tinyint,
+	[aperture] float,
 		/*
 			PACS photo (-)
 			PACS parallel (-)
@@ -267,7 +226,7 @@ CREATE TABLE [load].[RawObservation]
 			-- S60
 
 		*/
-	[repetition] int,
+	[repetition] int NOT NULL,
 		/*
 			PACS photo (10)
 			PACS parallel (10)
@@ -375,26 +334,6 @@ CREATE TABLE [load].[RawObservation]
 			SPIRE parallel (-)
 			SPIRE spectro (-)
 		*/
-	[specResolution] tinyint,
-		/*
-			PACS photo (-)
-			PACS parallel (-)
-			PACS line spec (-)
-				 (parse from string?)
-
-			SPIRE photo (19)
-			-- none
-
-			SPIRE parallel (-)
-
-			SPIRE spectro: (20)												 2175
-			-- none							(only 23 non-cal)				  190
-			-- LR															  456
-			-- MR															   74
-			-- HR															 1094
-			-- CR															  283
-			-- H+LR															   78
-		*/
 	[AOR_Label] varchar(512) NOT NULL,	-- ObsCal, Calibration etc. mean calibration
 		/*
 			PACS photo (6)
@@ -404,6 +343,7 @@ CREATE TABLE [load].[RawObservation]
 			SPIRE photo (8)
 			SPIRE parallel (5)
 			SPIRE spectro (8)
+			HIFI (6)
 		*/
 	[AOT] nvarchar(50) NOT NULL
 		/*
@@ -414,6 +354,7 @@ CREATE TABLE [load].[RawObservation]
 			SPIRE photo (9)
 			SPIRE parallel (6)
 			SPIRE spectro (9)
+			HIFI (7)
 		*/
 ) ON [LOAD]
 

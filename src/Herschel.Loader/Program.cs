@@ -24,33 +24,94 @@ namespace Herschel.Loader
             System.Globalization.CultureInfo.DefaultThreadCurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
             var verb = args[0].ToLowerInvariant();
+            var obj = args[1].ToLowerInvariant();
 
-            switch (verb)
+            switch (obj)
             {
-                case "prepare":
-                    PreparePointings(args);
+                case "obs":
+                    switch (verb)
+                    {
+                        case "prepare":
+                            PrepareObservations(args);
+                            break;
+                        /*case "load":
+                            LoadObservations(args);
+                            break;
+                        case "merge":
+                            MergeObservations(args);
+                            break;
+                        case "cleanup":
+                            CleanupObservations(args);
+                            break;*/
+                        default:
+                            throw new NotImplementedException();
+                    }
                     break;
-                case "load":
-                    LoadPointings(args);
-                    break;
-                case "merge":
-                    MergePointings(args);
-                    break;
-                case "cleanup":
-                    CleanupPointings(args);
+                case "pointing":
+                    switch (verb)
+                    {
+                        case "prepare":
+                            PreparePointings(args);
+                            break;
+                        case "load":
+                            LoadPointings(args);
+                            break;
+                        case "merge":
+                            MergePointings(args);
+                            break;
+                        case "cleanup":
+                            CleanupPointings(args);
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
                     break;
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        private static void PreparePointings(string[] args)
+        private static void PrepareObservations(string[] args)
         {
-            var inst = args[1].ToLowerInvariant();
-            var type = byte.Parse(args[2]);
+            var inst = args[2].ToLowerInvariant();
             var path = args[3];
             var output = args[4];
-            int fnum = int.Parse(args[5]);
+
+            Console.WriteLine("Preparing observation file for bulk load...");
+
+            var file = GetObservationsFile(inst);
+            file.ConvertObservationsFile(path, output, false);
+        }
+
+        private static ObservationsFile GetObservationsFile(string inst)
+        {
+            ObservationsFile file = null;
+
+            switch (inst.ToLowerInvariant())
+            {
+                case "pacs":
+                    file = new ObservationsFilePacs();
+                    break;
+                case "spire":
+                    file = new ObservationsFileSpire();
+                    break;
+                case "hifi":
+                    file = new ObservationsFileHifi();
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            return file;
+        }
+
+        private static void PreparePointings(string[] args)
+        {
+            var inst = args[2].ToLowerInvariant();
+            var type = byte.Parse(args[3]);
+            var path = args[4];
+            var output = args[5];
+            int fnum = int.Parse(args[6]);
 
             // Run processing on multiple threads
 
@@ -94,8 +155,8 @@ namespace Herschel.Loader
 
         private static void LoadPointings(string[] args)
         {
-            var path = args[1];
-            int fnum = int.Parse(args[2]);
+            var path = args[2];
+            int fnum = int.Parse(args[3]);
 
             var dir = Path.GetDirectoryName(path);
             var pattern = Path.GetFileName(path);
