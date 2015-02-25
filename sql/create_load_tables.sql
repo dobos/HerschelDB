@@ -368,6 +368,7 @@ CREATE TABLE [load].[RawPointing]
 (
 	[inst] [tinyint] NOT NULL,
 	[obsID] [bigint] NOT NULL,
+	[BBID] [bigint] NOT NULL,
 	[obsType] [tinyint] NOT NULL,
 	[fineTime] [bigint] NOT NULL,
 	[ra] [float] NOT NULL,

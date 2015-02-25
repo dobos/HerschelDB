@@ -26,6 +26,7 @@ namespace Herschel.Loader
         {
             writer.Write("{0} ", (byte)p.Instrument);
             writer.Write("{0} ", p.ObsID);
+            writer.Write("{0} ", p.BBID);
             writer.Write("{0} ", p.ObsType);
             writer.Write("{0} ", p.FineTime);
             writer.Write("{0} ", p.Ra);

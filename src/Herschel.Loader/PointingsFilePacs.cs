@@ -38,7 +38,7 @@ namespace Herschel.Loader
                     pp.AVZ = double.Parse(parts[52]);
                     pp.AVZError = double.Parse(parts[55]);
 
-                    keep &= pp.BBID == 215131301;
+                    //keep &= pp.BBID == 215131301;
 
                     break;
                 case PacsObsType.SpectroRange:
@@ -112,6 +112,7 @@ namespace Herschel.Loader
             {
                 Instrument = pp.Instrument,
                 ObsID = pp.ObsID,
+                BBID = pp.BBID,
                 ObsType = ObservationType,
                 FineTime = pp.FineTime,
                 Ra = pp.Ra,
