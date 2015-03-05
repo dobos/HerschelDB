@@ -41,7 +41,11 @@ namespace Herschel.Lib
 
         // Temporary fields, will need to be parsed further
         public int SpecNumLine { get; set; }
-        public string SpecRange { get; set; }
+        public double SpecRangeFrom { get; set; }
+        public double SpecRangeTo { get; set; }
+        public double SpecRange2From { get; set; }
+        public double SpecRange2To { get; set; }
+        public string SpecRangeID { get; set; }
 
         // Temporary field, will need to be parsed further
         public string AORLabel { get; set; }

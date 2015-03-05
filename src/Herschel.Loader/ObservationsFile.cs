@@ -38,7 +38,11 @@ namespace Herschel.Loader
             writer.Write("{0}|", o.RasterColumn < 0 ? "" : o.RasterColumn.ToString());
 
             writer.Write("{0}|", o.SpecNumLine);
-            writer.Write("{0}|", o.SpecRange);
+            writer.Write("{0}|", o.SpecRangeFrom);
+            writer.Write("{0}|", o.SpecRangeTo);
+            writer.Write("{0}|", o.SpecRange2From);
+            writer.Write("{0}|", o.SpecRange2To);
+            writer.Write("{0}|", o.SpecRangeID);
 
             writer.Write("{0}|", o.AORLabel);   // TODO
             writer.WriteLine("{0}", o.AOT);     // TODO

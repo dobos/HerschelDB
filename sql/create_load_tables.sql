@@ -324,7 +324,11 @@ CREATE TABLE [load].[RawObservation]
 			SPIRE parallel (-)
 			SPIRE spectro (-)
 		*/
-	[specRange] varchar(512),
+	[specRangeFrom] float,
+	[specRangeTo] float,
+	[specRange2From] float,
+	[specRange2To] float,
+	[specRangeID] varchar(512),
 		/*
 			PACS photo (-)
 			PACS parallel (-)

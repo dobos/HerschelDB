@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.IO;
 using System.Threading.Tasks;
 using Herschel.Lib;
@@ -10,6 +11,9 @@ namespace Herschel.Loader
 {
     class ObservationsFilePacs : ObservationsFile
     {
+        private static Regex SpecRangeRegex = new Regex(@"^([0-9\.]+)(?: \- ([0-9\.]+)){0,1}\ micron, ([0-9]+) repetition\(s\), ID: (.+)", RegexOptions.Multiline | RegexOptions.Compiled);
+        private static Regex SpecRangePlusRegex = new Regex(@"^([0-9\.]+)-([0-9\.]+)plus([0-9\.]+)-([0-9\.]+)");
+
         protected override bool Parse(string[] parts, out Observation observation)
         {
             if (parts.Length == 15)
@@ -75,11 +79,51 @@ namespace Herschel.Loader
                     RasterColumn = int.Parse(parts[13]),
 
                     SpecNumLine = int.Parse(parts[17]),
-                    SpecRange = parts[18],
+                    SpecRangeID = parts[18],
 
                     AORLabel = aor,
                     AOT = parts[8],
                 };
+
+                // --- parse spec range
+                var specRange = parts[18];
+                var m = SpecRangeRegex.Match(specRange);
+
+                if (m.Success)
+                {
+                    // from - to
+                    observation.SpecRangeFrom = double.Parse(m.Groups[1].Value);
+
+                    if (!String.IsNullOrWhiteSpace(m.Groups[2].Value))
+                    {
+                        observation.SpecRangeTo = double.Parse(m.Groups[2].Value);
+                    }
+                    else
+                    {
+                        observation.SpecRangeTo = observation.SpecRangeFrom;
+                    }
+
+                    // repetitions
+                    observation.Repetition = int.Parse(m.Groups[3].Value);
+
+                    // if it covers two separate ranges
+                    var mp = SpecRangePlusRegex.Match(m.Groups[4].Value);
+
+                    if (mp.Success)
+                    {
+                        observation.SpecRange2From = double.Parse(mp.Groups[3].Value);
+                        observation.SpecRange2To = double.Parse(mp.Groups[4].Value);
+
+                        observation.SpecRangeID = "";
+                    }
+                    else
+                    {
+                        observation.SpecRange2From = -1;
+                        observation.SpecRange2To = -1;
+                    }
+                }
+
+
             }
             else if (parts.Length == 14)
             {
