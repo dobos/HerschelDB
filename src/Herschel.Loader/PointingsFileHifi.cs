@@ -37,7 +37,12 @@ namespace Herschel.Loader
                     ps.FineTime = long.Parse(parts[4]);
                     break;
                 case HifiObsType.Mapping:
-                    // Special
+                    ps.ObsID = ObservationID;
+                    ps.Ra = double.Parse(parts[0]);
+                    ps.Dec = double.Parse(parts[1]);
+                    ps.Pa = double.Parse(parts[2]);
+                    ps.FineTime = long.Parse(parts[5]);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
