@@ -20,27 +20,29 @@ namespace Herschel.Loader
                 observation = new Observation()
                 {
                     Instrument = Instrument.Spire,
-                    ID = long.Parse(parts[0]),
+                    ObsID = long.Parse(parts[0]),
                     Type = ObservationType.Photometry,
                     Level = ParseObservationLevel(parts[14]),
                     InstrumentMode = ParseInstrumentMode(parts[5]),
+                    PointingMode = ParsePointingMode(parts[9]),
                     Object = parts[16],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
-                    PointingMode = ParsePointingMode(parts[9]),
-                    FineTimeStart = -1,
-                    FineTimeEnd = -1,
                     RA = double.Parse(parts[1]),
                     Dec = double.Parse(parts[2]),
                     PA = double.Parse(parts[3]),
+                    Aperture = -1,
+                    FineTimeStart = -1,
+                    FineTimeEnd = -1,
                     Repetition = (int)double.Parse(parts[17]),
-                    MapScanSpeed = double.NaN,      // TODO: estimate from pointings
-                    MapHeight = double.Parse(parts[13]),
-                    MapWidth = double.Parse(parts[12]),
-                    RasterNumPoint = -1,
-                    RasterPointStep = double.NaN,
-                    RasterLine = -1,
-                    RasterColumn = -1,
-                    AORLabel = aor,
+
+                    ScanMap = new ScanMap()
+                    {
+                        AV = double.NaN,            // TODO: estimate from pointings
+                        Height = double.Parse(parts[13]),
+                        Width = double.Parse(parts[12]),
+                    },
+
+                    AOR = aor,
                     AOT = parts[8],
                 };
             }
@@ -52,31 +54,41 @@ namespace Herschel.Loader
                 observation = new Observation()
                 {
                     Instrument = Instrument.Spire,
-                    ID = long.Parse(parts[0]),
+                    ObsID = long.Parse(parts[0]),
                     Type = ObservationType.Spectroscopy,
                     Level = ParseObservationLevel(parts[15]),
                     InstrumentMode = ParseInstrumentMode(parts[5]) |
                                      ParseSampling(parts[11]) |
                                      ParseResolution(parts[19]),
+                    PointingMode = ParsePointingMode(parts[9]),             // TODO ***** ?
                     Object = parts[17],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
                                   aor.IndexOf("dark sky", StringComparison.InvariantCultureIgnoreCase) >= 0,
-                    PointingMode = ParsePointingMode(parts[9]),             //*****
-                    FineTimeStart = -1,
-                    FineTimeEnd = -1,
+
                     RA = double.Parse(parts[1]),
                     Dec = double.Parse(parts[2]),
                     PA = double.Parse(parts[3]),
+                    Aperture = -1,      // TODO
+                    FineTimeStart = -1,
+                    FineTimeEnd = -1,
                     Repetition = (int)double.Parse(parts[18]),
-                    MapScanSpeed = double.NaN,      // TODO: estimate from pointings
-                    MapHeight = double.Parse(parts[13]),
-                    MapWidth = double.Parse(parts[12]),
-                    RasterNumPoint = int.Parse(parts[14]),
-                    RasterPointStep = double.NaN,
-                    RasterLine = -1,
-                    RasterColumn = -1,
 
-                    AORLabel = aor,
+                    ScanMap = new ScanMap()
+                    {
+                        AV = double.NaN,      // TODO: estimate from pointings
+                        Height = double.Parse(parts[13]),
+                        Width = double.Parse(parts[12]),
+                    },
+
+                    RasterMap = new RasterMap()
+                    {
+                        Num = int.Parse(parts[14]),
+                        Step = double.NaN,
+                        Line = -1,
+                        Column = -1,
+                    },
+
+                    AOR = aor,
                     AOT = parts[8],
                 };
 
@@ -179,7 +191,7 @@ namespace Herschel.Loader
                     throw new NotImplementedException();
             }
         }
-        
+
         private double ParseMapScanSpeed(string value)
         {
             switch (value)

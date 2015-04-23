@@ -31,15 +31,46 @@ namespace Herschel.Lib
         Level3 = 30,
     }
 
+    // Used in Observations only
     public enum ObservationType : sbyte
     {
+        None = -1,
+
+        // TODO: change to 1 and 2
         Photometry = 0,
         Spectroscopy = 1,
+
+
+        // PACS
+        PacsPhoto = 1,
+        PacsSpectroRange = 2,
+        PacsSpectroLine = 4,
+
+        PacsSpectro = PacsSpectroRange | PacsSpectroLine,
+
+        // SPIRE
+        SpirePhotoLargeMap = 1,
+        SpirePhotoSmallMap = 2,
+        
+        SpirePhoto = SpirePhotoLargeMap | SpirePhotoSmallMap,
+        
+        SpireSpectro1 = 4,
+        SpireSpectro7 = 8,
+        SpireSpectro64 = 16,
+
+        SpireSpectro = SpireSpectro1 | SpireSpectro7 | SpireSpectro64,
+
+        // HIFI
+        HifiPoint = 1,
+        HifiSpectralScan = 2,
+        HifiMapping = 4,
     }
 
     [Flags]
     public enum InstrumentMode : int
     {
+        None = -1,
+
         // 0-3: Instrument
         //      0: PACS
         //      1: SPIRE
@@ -50,7 +81,8 @@ namespace Herschel.Lib
 
         Pacs = 0x0001,
         Spire = 0x0002,
-        PacsSpireParallel = Pacs | Spire | 0x0004,
+        Parallel = 0x0004,
+        PacsSpireParallel = Pacs | Spire | Parallel,
         Hifi = 8,
 
         Photometry = 0x0010,
@@ -123,16 +155,16 @@ namespace Herschel.Lib
 
         None = 0,
 
-        Pointed = 0x0001,
-        Raster = 0x0002,
-        Mapping = 0x0004,
+        Pointed = 0x01,
+        Raster = 0x02,
+        Mapping = 0x04,
 
-        ScanLine = 0x0008,
-        ScanCross = 0x0010,
+        ScanLine = 0x08,
+        ScanCross = 0x10,
 
-        PacsSpireParallel = 0x0020,
+        PacsSpireParallel = 0x20,
 
-        Nodding = 0x0040,
+        Nodding = 0x40,
     }
 
     // ----------------------------------------
@@ -147,6 +179,8 @@ namespace Herschel.Lib
         // TODO: Hifi
     }
 
+    /*
+    // Used in Pointings
     [Flags]
     public enum PacsObsType : byte
     {
@@ -157,6 +191,7 @@ namespace Herschel.Lib
         Spectro = SpectroRange | SpectroLine
     }
 
+    // Used in Pointings
     [Flags]
     public enum SpireObsType : byte
     {
@@ -172,6 +207,7 @@ namespace Herschel.Lib
         Spectro = Spectro1 | Spectro7 | Spectro64,
     }
 
+    // Used in Pointings
     [Flags]
     public enum HifiObsType : byte
     {
@@ -179,6 +215,9 @@ namespace Herschel.Lib
         SpectralScan = 2,
         Mapping = 4,
     }
+    */
+
+    // ----------------------------------------
 
     public enum ObservationSearchMethod
     {

@@ -12,7 +12,7 @@ namespace Herschel.Lib
         public Instrument Instrument;
         public long ObsID;
         public long BBID;
-        public byte ObsType;
+        public ObservationType ObsType;
         public long FineTime;
         public double Ra;
         public double Dec;

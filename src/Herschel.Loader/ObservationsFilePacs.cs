@@ -24,27 +24,30 @@ namespace Herschel.Loader
                 observation = new Observation()
                 {
                     Instrument = Instrument.Pacs,
-                    ID = long.Parse(parts[0]),
+                    ObsID = long.Parse(parts[0]),
                     Type = ObservationType.Photometry,
                     Level = ParseObservationLevel(parts[12]),
                     InstrumentMode = ParseInstrumentMode(parts[1]),
+                    PointingMode = ParsePointingMode(parts[10]),
                     Object = parts[13],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
-                    PointingMode = ParsePointingMode(parts[10]),
-                    FineTimeStart = -1,
-                    FineTimeEnd = -1,
+
                     RA = -999,
                     Dec = -999,
                     PA = -999,
+                    Aperture = -1,
+                    FineTimeStart = -1,
+                    FineTimeEnd = -1,
                     Repetition = (int)double.Parse(parts[9]),
-                    MapScanSpeed = ParseMapScanSpeed(parts[14]),
-                    MapHeight = double.NaN,
-                    MapWidth = double.NaN,
-                    RasterNumPoint = -1,
-                    RasterPointStep = double.NaN,
-                    RasterLine = -1,
-                    RasterColumn = -1,
-                    AORLabel = aor,
+
+                    ScanMap = new ScanMap()
+                    {
+                        AV = ParseMapScanSpeed(parts[14]),
+                        Height = double.NaN,
+                        Width = double.NaN,
+                    },
+
+                    AOR = aor,
                     AOT = parts[6],
                 };
             }
@@ -57,31 +60,37 @@ namespace Herschel.Loader
                 observation = new Observation()
                 {
                     Instrument = Instrument.Pacs,
-                    ID = long.Parse(parts[0]),
+                    ObsID = long.Parse(parts[0]),
                     Type = ObservationType.Spectroscopy,
                     Level = ParseObservationLevel(parts[15]),
                     InstrumentMode = ParseInstrumentMode(parts[5]) | ParseChoppingMode(parts[10]),
+                    PointingMode = ParsePointingMode(parts[6]),
                     Object = parts[16],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
-                    PointingMode = ParsePointingMode(parts[6]),
-                    FineTimeStart = -1,
-                    FineTimeEnd = -1,
+
                     RA = double.Parse(parts[1]),
                     Dec = double.Parse(parts[2]),
                     PA = double.Parse(parts[3]),
+                    Aperture = -1,
+                    FineTimeStart = -1,
+                    FineTimeEnd = -1,
                     Repetition = -1,   // TODO: parse from spec info
-                    MapScanSpeed = double.NaN,
-                    MapHeight = double.NaN,
-                    MapWidth = double.NaN,
-                    RasterNumPoint = int.Parse(parts[12]) * int.Parse(parts[13]),
-                    RasterPointStep = double.Parse(parts[11]),
-                    RasterLine = int.Parse(parts[12]),
-                    RasterColumn = int.Parse(parts[13]),
 
-                    SpecNumLine = int.Parse(parts[17]),
-                    SpecRangeID = parts[18],
+                    RasterMap = new RasterMap()
+                    {
+                        Num = int.Parse(parts[12]) * int.Parse(parts[13]),
+                        Step = double.Parse(parts[11]),
+                        Line = int.Parse(parts[12]),
+                        Column = int.Parse(parts[13]),
+                    },
 
-                    AORLabel = aor,
+                    Spectro = new Spectro()
+                    {
+                        Num = int.Parse(parts[17]),
+                        RangeID = parts[18],    
+                    },
+
+                    AOR = aor,
                     AOT = parts[8],
                 };
 
@@ -92,15 +101,15 @@ namespace Herschel.Loader
                 if (m.Success)
                 {
                     // from - to
-                    observation.SpecRangeFrom = double.Parse(m.Groups[1].Value);
+                    observation.Spectro.LambdaFrom = double.Parse(m.Groups[1].Value);
 
                     if (!String.IsNullOrWhiteSpace(m.Groups[2].Value))
                     {
-                        observation.SpecRangeTo = double.Parse(m.Groups[2].Value);
+                        observation.Spectro.LambdaTo = double.Parse(m.Groups[2].Value);
                     }
                     else
                     {
-                        observation.SpecRangeTo = observation.SpecRangeFrom;
+                        observation.Spectro.LambdaTo = observation.Spectro.LambdaFrom;
                     }
 
                     // repetitions
@@ -111,15 +120,15 @@ namespace Herschel.Loader
 
                     if (mp.Success)
                     {
-                        observation.SpecRange2From = double.Parse(mp.Groups[3].Value);
-                        observation.SpecRange2To = double.Parse(mp.Groups[4].Value);
+                        observation.Spectro.Lambda2From = double.Parse(mp.Groups[3].Value);
+                        observation.Spectro.Lambda2To = double.Parse(mp.Groups[4].Value);
 
-                        observation.SpecRangeID = "";
+                        observation.Spectro.RangeID = "";
                     }
                     else
                     {
-                        observation.SpecRange2From = -1;
-                        observation.SpecRange2To = -1;
+                        observation.Spectro.Lambda2From = -1;
+                        observation.Spectro.Lambda2To = -1;
                     }
                 }
 
@@ -133,27 +142,30 @@ namespace Herschel.Loader
                 observation = new Observation()
                 {
                     Instrument = Instrument.PacsSpireParallel,
-                    ID = long.Parse(parts[0]),
+                    ObsID = long.Parse(parts[0]),
                     Type = ObservationType.Photometry,
                     Level = ParseObservationLevel(parts[12]),
                     InstrumentMode = ParseInstrumentMode(parts[1]),
+                    PointingMode = ParsePointingMode(parts[10]),
                     Object = parts[13],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
-                    PointingMode = ParsePointingMode(parts[10]),
-                    FineTimeStart = -1,
-                    FineTimeEnd = -1,
+
                     RA = -999,
                     Dec = -999,
                     PA = -999,
+                    Aperture = -1,
+                    FineTimeStart = -1,
+                    FineTimeEnd = -1,
                     Repetition = -1,       // TODO: missing
-                    MapScanSpeed = ParseMapScanSpeed(parts[7]),
-                    MapHeight = double.Parse(parts[8]),
-                    MapWidth = double.Parse(parts[9]),
-                    RasterNumPoint = -1,
-                    RasterPointStep = double.NaN,
-                    RasterLine = -1,
-                    RasterColumn = -1,
-                    AORLabel = aor,
+
+                    ScanMap = new ScanMap()
+                    {
+                        AV = ParseMapScanSpeed(parts[7]),
+                        Height = double.Parse(parts[8]),
+                        Width = double.Parse(parts[9]),
+                    },
+
+                    AOR = aor,
                     AOT = parts[6],
                 };
             }

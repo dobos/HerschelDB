@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Spectro.cs" />
     <Compile Include="PointingHifi.cs" />
     <Compile Include="DbHelper.cs" />
     <Compile Include="ObservationID.cs" />
@@ -71,6 +72,8 @@
     <Compile Include="ObservationSearch.cs" />
     <Compile Include="Pointing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RasterMap.cs" />
+    <Compile Include="ScanMap.cs" />
     <Compile Include="Util.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

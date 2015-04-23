@@ -1,3 +1,206 @@
+IF OBJECT_ID ('load.MergeObservations', N'P') IS NOT NULL
+DROP PROC [load].[MergeObservations]
+
+GO
+
+CREATE PROC [load].[MergeObservations]
+AS
+	TRUNCATE TABLE Observation
+
+	INSERT Observation WITH (TABLOCKX)
+	SELECT inst, obsID, 
+		255 AS obsType, obsLevel,	-- obsType will be updated from pointings
+		instMode, pointingMode, object,
+		calibration,
+		-1 AS fineTimeStart, -1 AS fineTimeEnd,		-- fine times will be updated from pointing
+		repetition, AOR_Label, AOT,
+		NULL AS region								-- region will be computed later
+	FROM load.RawObservation
+
+	-- Set funny obsID to calibration
+	UPDATE Observation
+	SET calibration = 1
+	WHERE inst = 1 AND obsID = 1342270750		-- this is a weird one with a parabola trajectory
+
+	-- TODO: Update repetition value of parallel
+
+	-- Update obsType and fineTime from pointings (all observations)
+	-- TODO: fineTime of scan maps will need to be updated once scan legs
+	--       are identified and turn-around filtering is done
+	UPDATE Observation
+	SET obsType = s.obsType,
+		fineTimeStart = s.fineTimeStart,
+		fineTimeEnd = s.fineTimeEnd
+	FROM Observation o
+	INNER JOIN 
+		(
+			SELECT inst, obsID, obsType,
+				MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
+			FROM load.RawPointing
+			GROUP BY inst, obsID, obsType
+		) s 
+			ON s.inst = o.inst AND s.obsID = o.obsID
+
+	-- Verify valid observations with missing pointings
+	SELECT *
+	FROM Observation
+	WHERE calibration = 0 AND obsLevel < 250 AND fineTimeStart = -1
+
+	-- Update obsType and fineTime of PACS/SPIRE parallel
+	UPDATE Observation
+	SET obsType = 1,
+		fineTimeStart = s.fineTimeStart,
+		fineTimeEnd = s.fineTimeEnd
+	FROM Observation o
+	INNER JOIN (
+		SELECT obsID, obsType,
+			MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
+		FROM load.RawPointing
+		--WHERE -- TODO: add filter on BBID etc
+		WHERE inst IN (1, 2)
+		GROUP BY inst, obsID, obsType) s 
+			ON s.obsID = o.obsID
+	WHERE o.inst = 4							-- only parallel
+
+	-- Add parallel observations for both PACS and SPIRE
+	INSERT Observation WITH (TABLOCKX)
+	SELECT 1 AS inst, obsID,			-- PACS
+		1 AS obsType,					-- Photometry
+		obsLevel,
+		0x15 AS instMode,				-- Pacs Parallel Photometry PacsPhotoBlue
+		pointingMode, object,	
+		fineTimeStart, fineTimeEnd,
+		repetition, aor, aot,
+		NULL AS region 
+	FROM Observation
+	WHERE inst = 4
+		
+	INSERT Observation WITH (TABLOCKX)
+	SELECT 2 AS inst, obsID,			-- SPIRE
+		1 AS obsType,					-- Photometry
+		obsLevel,
+		0x16 AS instMode,				-- Pacs Parallel Photometry PacsPhotoBlue
+		pointingMode, object,	
+		fineTimeStart, fineTimeEnd,
+		repetition, aor, aot,
+		NULL AS region
+	FROM Observation
+	WHERE inst = 4
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.MergeScanMaps', N'P') IS NOT NULL
+DROP PROC [load].[MergeScanMaps]
+
+GO
+
+CREATE PROC [load].[MergeScanMaps]
+AS
+	TRUNCATE TABLE [ScanMap]
+
+	-- Scan maps
+	INSERT [ScanMap] WITH (TABLOCKX)
+	SELECT inst, obsID, 
+		ISNULL(mapScanSpeed, -1) AS av,				-- will be updated from footprint
+		ISNULL(mapHeight, -1) AS height,			-- will be updated from footprint
+		ISNULL(mapWidth, -1) AS width				-- will be updated from footprint
+	FROM load.RawObservation
+	WHERE calibration = 0 AND obsLevel < 250
+		AND inst IN (1, 2, 4)
+		AND obsType = 0								-- only photometry
+		AND pointingmode IN (8, 16)					-- line-scan and cross-scan
+
+	-- Parallel scan maps, added for both PACS and SPIRE as individual
+	-- observations
+	INSERT [ScanMap] WITH (TABLOCKX)
+	SELECT 1, obsID,							-- PACS
+		av, height, width
+	FROM [ScanMap]
+	WHERE inst = 4
+
+	INSERT [ScanMap] WITH (TABLOCKX)
+	SELECT 2, obsID,							-- Spire
+		av, height, width
+	FROM [ScanMap]
+	WHERE inst = 4
+
+	-- Update AV for spire scan maps
+	DECLARE @binsize float = 1;
+
+	WITH
+	velhist AS
+	(
+		SELECT inst, obsID, ROUND(av / @binsize, 0) * @binsize vvv, COUNT(*) cnt
+		FROM Pointing
+		GROUP BY inst, obsID, ROUND(av / @binsize, 0) * @binsize
+	),
+	velhistmax AS
+	(
+		SELECT *, ROW_NUMBER() OVER(PARTITION BY obsID ORDER BY cnt DESC) rn
+		FROM velhist
+		--WHERE vvv > 2	-- velocity is low at turn around
+	)
+	UPDATE ScanMap
+	SET	av = v.vvv
+	FROM ScanMap s
+	INNER JOIN Observation o
+		ON o.inst = s.inst AND o.obsID = s.obsID
+	INNER JOIN velhistmax v
+		ON v.inst = s.inst AND v.obsID = s.obsID AND v.rn = 1
+	WHERE o.inst = 2 AND o.pointingMode IN (8, 16)		-- SPIRE scan maps
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.MergeRasterMaps', N'P') IS NOT NULL
+DROP PROC [load].[MergeRasterMaps]
+
+GO
+
+CREATE PROC [load].[MergeRasternMaps]
+AS
+
+	TRUNCATE TABLE [RasterMap]
+
+	-- Rasters
+	INSERT [RasterMap] WITH (TABLOCKX)
+	SELECT inst, obsID,
+		rasterPointStep AS [step],
+		rasterLine AS [line],
+		rasterColumn AS [column],
+		rasterNumPoint AS [num],
+		ra, dec, pa
+	FROM load.RawObservation
+	WHERE calibration = 0 AND obsLevel < 250
+		AND obsType = 1								-- only spectroscopy
+		AND inst IN (1, 2)							-- TODO: add HIFI maps
+		AND pointingMode IN (4)
+
+	-- Line and rande spectra (only PACS)
+	INSERT [Spectro] WITH (TABLOCKX)
+	SELECT inst, obsID,
+		specNumLine AS num,
+		specRangeFrom AS lambdaFrom,
+		specRangeTo AS lambdaTo,
+		specRange2From AS lambda2From,
+		specRange2To AS lambda2To,
+		specRangeID AS rangeID
+	FROM load.RawObservation
+	WHERE calibration = 0 AND obsLevel < 250
+		AND obsType = 1								-- only spectroscopy
+		AND (
+			   inst = 1 AND (instMode & 0x00080000) > 0
+			OR inst = 1 AND (instMode & 0x00040000) > 0)
+
+	-- TODO: add SPIRE and HIFI spec
+
+GO
+
+---------------------------------------------------------------
+
 IF OBJECT_ID ('load.MergePointing', N'P') IS NOT NULL
 DROP PROC [load].[MergePointing]
 
@@ -5,351 +208,44 @@ GO
 
 CREATE PROC [load].[MergePointing]
 AS
-	CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
-	(
-		[inst] ASC,
-		[obsID] ASC,
-		[fineTime] ASC
-	)
-	WITH (SORT_IN_TEMPDB = ON)
-	ON [LOAD]
 
 	-- Check duplicates
 	/*
 	IF (EXISTS
 	(
-		SELECT inst, obsID, fineTime, COUNT(*)
+		SELECT inst, obsID, obsType, fineTime, COUNT(*)
 		FROM [load].[RawPointing]
-		GROUP BY inst, obsID, fineTime
+		GROUP BY inst, obsID, obsType, fineTime
 		HAVING COUNT(*) > 1
 	))
 	THROW 51000, 'Duplicate key.', 1;
 	*/
 
+	CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
+	(
+		[inst] ASC,
+		[obsID] ASC,
+		[obsType] ASC,
+		[fineTime] ASC
+	)
+	ON [LOAD]
+
 	TRUNCATE TABLE [Pointing]
 
-	-- Skip duplicates by using DISTINCT
 	INSERT [Pointing] WITH (TABLOCKX)
-		(inst, ObsID, fineTime, ra, dec, pa, av)
-	SELECT DISTINCT
-		inst, ObsID, fineTime, ra, dec, pa, av
+		(inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av)
+	SELECT inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av
 	FROM [load].[RawPointing]
+	WHERE (inst = 1 AND obsType = 1)		-- PACS photo
+		-- TODO: add other instruments
 
-	DROP INDEX [IC_RawPointing] ON [load].[RawPointing]
+	--DROP INDEX [IC_RawPointing] ON [load].[RawPointing]
 
 GO
 
 ---------------------------------------------------------------
 
 
-IF OBJECT_ID ('load.DetectObservations', N'P') IS NOT NULL
-DROP PROC [load].[DetectObservations]
-
-GO
-
-CREATE PROC [load].[DetectObservations]
-AS
-/*
-Detect observations from raw pointings
-
-Pointings contain obsID but velocity needs to be figured out from
-the maximum of the histogram of velocities.
-
-TODO: add minimum enclosing circle center, coverage, area, pointing count etc.
-
-*/
-	TRUNCATE TABLE Observation
-
-	DECLARE @binsize float = 1;		-- velocity bins for histogram
-
-	WITH
-	velhist AS
-	(
-		SELECT obsID, inst, ROUND(av / @binsize, 0) * @binsize vvv, COUNT(*) cnt
-		FROM Pointing
-		GROUP BY obsID, inst, ROUND(av / @binsize, 0) * @binsize
-	),
-	velhistmax AS
-	(
-		SELECT *, ROW_NUMBER() OVER(PARTITION BY obsID, inst ORDER BY cnt DESC) rn
-		FROM velhist
-		--WHERE vvv > 2	-- velocity is low at turn around
-	),
-	minmax AS
-	(
-		SELECT obsID, inst, MIN(fineTime) fineTimeStart, MAX(fineTime) fineTimeEnd
-		FROM Pointing
-		GROUP BY obsID, inst
-	)
-	INSERT Observation WITH (TABLOCKX)
-		(obsID, inst, fineTimeStart, fineTimeEnd, av, region)
-	SELECT
-		o.obsID, o.inst, o.fineTimeStart, o.fineTimeEnd, v.vvv, NULL
-	FROM minmax o
-	INNER JOIN velhistmax v ON v.inst = o.inst AND v.obsID = o.obsID AND v.rn = 1
-
-GO
-
-
-IF OBJECT_ID(N'load.FilterPointingTurnaround') IS NOT NULL
-DROP FUNCTION [load].[FilterPointingTurnaround]
-
-GO
-
-CREATE FUNCTION [load].[FilterPointingTurnaround]
-(
-)
-RETURNS TABLE
-AS
-RETURN
-(
-	WITH
-	b AS
-	(
-		SELECT a.*,
-			a.fineTime - LAG(a.fineTime, 1, NULL) OVER(PARTITION BY a.inst, a.ObsID ORDER BY a.fineTime) deltaLag,
-			a.fineTime - LEAD(a.fineTime, 1, NULL) OVER(PARTITION BY a.inst, a.ObsID ORDER BY a.fineTime) deltaLead
-		FROM Pointing a
-		INNER JOIN Observation o ON o.inst = a.inst AND o.obsID = a.obsID
-	)
-	SELECT * FROM b
-)
-
-GO
-
-IF OBJECT_ID(N'load.FindLegEnds') IS NOT NULL
-DROP FUNCTION [load].[FindLegEnds]
-
-GO
-
-CREATE FUNCTION [load].[FindLegEnds]
-(
-	@legMinGap float
-)
-RETURNS TABLE
-AS
-RETURN
-(
-	WITH
-	b AS
-	(
-		SELECT * FROM [load].FilterPointingTurnaround()
-	),
-	leg AS
-	(
-		SELECT inst, obsID,
-			(ROW_NUMBER() OVER(PARTITION BY inst, obsID ORDER BY fineTime) + 1) / 2 leg,
-			CASE
-				WHEN (deltaLead < -@legMinGap OR deltaLead IS NULL) AND (deltaLag > @legMinGap OR deltaLag IS NULL) THEN -1
-				WHEN deltaLead < -@legMinGap OR deltaLead IS NULL THEN 0
-				WHEN deltaLag > @legMinGap OR deltaLag IS NULL THEN 1
-				ELSE NULL
-			END start,
-			fineTime, ra, dec, pa
-		FROM b
-		WHERE (deltaLead < -@legMinGap OR deltaLead IS NULL) OR 
-			  (deltaLag > @legMinGap OR deltaLag IS NULL) AND
-			  NOT ((deltaLead < -@legMinGap OR deltaLead IS NULL) AND (deltaLag > @legMinGap OR deltaLag IS NULL))
-	)
-	SELECT * FROM leg
-)
-
-GO
-
-IF OBJECT_ID ('load.DetectLegs', N'P') IS NOT NULL
-DROP PROC [load].[DetectLegs]
-
-GO
-
-CREATE PROC [load].[DetectLegs]
-	@legMinGap bigint = 5e6				-- minimum gap to start new leg
-AS
-/*
-Detect scan legs from raw pointings
-
-Raw points are filtered for scan legs. Legs are detected from gaps in pointings.
-*/
-
-	TRUNCATE TABLE [load].[LegEnds];
-
-	INSERT [load].[LegEnds] WITH(TABLOCKX)
-	SELECT inst, obsID, leg, start, fineTime, ra, dec, pa
-	FROM [load].[FindLegEnds](@legMinGap)
-	WHERE start IN (0, 1)
-	ORDER BY obsID, fineTime;
-
-	TRUNCATE TABLE [load].[Leg];
-
-	INSERT [load].[Leg] WITH(TABLOCKX)
-	SELECT a.inst, a.obsID, a.legID, a.fineTime, b.fineTime, a.ra, a.dec, a.pa, b.ra, b.dec, b.pa
-	FROM [load].[LegEnds] a
-	INNER JOIN [load].[LegEnds] b ON a.inst = b.inst AND a.obsID = b.obsID AND a.legID = b.legID
-	WHERE a.start = 1 AND b.start = 0;
-
-	TRUNCATE TABLE [load].[LegEnds];
-
-GO
-
-
-IF OBJECT_ID ('load.GenerateFootprint', N'P') IS NOT NULL
-DROP PROC [load].[GenerateFootprint]
-
-GO
-
-CREATE PROC [load].[GenerateFootprint]
-AS
-/*
-	Generate regions for legs then union them into observations
-*/
-
-	TRUNCATE TABLE [load].LegRegion;
-
-	DBCC SETCPUWEIGHT(1000); 
-
-	INSERT [load].[LegRegion] WITH (TABLOCKX)
-	SELECT leg.inst, leg.obsID, leg.legID, leg.fineTimeStart, leg.fineTimeEnd,
-		   dbo.GetLegRegion(leg.raStart, leg.decStart, leg.paStart, leg.raEnd, leg.decEnd, leg.paEnd,
-		    CASE inst
-			WHEN 1 THEN 'PacsPhoto'
-			WHEN 2 THEN 'SpirePhoto'
-			END)
-	FROM [load].Leg leg
-
-	-- Generate region using standard 'UNION' method
-
-	UPDATE [Observation]
-	SET region = leg.region
-	FROM [Observation] obs
-	INNER JOIN
-		(SELECT inst, obsID, MIN(fineTimeStart) fineTimeStart, Max(fineTimeEnd) fineTimeEnd, region.UnionEvery(region) region
-		 FROM [load].LegRegion
-		 GROUP BY inst, obsID) leg
-		ON leg.inst = obs.inst AND leg.obsID = obs.obsID
-	WHERE obs.region IS NULL;
-
-	-- Fill in problematic ones with 'CHULL' method
-	
-	WITH points AS
-	(
-		SELECT leg.inst, leg.obsid, arcs.x1 x, arcs.y1 y, arcs.z1 z
-		FROM Observation obs
-		INNER JOIN [load].LegRegion leg
-			ON leg.inst = obs.inst AND leg.obsID = obs.obsID
-		CROSS APPLY region.GetArcs(leg.region) arcs
-
-		UNION
-
-		SELECT leg.inst, leg.obsid, arcs.x2 x, arcs.y2 y, arcs.z2 z
-		FROM Observation obs
-		INNER JOIN [load].LegRegion leg
-			ON leg.inst = obs.inst AND leg.obsID = obs.obsID
-		CROSS APPLY region.GetArcs(leg.region) arcs
-	), chull AS
-	(
-		SELECT inst, obsid, region.ConvexHullXyz(x,y,z) region
-		FROM points
-		GROUP BY inst, obsid
-	)
-	UPDATE [Observation]
-	SET region = chull.region
-	FROM [Observation] obs
-	INNER JOIN chull ON chull.inst = obs.inst AND chull.obsID = obs.obsID
-	WHERE region.HasError(obs.region) = 1
-
-	DBCC SETCPUWEIGHT(1); 
-
-GO
-
-
-IF OBJECT_ID ('load.GeneratePacsSpireParallel', N'P') IS NOT NULL
-DROP PROC [load].[GeneratePacsSpireParallel]
-
-GO
-
-CREATE PROC [load].[GeneratePacsSpireParallel]
-AS
-/*
-	Generate entries for PACS-SPIRE parallel observations, compute footprint
-*/
-
-	INSERT Observation WITH (TABLOCKX)
-	SELECT
-		4 AS inst,			-- Parallel
-		a.obsID, a.fineTimeStart, a.fineTimeEnd, a.av,
-		region.[Intersect](a.region, b.region) AS region
-	FROM Observation a
-	INNER JOIN Observation b ON a.obsID = b.obsID
-	WHERE a.inst = 1		-- PACS
-		  AND b.inst = 2	-- SPIRE
-
-GO
-
-
-IF OBJECT_ID ('load.UpdatePacsSpireParallel', N'P') IS NOT NULL
-DROP PROC [load].[UpdatePacsSpireParallel]
-
-GO
-
-CREATE PROC [load].[UpdatePacsSpireParallel]
-AS
-/*
-	Update region for PACS-SPIRE parallel observations
-*/
-
-	DBCC SETCPUWEIGHT(1000); 
-
-	-- Attempt to compute intersection directly
-
-	WITH parallel AS
-	(
-		SELECT obs.inst, obs.obsID, region.IntersectAdvanced(a.region, b.region, 1, 1000) region
-		FROM [Observation] obs WITH (FORCESCAN)
-		INNER JOIN Observation a ON a.inst = 1 AND a.obsID = obs.obsID
-		INNER JOIN Observation b ON b.inst = 2 AND b.obsID = obs.obsID
-		WHERE obs.inst = 4
-	)
-	UPDATE obs WITH (TABLOCKX)
-	SET region = parallel.region
-	FROM [Observation] obs
-	INNER JOIN parallel ON parallel.inst = obs.inst AND parallel.obsID = obs.obsID
-
-	--WHERE obs.inst = 4 AND region.HasError(region) = 1;		-- Parallel
-
--- Fill in problematic ones with 'CHULL' method
-	
-	WITH points AS
-	(
-		SELECT obs.inst, obs.obsid, arcs.x1 x, arcs.y1 y, arcs.z1 z
-		FROM Observation obs
-		CROSS APPLY region.GetArcs(obs.region) arcs
-
-		UNION
-
-		SELECT obs.inst, obs.obsid, arcs.x2 x, arcs.y2 y, arcs.z2 z
-		FROM Observation obs
-		CROSS APPLY region.GetArcs(obs.region) arcs
-	), chull AS
-	(
-		SELECT inst, obsid, region.ConvexHullXyz(x,y,z) region
-		FROM points
-		GROUP BY inst, obsid
-	), parallel AS
-	(
-		SELECT a.obsID, a.region r1, b.region r2
-		FROM chull a
-		INNER JOIN chull b ON a.obsID = b.obsID
-		WHERE a.inst = 1		-- PACS
-			  AND b.inst = 2	-- SPIRE
-	)
-	UPDATE [Observation] WITH (TABLOCKX)
-	SET region = region.IntersectAdvanced(r1, r2, 1, 1000)
-	FROM [Observation] obs
-	INNER JOIN parallel ON obs.inst = 4 AND parallel.obsID = obs.obsID
-	WHERE obs.inst = 4 AND region.HasError(obs.region) = 1		-- Parallel
-
-	DBCC SETCPUWEIGHT(1); 
-
-GO
 
 
 IF OBJECT_ID ('load.GenerateHtm', N'P') IS NOT NULL

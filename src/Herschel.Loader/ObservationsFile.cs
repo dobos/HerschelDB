@@ -17,7 +17,7 @@ namespace Herschel.Loader
         protected void Write(Observation o, TextWriter writer)
         {
             writer.Write("{0}|", (byte)o.Instrument);
-            writer.Write("{0}|", o.ID);
+            writer.Write("{0}|", o.ObsID);
             writer.Write("{0}|", (sbyte)o.Type);
             writer.Write("{0}|", (int)o.InstrumentMode);
             writer.Write("{0}|", (short)o.PointingMode);
@@ -29,22 +29,22 @@ namespace Herschel.Loader
             writer.Write("{0}|", o.PA);
             writer.Write("{0}|", double.IsNaN(o.Aperture) ? "" : o.Aperture.ToString());
             writer.Write("{0}|", o.Repetition);
-            writer.Write("{0}|", double.IsNaN(o.MapScanSpeed) ? "" : o.MapScanSpeed.ToString());
-            writer.Write("{0}|", double.IsNaN(o.MapHeight) ? "" : o.MapHeight.ToString());
-            writer.Write("{0}|", double.IsNaN(o.MapWidth) ? "" : o.MapWidth.ToString());
-            writer.Write("{0}|", o.RasterNumPoint < 0 ? "" : o.RasterNumPoint.ToString());
-            writer.Write("{0}|", double.IsNaN(o.RasterPointStep) ? "" : o.RasterPointStep.ToString());
-            writer.Write("{0}|", o.RasterLine < 0 ? "" : o.RasterLine.ToString());
-            writer.Write("{0}|", o.RasterColumn < 0 ? "" : o.RasterColumn.ToString());
+            writer.Write("{0}|", double.IsNaN(o.ScanMap.AV) ? "" : o.ScanMap.AV.ToString());
+            writer.Write("{0}|", double.IsNaN(o.ScanMap.Height) ? "" : o.ScanMap.Height.ToString());
+            writer.Write("{0}|", double.IsNaN(o.ScanMap.Width) ? "" : o.ScanMap.Width.ToString());
+            writer.Write("{0}|", o.RasterMap.Num < 0 ? "" : o.RasterMap.Num.ToString());
+            writer.Write("{0}|", double.IsNaN(o.RasterMap.Step) ? "" : o.RasterMap.Step.ToString());
+            writer.Write("{0}|", o.RasterMap.Line < 0 ? "" : o.RasterMap.Line.ToString());
+            writer.Write("{0}|", o.RasterMap.Column < 0 ? "" : o.RasterMap.Column.ToString());
 
-            writer.Write("{0}|", o.SpecNumLine);
-            writer.Write("{0}|", o.SpecRangeFrom);
-            writer.Write("{0}|", o.SpecRangeTo);
-            writer.Write("{0}|", o.SpecRange2From);
-            writer.Write("{0}|", o.SpecRange2To);
-            writer.Write("{0}|", o.SpecRangeID);
+            writer.Write("{0}|", o.Spectro.Num);
+            writer.Write("{0}|", o.Spectro.LambdaFrom);
+            writer.Write("{0}|", o.Spectro.LambdaTo);
+            writer.Write("{0}|", o.Spectro.Lambda2From);
+            writer.Write("{0}|", o.Spectro.Lambda2To);
+            writer.Write("{0}|", o.Spectro.RangeID);
 
-            writer.Write("{0}|", o.AORLabel);   // TODO
+            writer.Write("{0}|", o.AOR);   // TODO
             writer.WriteLine("{0}", o.AOT);     // TODO
         }
 

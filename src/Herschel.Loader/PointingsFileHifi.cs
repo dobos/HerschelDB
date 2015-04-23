@@ -20,23 +20,23 @@ namespace Herschel.Loader
 
             // Parse columns
 
-            switch ((HifiObsType)ObservationType)
+            switch (ObservationType)
             {
-                case HifiObsType.Point:
+                case ObservationType.HifiPoint:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
                     ps.Pa = double.Parse(parts[2]);
                     ps.FineTime = long.Parse(parts[3]);
                     break;
-                case HifiObsType.SpectralScan:
+                case ObservationType.HifiSpectralScan:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
                     ps.Pa = double.Parse(parts[2]);
                     ps.FineTime = long.Parse(parts[4]);
                     break;
-                case HifiObsType.Mapping:
+                case ObservationType.HifiMapping:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);

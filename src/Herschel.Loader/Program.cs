@@ -59,6 +59,9 @@ namespace Herschel.Loader
                         case "merge":
                             MergePointings(args);
                             break;
+                        case "scanmap": // TODO: merge with merge ;-)
+                            GenerateScanMapFootprints(args);
+                            break;
                         case "cleanup":
                             CleanupPointings(args);
                             break;
@@ -108,7 +111,7 @@ namespace Herschel.Loader
         private static void PreparePointings(string[] args)
         {
             var inst = args[2].ToLowerInvariant();
-            var type = byte.Parse(args[3]);
+            var type = (ObservationType)byte.Parse(args[3]);
             var path = args[4];
             var output = args[5];
             int fnum = int.Parse(args[6]);
@@ -192,6 +195,28 @@ namespace Herschel.Loader
             ExecuteScript(SqlScripts.MergePointing);
         }
 
+        private static void GenerateScanMapFootprints(string[] args)
+        {
+            // Generate scan map footprints
+
+            // Find observations
+            var sql = @"
+SELECT *
+FROM Observation
+WHERE inst IN (1, 2)            -- PACS or SPIRE
+  AND pointingMode IN (8, 16)   -- Scan map
+  AND calibration = 0           -- not a calibration
+  AND obsLevel < 250            -- only processed";
+
+            var observations = new List<Observation>();
+
+            using (var cmd = new SqlCommand(sql))
+            {
+                observations.AddRange(
+                    DbHelper.ExecuteCommandReader<Observation>(cmd));
+            }
+        }
+
         private static void CleanupPointings(string[] args)
         {
             ExecuteScript(SqlScripts.CleanupPointing);
@@ -214,7 +239,7 @@ namespace Herschel.Loader
             }
         }
 
-        private static PointingsFile GetPointingsFile(string inst, byte type)
+        private static PointingsFile GetPointingsFile(string inst, ObservationType type)
         {
             PointingsFile file = null;
 

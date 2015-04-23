@@ -12,9 +12,9 @@ namespace Herschel.Loader
 {
     abstract class PointingsFile
     {
-        private byte observationType;
+        private ObservationType observationType;
 
-        public byte ObservationType
+        public ObservationType ObservationType
         {
             get { return observationType; }
             set { observationType = value; }
@@ -27,7 +27,7 @@ namespace Herschel.Loader
             writer.Write("{0} ", (byte)p.Instrument);
             writer.Write("{0} ", p.ObsID);
             writer.Write("{0} ", p.BBID);
-            writer.Write("{0} ", p.ObsType);
+            writer.Write("{0} ", (sbyte)p.ObsType);
             writer.Write("{0} ", p.FineTime);
             writer.Write("{0} ", p.Ra);
             writer.Write("{0} ", p.Dec);

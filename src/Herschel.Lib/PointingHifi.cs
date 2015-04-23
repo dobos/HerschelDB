@@ -11,7 +11,7 @@ namespace Herschel.Lib
     {
         public Instrument Instrument;
         public long ObsID;
-        public HifiObsType ObsType;
+        public ObservationType ObsType;
         public double Ra;
         public double Dec;
         public double Pa;

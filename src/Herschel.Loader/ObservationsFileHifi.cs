@@ -17,27 +17,23 @@ namespace Herschel.Loader
             observation = new Observation()
             {
                 Instrument = Instrument.Hifi,
-                ID = long.Parse(parts[0]),
+                ObsID = long.Parse(parts[0]),
                 Type = ObservationType.Spectroscopy,
                 Level = ParseObservationLevel(parts[9]),
                 InstrumentMode = ParseInstrumentMode(parts[2]),
+                PointingMode = ParsePointingMode(parts[2]),
                 Object = parts[10],
                 Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
-                PointingMode = ParsePointingMode(parts[2]),
-                FineTimeStart = -1,
-                FineTimeEnd = -1,
+
                 RA = -999,
                 Dec = -999,
                 PA = -999,
+                Aperture = -1,
+                FineTimeStart = -1,
+                FineTimeEnd = -1,
                 Repetition = 1,         // TODO
-                MapScanSpeed = double.NaN,
-                MapHeight = double.NaN,
-                MapWidth = double.NaN,
-                RasterNumPoint = -1,
-                RasterPointStep = double.NaN,
-                RasterLine = -1,
-                RasterColumn = -1,
-                AORLabel = aor,
+
+                AOR = aor,
                 AOT = parts[6],
             };
 
