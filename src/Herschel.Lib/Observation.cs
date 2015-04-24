@@ -16,23 +16,55 @@ namespace Herschel.Lib
         [IgnoreDataMember]
         public bool Selected { get; set; }
 
+        [DataMember]
         public Instrument Instrument { get; set; }
+
+        [DataMember]
         public Int64 ObsID { get; set; }
+
+        [DataMember]
         public ObservationType Type { get; set; }
+
+        [DataMember]
         public ObservationLevel Level { get; set; }
+
+        [DataMember]
         public InstrumentMode InstrumentMode { get; set; }
+
+        [DataMember]
         public PointingMode PointingMode { get; set; }
+
+        [DataMember]
         public string @Object { get; set; }
+
+        [DataMember]
         public bool Calibration { get; set; }
+
+        [DataMember]
         public double RA { get; set; }
+
+        [DataMember]
         public double Dec { get; set; }
+
+        [DataMember]
         public double PA { get; set; }
+
+        [DataMember]
         public double Aperture { get; set; }
+
+        [DataMember]
         public FineTime FineTimeStart { get; set; }
+
+        [DataMember]
         public FineTime FineTimeEnd { get; set; }
+
+        [DataMember]
         public int Repetition { get; set; }
-        
+
+        [DataMember]
         public string AOR { get; set; }
+
+        [DataMember]
         public string AOT { get; set; }
 
         [IgnoreDataMember]
@@ -110,8 +142,16 @@ namespace Herschel.Lib
             AOR = reader.GetString(o++);
             AOT = reader.GetString(o++);
 
-            var bytes = reader.GetSqlBytes(o++);
-            Region = bytes.IsNull ? null : Region.FromSqlBytes(bytes);
+            if (!reader.IsDBNull(o))
+            {
+                var bytes = reader.GetSqlBytes(o++);
+                Region = bytes.IsNull ? null : Region.FromSqlBytes(bytes);
+            }
+            else
+            {
+                o++;
+                Region = null;
+            }
 
             ScanMap.LoadFromDataReader(reader, ref o);
             RasterMap.LoadFromDataReader(reader, ref o);

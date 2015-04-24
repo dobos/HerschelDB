@@ -19,9 +19,12 @@ namespace Herschel.Lib
 
         public static ObservationID Parse(string instrument, string obsID)
         {
+            Instrument inst;
+            Enum.TryParse<Instrument>(instrument, true, out inst);
+
             return new ObservationID()
             {
-                Instrument = (Instrument)Enum.Parse(typeof(Instrument), instrument),
+                Instrument = inst,
                 ID = long.Parse(obsID)
             };
         }

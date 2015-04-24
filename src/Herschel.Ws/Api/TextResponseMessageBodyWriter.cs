@@ -53,6 +53,7 @@ namespace Herschel.Ws.Api
             }
             else
             {
+                WriteObjectHeader(writer, result);
                 WriteObject(writer, result);
             }
         }
@@ -163,6 +164,7 @@ namespace Herschel.Ws.Api
 
         private void WritePrimitiveValue(TextWriter writer, object value)
         {
+            // TODO: escape strings
             writer.WriteLine(value.ToString());
         }
 

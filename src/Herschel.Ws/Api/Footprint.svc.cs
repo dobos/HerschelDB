@@ -52,7 +52,7 @@ namespace Herschel.Ws.Api
             long end);
 
         [OperationContract]
-        [WebGet(UriTemplate = "Observations/{obsID}")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}")]
         [DynamicResponseFormat]
         [Description("Returns the details of a single observation by obsID.")]
         Observation GetObservation(
@@ -63,7 +63,7 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{obsID}/Footprint")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint")]
         [Description("Returns the footprint of an observation.")]
         string GetObservationFootprint(
             [Description("An instrument identifier.")]
@@ -73,7 +73,7 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/Outline")]
         [Description("Returns the outline of the footprint of an observation.")]
         string GetObservationOutline(
             [Description("An instrument identifier.")]
@@ -83,7 +83,7 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline/Points")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/Outline/Points")]
         [Description("Returns the arc endpoints of the outline of the footprint of an observation.")]
         string GetObservationOutlinePoints(
             [Description("An instrument identifier.")]
@@ -93,7 +93,7 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline/Reduced?limit={limit}")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/Outline/Reduced?limit={limit}")]
         [Description("Returns the reduced outline of the footprint of an observation.")]
         string GetObservationOutlineReduced(
             [Description("An instrument identifier.")]
@@ -105,7 +105,7 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{obsID}/Footprint/Outline/Reduced/Points?limit={limit}")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/Outline/Reduced/Points?limit={limit}")]
         [Description("Returns the arc endpoints of the reduced outline of the footprint of an observation.")]
         string GetObservationOutlineReducedPoints(
             [Description("An instrument identifier.")]
@@ -117,7 +117,7 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{obsID}/Footprint/ConvexHull")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/ConvexHull")]
         [Description("Returns the convex hull of the footprint of an observation.")]
         string GetObservationConvexHull(
             [Description("An instrument identifier.")]
@@ -127,7 +127,7 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{obsID}/Footprint/ConvexHull/Outline")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/ConvexHull/Outline")]
         [Description("Returns the outline of the convex hull of the footprint of an observation.")]
         string GetObservationConvexHullOutline(
             [Description("An instrument identifier.")]
@@ -137,7 +137,7 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{obsID}/Footprint/ConvexHull/Outline/Points")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/ConvexHull/Outline/Points")]
         [Description("Returns the arc endpoints of the outline of the convex hull of the footprint of an observation.")]
         string GetObservationConvexHullOutlinePoints(
             [Description("An instrument identifier.")]
@@ -153,6 +153,7 @@ namespace Herschel.Ws.Api
         private Observation GetObservation(ObservationID obsID)
         {
             var s = new ObservationSearch();
+
             var obs = s.Get(obsID);
 
             if (obs == null)
@@ -200,9 +201,11 @@ namespace Herschel.Ws.Api
 
         public IEnumerable<Observation> FindObservationEq(string inst, double ra, double dec, long start, long end)
         {
+            var obsid = ObservationID.Parse(inst, "0");
+
             var s = new ObservationSearch()
             {
-                Instrument = (Instrument)Enum.Parse(typeof(Instrument), inst),
+                Instrument = obsid.Instrument,
                 Point = new Jhu.Spherical.Cartesian(ra, dec),
                 FineTimeStart = start,
                 FineTimeEnd = end,
@@ -225,7 +228,8 @@ namespace Herschel.Ws.Api
         public string GetObservationFootprint(string instrument, string obsID)
         {
             var obs = GetObservation(ObservationID.Parse(instrument, obsID));
-            return obs.Region.ToString();
+
+            return obs.Region == null ? null : obs.Region.ToString();
         }
 
         public string GetObservationOutline(string instrument, string obsID)
