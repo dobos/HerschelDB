@@ -83,32 +83,39 @@ namespace Herschel.Lib
 
         public void LoadFromDataReader(SqlDataReader reader)
         {
-            Instrument = (Instrument)reader.GetByte(reader.GetOrdinal("inst"));
-            ObsID = reader.GetInt64(reader.GetOrdinal("obsID"));
+            int o = 0;
+            LoadFromDataReader(reader, ref o);
+        }
 
-            Type = (ObservationType)reader.GetByte(reader.GetOrdinal("obsType"));
-            Level = (ObservationLevel)reader.GetByte(reader.GetOrdinal("obsLevel"));
-            InstrumentMode = (InstrumentMode)reader.GetInt32(reader.GetOrdinal("instMode"));
-            PointingMode = (PointingMode)reader.GetByte(reader.GetOrdinal("pointingMode"));
-            Object = reader.GetString(reader.GetOrdinal("object"));
-            Calibration = reader.GetBoolean(reader.GetOrdinal("calibration"));
+        public void LoadFromDataReader(SqlDataReader reader, ref int o)
+        {
+            Instrument = (Instrument)reader.GetByte(o++);
+            ObsID = reader.GetInt64(o++);
 
-            RA = reader.GetDouble(reader.GetOrdinal("ra"));
-            Dec = reader.GetDouble(reader.GetOrdinal("dec"));
-            PA = reader.GetDouble(reader.GetOrdinal("pa"));
-            Aperture = reader.GetDouble(reader.GetOrdinal("aperture"));
-            FineTimeStart = reader.GetInt64(reader.GetOrdinal("fineTimeStart"));
-            FineTimeEnd = reader.GetInt64(reader.GetOrdinal("fineTimeEnd"));
-            Repetition = reader.GetInt32(reader.GetOrdinal("repetition"));
+            Type = (ObservationType)reader.GetByte(o++);
+            Level = (ObservationLevel)reader.GetByte(o++);
+            InstrumentMode = (InstrumentMode)reader.GetInt32(o++);
+            PointingMode = (PointingMode)reader.GetByte(o++);
+            Object = reader.GetString(o++);
+            Calibration = reader.GetBoolean(o++);
 
-            AOR = reader.GetString(reader.GetOrdinal("aor"));
-            AOT = reader.GetString(reader.GetOrdinal("aot"));
+            RA = reader.GetDouble(o++);
+            Dec = reader.GetDouble(o++);
+            PA = reader.GetDouble(o++);
+            Aperture = reader.GetDouble(o++);
+            FineTimeStart = reader.GetInt64(o++);
+            FineTimeEnd = reader.GetInt64(o++);
+            Repetition = reader.GetInt32(o++);
 
-            ScanMap.LoadFromDataReader(reader);
-            RasterMap.LoadFromDataReader(reader);
-            Spectro.LoadFromDataReader(reader);
+            AOR = reader.GetString(o++);
+            AOT = reader.GetString(o++);
 
-            Region = Region.FromSqlBytes(reader.GetSqlBytes(reader.GetOrdinal("region")));
+            var bytes = reader.GetSqlBytes(o++);
+            Region = bytes.IsNull ? null : Region.FromSqlBytes(bytes);
+
+            ScanMap.LoadFromDataReader(reader, ref o);
+            RasterMap.LoadFromDataReader(reader, ref o);
+            Spectro.LoadFromDataReader(reader, ref o);
         }
     }
 }

@@ -40,13 +40,22 @@ namespace Herschel.Lib
 
         public void LoadFromDataReader(SqlDataReader reader)
         {
-            Instrument = (Instrument)reader.GetByte(reader.GetOrdinal("inst"));
-            ObsID = reader.GetInt64(reader.GetOrdinal("obsID"));
+            int o = 0;
+            LoadFromDataReader(reader, ref o);
+        }
 
-            Step = reader.GetDouble(reader.GetOrdinal("step"));
-            Line = reader.GetInt32(reader.GetOrdinal("line"));
-            Column = reader.GetInt32(reader.GetOrdinal("column"));
-            Num = reader.GetInt32(reader.GetOrdinal("num"));
+        public void LoadFromDataReader(SqlDataReader reader, ref int o)
+        {
+            if (o < reader.FieldCount && !reader.IsDBNull(o))
+            {
+                Instrument = (Instrument)reader.GetByte(o++);
+                ObsID = reader.GetInt64(o++);
+
+                Step = reader.GetDouble(o++);
+                Line = reader.GetInt32(o++);
+                Column = reader.GetInt32(o++);
+                Num = reader.GetInt32(o++);
+            }
         }
     }
 }

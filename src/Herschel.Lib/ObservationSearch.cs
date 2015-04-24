@@ -36,11 +36,14 @@ namespace Herschel.Lib
         {
             var sql =
 @"
-SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, region
+SELECT obs.*, s.*, r.*, p.*
 FROM [dbo].[Observation] obs
+LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
+LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
+LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
 WHERE (@inst IS NULL OR (obs.inst & @inst) > 0)
       AND obs.obsID = @obsID
-ORDER BY obs.ObsID";
+ORDER BY obs.inst, obs.ObsID";
 
             var cmd = new SqlCommand(sql);
             cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = obsId.Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)obsId.Instrument;
@@ -58,10 +61,13 @@ ORDER BY obs.ObsID";
 
             var sql =
 @"
-SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, region
+SELECT obs.*, s.*, r.*, p.*
 FROM [dbo].[Observation] obs
+LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
+LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
+LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
 WHERE {0}
-ORDER BY inst, obs.ObsID";
+ORDER BY obs.inst, obs.ObsID";
 
             var idlist = String.Empty;
             for (int i = 0; i < obsIds.Count; i++)
@@ -71,7 +77,7 @@ ORDER BY inst, obs.ObsID";
                     idlist += "OR";
                 }
 
-                idlist += String.Format("(inst = {0} AND obsID = {1})", (byte)obsIds[i].Instrument, obsIds[i].ID);
+                idlist += String.Format("(obs.inst = {0} AND obs.obsID = {1})", (byte)obsIds[i].Instrument, obsIds[i].ID);
             }
 
             sql = String.Format(sql, idlist);
@@ -85,14 +91,17 @@ ORDER BY inst, obs.ObsID";
         {
             var sql =
 @"
-SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, region
+SELECT obs.*, s.*, r.*, p.*
 FROM [dbo].[FindObservationEq](@ra, @dec) ids
 INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
       ON obs.inst = ids.inst AND obs.obsID = ids.obsID
+LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
+LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
+LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
 WHERE (@inst IS NULL OR (obs.inst & @inst) > 0)
       AND (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
       AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
-ORDER BY obs.ObsID";
+ORDER BY obs.inst, obs.ObsID";
 
             var cmd = new SqlCommand(sql);
             cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;
@@ -108,14 +117,17 @@ ORDER BY obs.ObsID";
         {
             var sql =
 @"
-SELECT obs.inst, obs.obsID, fineTimeStart, fineTimeEnd, av, obs.region
+SELECT obs.*, s.*, r.*, p.*
 FROM [dbo].[FindObservationRegionIntersect](@region) ids
 INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
     ON obs.inst = ids.inst AND obs.obsID = ids.obsID
+LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
+LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
+LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
 WHERE (@inst IS NULL OR (obs.inst & @inst) > 0)
       AND (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
       AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
-ORDER BY obs.ObsID";
+ORDER BY obs.inst, obs.ObsID";
 
             var cmd = new SqlCommand(sql);
             cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;

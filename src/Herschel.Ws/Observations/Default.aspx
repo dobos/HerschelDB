@@ -5,8 +5,8 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="Content" runat="server">
     <h1>observation search</h1>
     <%-- Form --%>
-    <asp:UpdatePanel runat="server">
-        <ContentTemplate>
+    <%--<asp:UpdatePanel runat="server">
+        <ContentTemplate>--%>
             <asp:Panel runat="server" ID="observationSearchPanel" Visible="true">
                 <table class="block">
                     <tr>
@@ -81,11 +81,11 @@
                     </tr>
                 </table>
             </asp:Panel>
-        </ContentTemplate>
-    </asp:UpdatePanel>
+        <%--</ContentTemplate>
+    </asp:UpdatePanel>--%>
     <%-- List --%>
-    <asp:UpdatePanel runat="server">
-        <ContentTemplate>
+    <%--<asp:UpdatePanel runat="server">
+        <ContentTemplate>--%>
             <asp:Panel runat="server" ID="observationListPanel" Visible="false">
                 <h2>search results</h2>
                 <table class="block">
@@ -103,7 +103,7 @@
                                     <asp:BoundField HeaderText="obs ID" DataField="ObsID" />
                                     <asp:BoundField HeaderText="fine time start" DataField="FineTimeStart" />
                                     <asp:BoundField HeaderText="fine time end" DataField="FineTimeEnd" />
-                                    <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="MapScanSpeed" />
+                                    <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="ScanMap.AV" />
                                     <asp:BoundField HeaderText="area" DataField="Region.Area" DataFormatString="{0:0.00000}" />
                                 </Columns>
                                 <EmptyDataTemplate>
@@ -122,11 +122,11 @@
                 <asp:CustomValidator runat="server" ID="observationListValidator" ValidationGroup="observationList" OnServerValidate="observationListValidator_ServerValidate"
                     Display="Dynamic" Text="No observations selected." />
             </asp:Panel>
-        </ContentTemplate>
-    </asp:UpdatePanel>
+        <%--</ContentTemplate>
+    </asp:UpdatePanel>--%>
     <%-- Plot --%>
-    <asp:UpdatePanel runat="server">
-        <ContentTemplate>
+    <%--<asp:UpdatePanel runat="server">
+        <ContentTemplate>--%>
             <asp:Panel runat="server" ID="observationPlotPanel" Visible="false">
                 <h2>observation footprint</h2>
                 <table class="block">
@@ -175,7 +175,7 @@
                     </tr>
                 </table>
             </asp:Panel>
-        </ContentTemplate>
-    </asp:UpdatePanel>
+        <%--</ContentTemplate>
+    </asp:UpdatePanel>--%>
     <asp:LinkButton runat="server" ID="savePlotPdf" OnClick="savePlotPdf_Click" Text="save pdf" Style="display: none;" />
 </asp:Content>

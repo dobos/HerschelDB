@@ -26,15 +26,24 @@ namespace Herschel.Lib
 
         public void LoadFromDataReader(SqlDataReader reader)
         {
-            Instrument = (Instrument)reader.GetByte(reader.GetOrdinal("inst"));
-            ObsID = reader.GetInt64(reader.GetOrdinal("obsID"));
+            int o = 0;
+            LoadFromDataReader(reader, ref o);
+        }
 
-            Num = reader.GetInt32(reader.GetOrdinal("num"));
-            LambdaFrom = reader.GetDouble(reader.GetOrdinal("lambdaFrom"));
-            LambdaTo = reader.GetDouble(reader.GetOrdinal("lambdaTo"));
-            Lambda2From = reader.GetDouble(reader.GetOrdinal("lambda2From"));
-            Lambda2To = reader.GetDouble(reader.GetOrdinal("lambda2To"));
-            RangeID = reader.GetString(reader.GetOrdinal("rangeId"));
+        public void LoadFromDataReader(SqlDataReader reader, ref int o)
+        {
+            if (o < reader.FieldCount && !reader.IsDBNull(o))
+            {
+                Instrument = (Instrument)reader.GetByte(o++);
+                ObsID = reader.GetInt64(o++);
+
+                Num = reader.GetInt32(o++);
+                LambdaFrom = reader.GetDouble(o++);
+                LambdaTo = reader.GetDouble(o++);
+                Lambda2From = reader.GetDouble(o++);
+                Lambda2To = reader.GetDouble(o++);
+                RangeID = reader.GetString(o++);
+            }
         }
     }
 }

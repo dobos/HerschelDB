@@ -7,6 +7,8 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Configuration;
+using System.Threading.Tasks;
+using Jhu.Spherical;
 using Herschel.Lib;
 
 namespace Herschel.Loader
@@ -202,11 +204,14 @@ namespace Herschel.Loader
             // Find observations
             var sql = @"
 SELECT *
-FROM Observation
-WHERE inst IN (1, 2)            -- PACS or SPIRE
-  AND pointingMode IN (8, 16)   -- Scan map
-  AND calibration = 0           -- not a calibration
-  AND obsLevel < 250            -- only processed";
+FROM Observation o
+LEFT OUTER JOIN ScanMap s ON s.inst = o.inst AND s.obsID = o.obsID
+LEFT OUTER JOIN RasterMap r ON r.inst = o.inst AND r.obsID = o.obsID
+LEFT OUTER JOIN Spectro p ON p.inst = o.inst AND p.obsID = o.obsID
+WHERE o.inst IN (1, 2)            -- PACS or SPIRE
+  AND o.pointingMode IN (8, 16)   -- Scan map
+  AND o.calibration = 0           -- not a calibration
+  AND o.obsLevel < 250            -- only processed";
 
             var observations = new List<Observation>();
 
@@ -214,6 +219,115 @@ WHERE inst IN (1, 2)            -- PACS or SPIRE
             {
                 observations.AddRange(
                     DbHelper.ExecuteCommandReader<Observation>(cmd));
+            }
+
+            Parallel.ForEach(observations, GenerateScanMapFootprint);
+        }
+
+        private static void GenerateScanMapFootprint(Observation obs)
+        {
+            // Find legs belonging to observation
+
+            var sql = @"
+SELECT *
+FROM load.LegRegion
+WHERE inst = @inst AND obsID = @obsID
+ORDER BY legID
+";
+
+            var legs = new List<Region>();
+
+            using (var cn = DbHelper.OpenConnection())
+            {
+                using (var cmd = new SqlCommand(sql, cn))
+                {
+                    cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = (byte)obs.Instrument;
+                    cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = obs.ObsID;
+
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            var bytes = dr.GetSqlBytes(5);
+                            var r = Region.FromSqlBytes(bytes);
+
+                            legs.Add(r);
+                        }
+                    }
+                }
+            }
+
+            if (legs.Count == 0)
+            {
+                SaveScanMapFootprint(obs, null);
+
+                Console.WriteLine("Pointing missing for {0}", obs.ObsID);
+            }
+            else
+            {
+                // Calculate union of legs of a single observation
+                Region union = null;
+                int rep = Math.Max(obs.Repetition, 1);
+                int scans = legs.Count / rep;
+                int start = 0;
+
+                // Retry for another re-scan if building footprint from
+                // the first one fails
+                while (start < rep)
+                {
+                    union = legs[start * scans];
+
+                    for (int i = 1; i < scans; i++)
+                    {
+                        try
+                        {
+                            union.SmartUnion(legs[start * scans + i], 256);
+                        }
+                        catch (Exception ex)
+                        {
+                            union = new Region();
+                            union.SetErrorMessage(ex);
+
+                            Console.WriteLine("Error generating footprint for {0}", obs.ObsID);
+
+                            break;
+                        }
+                    }
+
+                    // If unioning succeeded
+                    if (!union.HasError)
+                    {
+                        break;
+                    }
+
+                    start++;
+
+                    Console.WriteLine("Retrying for the {0} time", start);
+                }
+
+                SaveScanMapFootprint(obs, union);
+
+                //Console.WriteLine("Generated footprint for {0}", obs.ObsID);
+            }
+        }
+
+        private static void SaveScanMapFootprint(Observation obs, Region r)
+        {
+            var sql = @"
+UPDATE Observation
+SET region = @region
+WHERE inst = @inst AND obsID = @obsID";
+
+            using (var cn = DbHelper.OpenConnection())
+            {
+                using (var cmd = new SqlCommand(sql, cn))
+                {
+                    cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = (byte)obs.Instrument;
+                    cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = obs.ObsID;
+                    cmd.Parameters.Add("@region", SqlDbType.VarBinary).Value = r == null ? (object)DBNull.Value : r.ToSqlBytes();
+
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 

@@ -12,7 +12,9 @@ AS
 		255 AS obsType, obsLevel,	-- obsType will be updated from pointings
 		instMode, pointingMode, object,
 		calibration,
-		-1 AS fineTimeStart, -1 AS fineTimeEnd,		-- fine times will be updated from pointing
+		-9999 AS ra, -9999 AS dec, -9999 AS pa,
+		-9999 AS aperture,
+		-9999 AS fineTimeStart, -9999 AS fineTimeEnd,		-- fine times will be updated from pointing
 		repetition, AOR_Label, AOT,
 		NULL AS region								-- region will be computed later
 	FROM load.RawObservation
@@ -69,6 +71,9 @@ AS
 		obsLevel,
 		0x15 AS instMode,				-- Pacs Parallel Photometry PacsPhotoBlue
 		pointingMode, object,	
+		calibration,
+		ra, dec, pa,
+		aperture,
 		fineTimeStart, fineTimeEnd,
 		repetition, aor, aot,
 		NULL AS region 
@@ -81,6 +86,9 @@ AS
 		obsLevel,
 		0x16 AS instMode,				-- Pacs Parallel Photometry PacsPhotoBlue
 		pointingMode, object,	
+		calibration,
+		ra, dec, pa,
+		aperture,
 		fineTimeStart, fineTimeEnd,
 		repetition, aor, aot,
 		NULL AS region
@@ -245,9 +253,6 @@ GO
 
 ---------------------------------------------------------------
 
-
-
-
 IF OBJECT_ID ('load.GenerateHtm', N'P') IS NOT NULL
 DROP PROC [load].[GenerateHtm]
 
@@ -278,14 +283,18 @@ AS
 		[htmIDEnd] ASC,
 		[htmIDStart] ASC
 	)
-	INCLUDE ( 	[inst],
+	INCLUDE ( 	
+		[inst],
 		[obsID],
 		[fineTimeStart],
 		[fineTimeEnd],
-		[partial]) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+		[partial]
+	)
+	WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
 GO
 
+---------------------------------------------------------------
 
 IF OBJECT_ID ('load.CleanUp', N'P') IS NOT NULL
 DROP PROC [load].[CleanUp]
@@ -294,6 +303,8 @@ GO
 
 CREATE PROC [load].[CleanUp]
 AS
+	TRUNCATE TABLE [load].[RawObservation];
+
 	TRUNCATE TABLE [load].[RawPointing];
 
 	TRUNCATE TABLE [load].[LegRegion];
