@@ -247,14 +247,14 @@ namespace Herschel.Ws.Api
         public string GetObservationOutlineReduced(string instrument, string obsID, double limit)
         {
             var obs = GetObservation(ObservationID.Parse(instrument, obsID));
-            obs.Region.Outline.Reduce(limit);
+            obs.Region.Outline.Reduce(limit / 648000.0 * Math.PI);
             return obs.Region.Outline.ToString();
         }
 
         public string GetObservationOutlineReducedPoints(string instrument, string obsID, double limit)
         {
             var obs = GetObservation(ObservationID.Parse(instrument, obsID));
-            obs.Region.Outline.Reduce(limit);
+            obs.Region.Outline.Reduce(limit / 648000.0 * Math.PI);
             return FormatOutlinePoints(obs.Region.Outline);
         }
 
