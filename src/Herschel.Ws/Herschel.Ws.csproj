@@ -83,6 +83,7 @@
     <Content Include="App_Themes\Plain\fonts.css" />
     <Content Include="App_Themes\Plain\forms.css" />
     <Content Include="App_Themes\Plain\layout.css" />
+    <Content Include="App_Themes\Plain\progress.css" />
     <Content Include="Controls\Footer.ascx" />
     <Content Include="Controls\Menu.ascx" />
     <EmbeddedResource Include="Controls\MultiSelectGridView.js" />
@@ -92,6 +93,7 @@
     <Content Include="Default.aspx" />
     <Content Include="Docs\Default.aspx" />
     <Content Include="Global.asax" />
+    <Content Include="images\progress.gif" />
     <Content Include="images\logo_footprint.jpg" />
     <Content Include="images\logo_footprint.png" />
     <Content Include="Observations\Default.aspx" />

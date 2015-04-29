@@ -5,8 +5,8 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="Content" runat="server">
     <h1>observation search</h1>
     <%-- Form --%>
-    <%--<asp:UpdatePanel runat="server">
-        <ContentTemplate>--%>
+    <asp:UpdatePanel runat="server">
+        <ContentTemplate>
             <asp:Panel runat="server" ID="observationSearchPanel" Visible="true">
                 <table class="block">
                     <tr>
@@ -42,9 +42,9 @@
                                             <asp:RadioButtonList ID="searchMethod" runat="server" AutoPostBack="True" RepeatDirection="Horizontal" OnSelectedIndexChanged="searchMethod_SelectedIndexChanged">
                                                 <asp:ListItem Selected="True" Value="Point">Coordinates</asp:ListItem>
                                                 <asp:ListItem Value="Cone">Cone search</asp:ListItem>
-                                                <asp:ListItem Value="ObsID">ID lookup</asp:ListItem>
                                                 <asp:ListItem Value="Intersect">Intersect</asp:ListItem>
                                                 <%--<asp:ListItem Value="Cover" Enabled="False">Cover</asp:ListItem>--%>
+                                                <asp:ListItem Value="ObsID">ID lookup</asp:ListItem>
                                             </asp:RadioButtonList>
                                         </td>
                                     </tr>
@@ -101,11 +101,18 @@
                     </tr>
                 </table>
             </asp:Panel>
-        <%--</ContentTemplate>
-    </asp:UpdatePanel>--%>
+        </ContentTemplate>
+    </asp:UpdatePanel>
     <%-- List --%>
-    <%--<asp:UpdatePanel runat="server">
-        <ContentTemplate>--%>
+    <asp:UpdateProgress runat="server" DisplayAfter="3000">
+        <ProgressTemplate>
+            <div class="progress">
+                <asp:Image runat="server" ImageUrl="~/images/progress.gif" />
+            </div>
+        </ProgressTemplate>
+    </asp:UpdateProgress>
+    <asp:UpdatePanel runat="server" ID="observationListUpdatePanel">
+        <ContentTemplate>
             <asp:Panel runat="server" ID="observationListPanel" Visible="false">
                 <h2>search results</h2>
                 <table class="block">
@@ -142,11 +149,11 @@
                 <asp:CustomValidator runat="server" ID="observationListValidator" ValidationGroup="observationList" OnServerValidate="observationListValidator_ServerValidate"
                     Display="Dynamic" Text="No observations selected." />
             </asp:Panel>
-        <%--</ContentTemplate>
-    </asp:UpdatePanel>--%>
+        </ContentTemplate>
+    </asp:UpdatePanel>
     <%-- Plot --%>
-    <%--<asp:UpdatePanel runat="server">
-        <ContentTemplate>--%>
+    <asp:UpdatePanel runat="server">
+        <ContentTemplate>
             <asp:Panel runat="server" ID="observationPlotPanel" Visible="false">
                 <h2>observation footprint</h2>
                 <table class="block">
@@ -195,7 +202,7 @@
                     </tr>
                 </table>
             </asp:Panel>
-        <%--</ContentTemplate>
-    </asp:UpdatePanel>--%>
+        </ContentTemplate>
+    </asp:UpdatePanel>
     <asp:LinkButton runat="server" ID="savePlotPdf" OnClick="savePlotPdf_Click" Text="save pdf" Style="display: none;" />
 </asp:Content>
