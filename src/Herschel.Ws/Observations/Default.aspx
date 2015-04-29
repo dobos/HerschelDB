@@ -41,6 +41,8 @@
                                         <td class="field" style="width: 520px">
                                             <asp:RadioButtonList ID="searchMethod" runat="server" AutoPostBack="True" RepeatDirection="Horizontal" OnSelectedIndexChanged="searchMethod_SelectedIndexChanged">
                                                 <asp:ListItem Selected="True" Value="Point">Coordinates</asp:ListItem>
+                                                <asp:ListItem Value="Cone">Cone search</asp:ListItem>
+                                                <asp:ListItem Value="ObsID">ID lookup</asp:ListItem>
                                                 <asp:ListItem Value="Intersect">Intersect</asp:ListItem>
                                                 <%--<asp:ListItem Value="Cover" Enabled="False">Cover</asp:ListItem>--%>
                                             </asp:RadioButtonList>
@@ -57,11 +59,26 @@
                                         <td></td>
                                         <td>Using coordinates from <a href="http://simbad.u-strasbg.fr/simbad/">Simbad</a>.</td>
                                     </tr>
+                                    <tr runat="server" id="radiusTr" visible="false">
+                                        <td class="label">
+                                            <asp:Label ID="radiusLabel" runat="server" Text="Radius:" /></td>
+                                        <td class="field" style="width: 520px">
+                                            <asp:TextBox ID="radius" runat="server" Text="10" /> arc sec
+                                        </td>
+                                    </tr>
                                     <tr runat="server" id="regionTr" visible="false">
                                         <td class="label">
                                             <asp:Label ID="regionLabel" runat="server" Text="Region Description:" /></td>
                                         <td class="field" style="width: 520px">
                                             <asp:TextBox ID="region" runat="server" TextMode="MultiLine">CIRCLE J2000 207.25 -28.4 20</asp:TextBox>
+                                        </td>
+                                    </tr>
+                                    <tr runat="server" id="idlistTr" visible="false">
+                                        <td class="label">
+                                            <asp:Label ID="idlistLabel" runat="server" Text="ObsID list:" /></td>
+                                        <td class="field" style="width: 520px">
+                                            <asp:TextBox ID="idlist" runat="server" TextMode="MultiLine">1342185581
+1342185582</asp:TextBox>
                                         </td>
                                     </tr>
                                 </table>
@@ -71,6 +88,9 @@
                                 <asp:CustomValidator runat="server" ID="regionFormatValidator" Display="Dynamic"
                                     ValidationGroup="search" OnServerValidate="regionFormatValidator_ServerValidate"
                                     Text="Invalid region definition, please see the documentation." />
+                                <asp:CustomValidator runat="server" ID="idlistFormatValidator" Display="Dynamic"
+                                    ValidationGroup="search" OnServerValidate="idlistFormatValidator_ServerValidate"
+                                    Text="Invalid ID List, please see the documentation." />
                             </div>
                         </td>
                         <td class="block_buttons">

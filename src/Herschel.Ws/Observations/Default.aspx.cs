@@ -84,10 +84,22 @@ namespace Herschel.Ws.Observations
             set { ViewState["SearchPoint"] = value; }
         }
 
+        protected double SearchRadius
+        {
+            get { return (double)ViewState["SearchRadius"]; }
+            set { ViewState["SearchRadius"] = value; }
+        }
+
         protected Jhu.Spherical.Region SearchRegion
         {
             get { return (Jhu.Spherical.Region)ViewState["SearchRegion"]; }
             set { ViewState["SearchRegion"] = value; }
+        }
+
+        protected long[] SearchIdList
+        {
+            get { return (long[])ViewState["SearchIdList"]; }
+            set { ViewState["SearchIdList"] = value; }
         }
 
         protected void Page_Load(object sender, EventArgs e)
@@ -122,17 +134,37 @@ namespace Herschel.Ws.Observations
             return Jhu.Spherical.Region.Parse(region.Text);
         }
 
+        protected long[] ParseSearchIdList()
+        {
+            var parts = idlist.Text.Split(new char[] { ' ', '\t', '\r', '\n', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var ids = new long[parts.Length];
+            for (int i = 0; i < ids.Length; i++)
+            {
+                ids[i] = Int64.Parse(parts[i]);
+            }
+
+            return ids;
+        }
+
         protected void searchMethod_SelectedIndexChanged(object sender, EventArgs e)
         {
-            pointTr.Visible = regionTr.Visible = false;
+            pointTr.Visible = radiusTr.Visible = regionTr.Visible = idlistTr.Visible = false;
 
             ObservationSearchMethod method;
             Enum.TryParse<ObservationSearchMethod>(searchMethod.SelectedValue, out method);
 
             switch (method)
             {
+                case ObservationSearchMethod.ID:
+                    idlistTr.Visible = true;
+                    break;
                 case ObservationSearchMethod.Point:
                     pointTr.Visible = true;
+                    break;
+                case ObservationSearchMethod.Cone:
+                    pointTr.Visible = true;
+                    radiusTr.Visible = true;
                     break;
                 case ObservationSearchMethod.Intersect:
                     regionTr.Visible = true;
@@ -177,6 +209,22 @@ namespace Herschel.Ws.Observations
                 if (region.Visible)
                 {
                     ParseSearchRegion();
+                }
+                args.IsValid = true;
+            }
+            catch (Exception)
+            {
+                args.IsValid = false;
+            }
+        }
+
+        protected void idlistFormatValidator_ServerValidate(object source, ServerValidateEventArgs args)
+        {
+            try
+            {
+                if (idlist.Visible)
+                {
+                    ParseSearchIdList();
                 }
                 args.IsValid = true;
             }
@@ -237,8 +285,15 @@ namespace Herschel.Ws.Observations
 
                 switch (method)
                 {
+                    case ObservationSearchMethod.ID:
+                        SearchIdList = ParseSearchIdList();
+                        break;
                     case ObservationSearchMethod.Point:
                         SearchPoint = new Cartesian(ra, dec);
+                        break;
+                    case ObservationSearchMethod.Cone:
+                        SearchPoint = new Cartesian(ra, dec);
+                        SearchRadius = Double.Parse(radius.Text);
                         break;
                     case ObservationSearchMethod.Intersect:
                     case ObservationSearchMethod.Cover:
@@ -271,8 +326,15 @@ namespace Herschel.Ws.Observations
 
             switch (SearchMethod)
             {
+                case ObservationSearchMethod.ID:
+                    searchObject.ObservationID = SearchIdList;
+                    break;
                 case ObservationSearchMethod.Point:
                     searchObject.Point = SearchPoint;
+                    break;
+                case ObservationSearchMethod.Cone:
+                    searchObject.Point = SearchPoint;
+                    searchObject.Radius = SearchRadius;
                     break;
                 case ObservationSearchMethod.Intersect:
                 case ObservationSearchMethod.Cover:
@@ -312,6 +374,8 @@ namespace Herschel.Ws.Observations
 
             switch (searchObject.SearchMethod)
             {
+                case ObservationSearchMethod.ID:
+                    break;
                 case ObservationSearchMethod.Point:
                     {
                         var qp = new PointsLayer();
@@ -323,6 +387,7 @@ namespace Herschel.Ws.Observations
                         queryLayer = qp;
                     }
                     break;
+                case ObservationSearchMethod.Cone:
                 case ObservationSearchMethod.Intersect:
                 case ObservationSearchMethod.Cover:
                     var qr = new RegionsLayer();

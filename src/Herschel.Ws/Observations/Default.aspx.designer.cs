@@ -121,6 +121,33 @@ namespace Herschel.Ws.Observations {
         protected global::System.Web.UI.HtmlControls.HtmlTableRow resolvedTr;
         
         /// <summary>
+        /// radiusTr control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlTableRow radiusTr;
+        
+        /// <summary>
+        /// radiusLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label radiusLabel;
+        
+        /// <summary>
+        /// radius control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox radius;
+        
+        /// <summary>
         /// regionTr control.
         /// </summary>
         /// <remarks>
@@ -148,6 +175,33 @@ namespace Herschel.Ws.Observations {
         protected global::System.Web.UI.WebControls.TextBox region;
         
         /// <summary>
+        /// idlistTr control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlTableRow idlistTr;
+        
+        /// <summary>
+        /// idlistLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label idlistLabel;
+        
+        /// <summary>
+        /// idlist control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox idlist;
+        
+        /// <summary>
         /// pointFormatValidator control.
         /// </summary>
         /// <remarks>
@@ -164,6 +218,15 @@ namespace Herschel.Ws.Observations {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.CustomValidator regionFormatValidator;
+        
+        /// <summary>
+        /// idlistFormatValidator control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CustomValidator idlistFormatValidator;
         
         /// <summary>
         /// search control.

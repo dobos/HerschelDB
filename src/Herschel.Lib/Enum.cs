@@ -221,7 +221,9 @@ namespace Herschel.Lib
 
     public enum ObservationSearchMethod
     {
+        ID,
         Point,
+        Cone,
         Intersect,
         Cover
     }
