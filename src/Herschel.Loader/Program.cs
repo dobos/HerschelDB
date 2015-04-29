@@ -7,7 +7,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using System.Configuration;
-using System.Threading.Tasks;
 using Jhu.Spherical;
 using Herschel.Lib;
 
