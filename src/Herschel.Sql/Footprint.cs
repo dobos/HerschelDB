@@ -21,12 +21,28 @@ public partial class UserDefinedFunctions
         public byte ID;
         public double Ra;
         public double Dec;
+        public double X;
+        public double Y;
+        public double Z;
 
         public Corner(byte id, double ra, double dec)
         {
             ID = id;
             Ra = ra;
             Dec = dec;
+            X = Double.NaN;
+            Y = Double.NaN;
+            Z = Double.NaN;
+        }
+
+        public Corner(byte id, double x, double y, double z)
+        {
+            ID = id;
+            Ra = Double.NaN;
+            Dec = Double.NaN;
+            X = x;
+            Y = y;
+            Z = z;
         }
     }
 
@@ -39,11 +55,7 @@ public partial class UserDefinedFunctions
         var cc = d.GetCorners(new Cartesian(ra.Value, dec.Value), pa.Value);
         for (int i = 0; i < cc.Length; i++)
         {
-            Corner c;
-            c.ID = (byte)i;
-            c.Ra = cc[i].RA;
-            c.Dec = cc[i].Dec;
-            yield return c;
+            yield return new Corner((byte)i, cc[i].RA, cc[i].Dec);
         }
     }
 
@@ -53,6 +65,23 @@ public partial class UserDefinedFunctions
         id = new SqlByte(c.ID);
         ra = new SqlDouble(c.Ra);
         dec = new SqlDouble(c.Dec);
+    }
+
+    [SqlFunction(Name = "GetDetectorCornersXyz", TableDefinition = "id tinyint, x float, y float, z float",
+        IsPrecise = false, IsDeterministic = true, FillRowMethodName = "FillXyz")]
+    public static IEnumerable GetDetectorCornersXyz(SqlDouble ra, SqlDouble dec, SqlDouble pa, SqlString detector)
+    {
+        var d = Detector.Create(detector.Value);
+
+        var cc = d.GetCorners(new Cartesian(ra.Value, dec.Value), pa.Value);
+        for (int i = 0; i < cc.Length; i++)
+        {
+            Corner c;
+            c.ID = (byte)i;
+            c. = cc[i].RA;
+            c.Dec = cc[i].Dec;
+            yield return c;
+        }
     }
 
     [SqlFunction(Name = "GetDetectorRegion", IsPrecise = false, IsDeterministic = true)]
