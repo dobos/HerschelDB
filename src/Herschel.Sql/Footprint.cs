@@ -78,10 +78,22 @@ public partial class UserDefinedFunctions
         {
             Corner c;
             c.ID = (byte)i;
-            c. = cc[i].RA;
-            c.Dec = cc[i].Dec;
+            c.Ra = Double.NaN;
+            c.Dec = Double.NaN;
+            c.X = cc[i].X;
+            c.Y = cc[i].Y;
+            c.Z = cc[i].Z;
             yield return c;
         }
+    }
+
+    public static void FillXyz(object obj, out SqlByte id, out SqlDouble x, out SqlDouble y, out SqlDouble z)
+    {
+        var c = (Corner)obj;
+        id = new SqlByte(c.ID);
+        x = new SqlDouble(c.X);
+        y = new SqlDouble(c.Y);
+        z = new SqlDouble(c.Z);
     }
 
     [SqlFunction(Name = "GetDetectorRegion", IsPrecise = false, IsDeterministic = true)]
