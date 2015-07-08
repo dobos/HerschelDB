@@ -23,20 +23,20 @@ namespace Herschel.Plot
 
             //PlotRegions("SELECT region.Parse('CIRCLE J2000 10 10 0.91') AS region", true, "htmcover.pdf");
 
-            //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, "pacs_full.pdf");
-            //PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_chull.pdf");
-            //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, true, "pacs_reduce.pdf");
+            PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_full.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_chull.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, true, "pacs_reduce.pdf", 3f, 2.5f, true);
 
-            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 1 AND obsID = 1342225536", false, "pacs_legs.pdf");
-            //PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM Pointing WHERE inst = 1 AND obsID = 1342225536 --AND finetime % 4 = 0", "pacs_pointing.pdf");
+            PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_legs.pdf", 3f, 2.5f, true);
+            PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM Pointing WHERE inst = 1 AND obsID = 1342225536 --AND finetime % 4 = 0", "pacs_pointing.pdf", 3f, 2.5f);
 
-            PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_full.pdf", 4.5f, 3.5f, true);
-            PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_chull.pdf", 4.5f, 3.5f, true);
-            PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, true, "spire_reduce.pdf", 4.5f, 3.5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_full.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_chull.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, true, "spire_reduce.pdf", 3f, 2.5f, true);
 
-            PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_full_small.pdf", 1.5f, 2.0f, false);
-            PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_chull_small.pdf", 1.5f, 2.0f, false);
-            PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, true, "spire_reduce_small.pdf", 1.5f, 2.0f, false);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_full_small.pdf", 1.5f, 2.0f, false);
+            //PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_chull_small.pdf", 1.5f, 2.0f, false);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, true, "spire_reduce_small.pdf", 1.5f, 2.0f, false);
 
             //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_legs.pdf");
             //PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM Pointing WHERE inst = 2 AND obsID = 1342186861 --AND finetime % 4 = 0", "spire_pointing.pdf");
@@ -57,7 +57,7 @@ namespace Herschel.Plot
             }
         }
 
-        static void PlotPoints(string sql, string filename)
+        static void PlotPoints(string sql, string filename, float w, float h)
         {
             var csb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["Herschel"].ConnectionString);
 
@@ -67,7 +67,7 @@ namespace Herschel.Plot
 
                 using (var cmd = new SqlCommand(sql, cn))
                 {
-                    PlotPoints(cmd, filename);
+                    PlotPoints(cmd, filename, w, h);
                 }
             }
         }
@@ -207,7 +207,7 @@ namespace Herschel.Plot
 
 
 
-        static void PlotPoints(SqlCommand cmd, string filename)
+        static void PlotPoints(SqlCommand cmd, string filename, float w, float h)
         {
             var ds = new SqlQueryDataSource(cmd);
 
@@ -222,8 +222,8 @@ namespace Herschel.Plot
             points.Fill.Visible = true;
             points.Fill.Brushes = new Brush[] { Brushes.Red };
 
-            float w = (float)(4.5 * 96);
-            float h = (float)(3.5 * 96);
+            w = (float)(w * 96);
+            h = (float)(h * 96);
 
             var plot = new Jhu.Spherical.Visualizer.Plot()
             {
