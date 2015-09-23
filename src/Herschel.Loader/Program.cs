@@ -35,10 +35,10 @@ namespace Herschel.Loader
                         case "prepare":
                             PrepareObservations(args);
                             break;
-                        /*case "load":
+                        case "load":
                             LoadObservations(args);
                             break;
-                        case "merge":
+                        /*case "merge":
                             MergeObservations(args);
                             break;
                         case "cleanup":
@@ -75,18 +75,6 @@ namespace Herschel.Loader
             }
         }
 
-        private static void PrepareObservations(string[] args)
-        {
-            var inst = args[2].ToLowerInvariant();
-            var path = args[3];
-            var output = args[4];
-
-            Console.WriteLine("Preparing observation file for bulk load...");
-
-            var file = GetObservationsFile(inst);
-            file.ConvertObservationsFile(path, output, false);
-        }
-
         private static ObservationsFile GetObservationsFile(string inst)
         {
             ObservationsFile file = null;
@@ -107,6 +95,23 @@ namespace Herschel.Loader
             }
 
             return file;
+        }
+
+        private static void PrepareObservations(string[] args)
+        {
+            var inst = args[2].ToLowerInvariant();
+            var path = args[3];
+            var output = args[4];
+
+            Console.WriteLine("Preparing observation file for bulk load...");
+
+            var file = GetObservationsFile(inst);
+            file.ConvertObservationsFile(path, output, false);
+        }
+
+        private static void LoadObservations(string[] args)
+        {
+            ExecuteBulkInsert(args, SqlScripts.LoadObservation);
         }
 
         private static void PreparePointings(string[] args)
@@ -159,36 +164,7 @@ namespace Herschel.Loader
 
         private static void LoadPointings(string[] args)
         {
-            var path = args[2];
-            int fnum = int.Parse(args[3]);
-
-            var dir = Path.GetDirectoryName(path);
-            var pattern = Path.GetFileName(path);
-
-            var files = Directory.GetFiles(dir, pattern);
-            var queue = new Queue<string>(files);
-
-            Console.WriteLine("Bulk loading files...");
-            Console.WriteLine("Found {0} files.", files.Length);
-
-            var options = new ParallelOptions()
-            {
-                MaxDegreeOfParallelism = fnum
-            };
-
-            Parallel.ForEach(files, options, infile =>
-            {
-                Console.WriteLine("Loading from {0}...", infile);
-
-                var sql = SqlScripts.LoadPointing;
-                sql = sql.Replace("[$datafile]", Path.GetFullPath(infile));
-
-                using (var cmd = new SqlCommand(sql))
-                {
-                    cmd.CommandTimeout = 3600;  // 1h should be enough for bulk inserts
-                    DbHelper.ExecuteCommandNonQuery(cmd);
-                }
-            });
+            ExecuteBulkInsert(args, SqlScripts.LoadPointing);
         }
 
         private static void MergePointings(string[] args)
@@ -393,5 +369,35 @@ WHERE inst = @inst AND obsID = @obsID";
             return long.Parse(fn, System.Globalization.CultureInfo.InvariantCulture);
         }
 
+        private static void ExecuteBulkInsert(string[] args, string sql)
+        {
+            var path = args[2];
+            int fnum = int.Parse(args[3]);
+
+            var dir = Path.GetDirectoryName(path);
+            var pattern = Path.GetFileName(path);
+
+            var files = Directory.GetFiles(dir, pattern);
+            var queue = new Queue<string>(files);
+
+            Console.WriteLine("Bulk loading files...");
+            Console.WriteLine("Found {0} files.", files.Length);
+
+            var options = new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = fnum
+            };
+
+            Parallel.ForEach(files, options, infile =>
+            {
+                Console.WriteLine("Loading from {0}...", infile);
+
+                using (var cmd = new SqlCommand(sql.Replace("[$datafile]", Path.GetFullPath(infile))))
+                {
+                    cmd.CommandTimeout = 3600;  // 1h should be enough for bulk inserts
+                    DbHelper.ExecuteCommandNonQuery(cmd);
+                }
+            });
+        }
     }
 }
