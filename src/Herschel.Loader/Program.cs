@@ -210,7 +210,18 @@ LEFT OUTER JOIN Spectro p ON p.inst = o.inst AND p.obsID = o.obsID
 WHERE o.inst IN (1, 2)            -- PACS or SPIRE
   AND o.pointingMode IN (8, 16)   -- Scan map
   AND o.calibration = 0           -- not a calibration
-  AND o.obsLevel < 250            -- only processed";
+  AND o.obsLevel < 250            -- only processed
+";
+
+            if (args.Length > 2)
+            {
+                sql += "  AND o.inst = " + args[2];
+            }
+
+            if (args.Length > 3)
+            {
+                sql += "  AND o.obsID = " + args[3];
+            }
 
             var observations = new List<Observation>();
 
