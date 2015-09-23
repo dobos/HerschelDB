@@ -424,6 +424,7 @@ namespace Herschel.Ws.Observations
 
             // Create plot
             canvas.Plot.Projection = new OrthographicProjection();
+            canvas.Plot.Projection.InvertX = true;
 
             var grid = new GridLayer();
             grid.RaScale.Density = 100;
