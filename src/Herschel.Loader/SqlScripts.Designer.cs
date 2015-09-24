@@ -77,7 +77,7 @@ namespace Herschel.Loader {
         ///WITH 
         ///( 
         ///   DATAFILETYPE = &apos;char&apos;,
-        ///   FIELDTERMINATOR = &apos; &apos;,
+        ///   FIELDTERMINATOR = &apos;|&apos;,
         ///   ROWTERMINATOR = &apos;\n&apos;,
         ///   TABLOCK
         ///).
@@ -102,6 +102,25 @@ namespace Herschel.Loader {
         internal static string LoadPointing {
             get {
                 return ResourceManager.GetString("LoadPointing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to EXEC load.MergeObservations
+        ///GO
+        ///
+        ///EXEC load.MergeScanMaps
+        ///GO
+        ///
+        ///EXEC load.MergeRasterMaps
+        ///GO
+        ///
+        ///EXEC load.MergeSpectro
+        ///GO.
+        /// </summary>
+        internal static string MergeObservation {
+            get {
+                return ResourceManager.GetString("MergeObservation", resourceCulture);
             }
         }
         

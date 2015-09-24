@@ -38,10 +38,10 @@ namespace Herschel.Loader
                         case "load":
                             LoadObservations(args);
                             break;
-                        /*case "merge":
+                        case "merge":
                             MergeObservations(args);
                             break;
-                        case "cleanup":
+                        /*case "cleanup":
                             CleanupObservations(args);
                             break;*/
                         default:
@@ -112,6 +112,11 @@ namespace Herschel.Loader
         private static void LoadObservations(string[] args)
         {
             ExecuteBulkInsert(args, SqlScripts.LoadObservation);
+        }
+
+        private static void MergeObservations(string[] args)
+        {
+            ExecuteScript(SqlScripts.MergeObservation);
         }
 
         private static void PreparePointings(string[] args)

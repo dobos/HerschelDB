@@ -121,6 +121,9 @@
   <data name="LoadObservation" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\sql\load_observation.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1250</value>
   </data>
+  <data name="MergeObservation" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\sql\merge_observation.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1250</value>
+  </data>
   <data name="LoadPointing" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\..\sql\load_pointing.sql;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1250</value>
   </data>
