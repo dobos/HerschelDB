@@ -1,0 +1,16 @@
+1. prepare pointing
+2. load pointing
+3. prepare observation
+4. load observation
+5. remove pointing duplicates
+6. merge pointing	
+7. merge observation
+5. detect legs
+6. generate leg footprints
+7. generate scan maps
+8. generate parallel maps
+9. generate htm
+
+...
+
+   cleanup
