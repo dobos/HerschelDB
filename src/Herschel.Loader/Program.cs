@@ -29,6 +29,29 @@ namespace Herschel.Loader
 
             switch (obj)
             {
+                case "pointing":
+                    switch (verb)
+                    {
+                        case "prepare":
+                            PreparePointings(args);
+                            break;
+                        case "load":
+                            LoadPointings(args);
+                            break;
+                        case "merge":
+                            MergePointings(args);
+                            break;
+                        // TODO: add leg generation
+                        case "scanmap": // TODO: merge with merge ;-)
+                            GenerateScanMapFootprints(args);
+                            break;
+                        case "cleanup":
+                            CleanupPointings(args);
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                    break;
                 case "obs":
                     switch (verb)
                     {
@@ -44,28 +67,6 @@ namespace Herschel.Loader
                         /*case "cleanup":
                             CleanupObservations(args);
                             break;*/
-                        default:
-                            throw new NotImplementedException();
-                    }
-                    break;
-                case "pointing":
-                    switch (verb)
-                    {
-                        case "prepare":
-                            PreparePointings(args);
-                            break;
-                        case "load":
-                            LoadPointings(args);
-                            break;
-                        case "merge":
-                            MergePointings(args);
-                            break;
-                        case "scanmap": // TODO: merge with merge ;-)
-                            GenerateScanMapFootprints(args);
-                            break;
-                        case "cleanup":
-                            CleanupPointings(args);
-                            break;
                         default:
                             throw new NotImplementedException();
                     }
@@ -122,7 +123,7 @@ namespace Herschel.Loader
         private static void PreparePointings(string[] args)
         {
             var inst = args[2].ToLowerInvariant();
-            var type = (ObservationType)byte.Parse(args[3]);
+            var type = (PointingObservationType)byte.Parse(args[3]);
             var path = args[4];
             var output = args[5];
             int fnum = int.Parse(args[6]);
@@ -262,6 +263,12 @@ ORDER BY legID
                 int scans = legs.Count / rep;
                 int start = 0;
 
+                if (obs.Instrument == Instrument.Spire &&
+                    rep > 1)
+                {
+                    scans++;
+                }
+
                 // Retry for another re-scan if building footprint from
                 // the first one fails
                 while (start < rep)
@@ -344,7 +351,7 @@ WHERE inst = @inst AND obsID = @obsID";
             }
         }
 
-        private static PointingsFile GetPointingsFile(string inst, ObservationType type)
+        private static PointingsFile GetPointingsFile(string inst, PointingObservationType type)
         {
             PointingsFile file = null;
 
