@@ -19,7 +19,6 @@ CREATE TABLE [Pointing]
 	(
 		[inst] ASC,
 		[obsID] ASC,
-		[obsType] ASC,
 		[fineTime] ASC
 	)
 ) ON [PRIMARY]

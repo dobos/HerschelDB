@@ -111,10 +111,19 @@ Raw points are filtered for scan legs. Legs are detected from gaps in pointings.
 	TRUNCATE TABLE [load].[Leg];
 
 	INSERT [load].[Leg] WITH(TABLOCKX)
-	SELECT a.inst, a.obsID, a.legID, a.fineTime, b.fineTime, a.ra, a.dec, a.pa, b.ra, b.dec, b.pa
+	SELECT a.inst, a.obsID, 2 * a.legID, a.fineTime, b.fineTime, a.ra, a.dec, a.pa, b.ra, b.dec, b.pa
 	FROM [load].[LegEnds] a
 	INNER JOIN [load].[LegEnds] b ON a.inst = b.inst AND a.obsID = b.obsID AND a.legID = b.legID
-	WHERE a.start = 1 AND b.start = 0;
+	WHERE a.start = 1 AND b.start = 0
+
+	-- SPIRE cross-scan maps also connect ends of legs
+	INSERT [load].[Leg] WITH(TABLOCKX)
+	SELECT a.inst, a.obsID, 2 * a.legID + 1, a.fineTime, b.fineTime, a.ra, a.dec, a.pa, b.ra, b.dec, b.pa
+	FROM [load].[LegEnds] a
+	INNER JOIN [load].[LegEnds] b ON a.inst = b.inst AND a.obsID = b.obsID AND a.legID = b.legID - 1
+	INNER JOIN Observation o ON o.inst = a.inst AND o.obsID = a.obsID
+	WHERE a.start = 0 AND b.start = 1
+		AND a.inst = 2 AND o.pointingMode IN (8, 16)
 
 	--TRUNCATE TABLE [load].[LegEnds];
 
@@ -133,7 +142,7 @@ AS
 Verify that legs are generated for every PACS and SPIRE scan maps
 */
 
-	SELECT o.inst, o.obsID, l.cnt
+	SELECT o.inst, o.obsType, o.obsID, o.pointingMode, l.cnt
 	FROM Observation o
 	LEFT OUTER JOIN 
 		( SELECT inst, obsID, COUNT(*) cnt
@@ -146,6 +155,7 @@ Verify that legs are generated for every PACS and SPIRE scan maps
 		AND cnt IS NULL
 	ORDER BY 1,2
 	
+GO
 
 ----------------------------------------------------------------
 
@@ -173,6 +183,7 @@ AS
 			END)
 	FROM [load].Leg leg
 
+GO
 
 ----------------------------------------------------------------
 
@@ -186,6 +197,8 @@ CREATE PROC [load].[GenerateFootprint]
 AS
 /*
 	Generate regions for legs then union them into observations
+
+	NOT USED... moved to hload instead
 */
 
 	-- Generate region using standard 'UNION' method
@@ -353,3 +366,4 @@ AS
 	WHERE inst IN (1,2,4) AND pointingMode IN (8, 16)
 		AND calibration = 0 AND obsLevel < 250
 		AND (region IS NULL OR region.HasError(region) = 1)
+	ORDER BY inst, obsid

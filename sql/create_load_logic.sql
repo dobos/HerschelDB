@@ -1,3 +1,26 @@
+IF OBJECT_ID ('load.MergePointing', N'P') IS NOT NULL
+DROP PROC [load].[MergePointing]
+
+GO
+
+CREATE PROC [load].[MergePointing]
+AS
+
+	TRUNCATE TABLE [Pointing]
+
+	INSERT [Pointing] WITH (TABLOCKX)
+		(inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av)
+	SELECT inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av
+	FROM [load].[RawPointing]
+	WHERE (inst = 1 AND obsType = 1)			-- PACS photo
+	   OR (inst = 2 AND obsType IN (1, 2, 3))	-- SPIRE photo
+		-- TODO: add other instruments and obsTypes
+
+
+GO
+
+---------------------------------------------------------------
+
 IF OBJECT_ID ('load.MergeObservations', N'P') IS NOT NULL
 DROP PROC [load].[MergeObservations]
 
@@ -9,12 +32,18 @@ AS
 
 	INSERT Observation WITH (TABLOCKX)
 	SELECT inst, obsID, 
-		255 AS obsType, obsLevel,	-- obsType will be updated from pointings
-		instMode, pointingMode, object,
+		obsType, 
+		obsLevel,
+		instMode,
+		pointingMode,
+		object,
 		calibration,
-		-9999 AS ra, -9999 AS dec, -9999 AS pa,
+		-9999 AS ra, 
+		-9999 AS dec, 
+		-9999 AS pa,
 		-9999 AS aperture,
-		-9999 AS fineTimeStart, -9999 AS fineTimeEnd,		-- fine times will be updated from pointing
+		-9999 AS fineTimeStart,
+		-9999 AS fineTimeEnd,		-- fine times will be updated from pointing
 		repetition, AOR_Label, AOT,
 		NULL AS region								-- region will be computed later
 	FROM load.RawObservation
@@ -30,23 +59,26 @@ AS
 	-- TODO: fineTime of scan maps will need to be updated once scan legs
 	--       are identified and turn-around filtering is done
 	UPDATE Observation
-	SET obsType = s.obsType,
-		fineTimeStart = s.fineTimeStart,
+	SET fineTimeStart = s.fineTimeStart,
 		fineTimeEnd = s.fineTimeEnd
 	FROM Observation o
 	INNER JOIN 
 		(
-			SELECT inst, obsID, obsType,
+			SELECT inst, obsID,
 				MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
-			FROM load.RawPointing
-			GROUP BY inst, obsID, obsType
+			FROM Pointing
+			GROUP BY inst, obsID
 		) s 
 			ON s.inst = o.inst AND s.obsID = o.obsID
 
 	-- Verify valid observations with missing pointings
-	SELECT *
+	-- Should return 0
+	DECLARE @nopointcount int
+	SELECT @nopointcount = ISNULL(COUNT(*), 0)
 	FROM Observation
 	WHERE calibration = 0 AND obsLevel < 250 AND fineTimeStart = -1
+
+	-- TODO: raise error
 
 	-- Update obsType and fineTime of PACS/SPIRE parallel
 	UPDATE Observation
@@ -55,12 +87,11 @@ AS
 		fineTimeEnd = s.fineTimeEnd
 	FROM Observation o
 	INNER JOIN (
-		SELECT obsID, obsType,
-			MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
-		FROM load.RawPointing
+		SELECT obsID, MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
+		FROM Pointing
 		--WHERE -- TODO: add filter on BBID etc
 		WHERE inst IN (1, 2)
-		GROUP BY inst, obsID, obsType) s 
+		GROUP BY inst, obsID) s 
 			ON s.obsID = o.obsID
 	WHERE o.inst = 4							-- only parallel
 
@@ -117,7 +148,7 @@ AS
 	FROM load.RawObservation
 	WHERE calibration = 0 AND obsLevel < 250
 		AND inst IN (1, 2, 4)
-		AND obsType = 0								-- only photometry
+		AND obsType = 1								-- only photometry
 		AND pointingmode IN (8, 16)					-- line-scan and cross-scan
 
 	-- Parallel scan maps, added for both PACS and SPIRE as individual
@@ -168,7 +199,7 @@ DROP PROC [load].[MergeRasterMaps]
 
 GO
 
-CREATE PROC [load].[MergeRasternMaps]
+CREATE PROC [load].[MergeRasterMaps]
 AS
 
 	TRUNCATE TABLE [RasterMap]
@@ -187,9 +218,24 @@ AS
 		AND inst IN (1, 2)							-- TODO: add HIFI maps
 		AND pointingMode IN (4)
 
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.MergeSpectro', N'P') IS NOT NULL
+DROP PROC [load].[MergeSpectro]
+
+GO
+
+CREATE PROC [load].[MergeSpectro]
+AS
+
+	TRUNCATE TABLE [Spectro]
+
 	-- Line and rande spectra (only PACS)
 	INSERT [Spectro] WITH (TABLOCKX)
 	SELECT inst, obsID,
+		aperture,
 		specNumLine AS num,
 		specRangeFrom AS lambdaFrom,
 		specRangeTo AS lambdaTo,
@@ -209,47 +255,7 @@ GO
 
 ---------------------------------------------------------------
 
-IF OBJECT_ID ('load.MergePointing', N'P') IS NOT NULL
-DROP PROC [load].[MergePointing]
-
-GO
-
-CREATE PROC [load].[MergePointing]
-AS
-
-	-- Check duplicates
-	/*
-	IF (EXISTS
-	(
-		SELECT inst, obsID, obsType, fineTime, COUNT(*)
-		FROM [load].[RawPointing]
-		GROUP BY inst, obsID, obsType, fineTime
-		HAVING COUNT(*) > 1
-	))
-	THROW 51000, 'Duplicate key.', 1;
-	*/
-
-	CREATE CLUSTERED INDEX [IC_RawPointing] ON [load].[RawPointing]
-	(
-		[inst] ASC,
-		[obsID] ASC,
-		[obsType] ASC,
-		[fineTime] ASC
-	)
-	ON [LOAD]
-
-	TRUNCATE TABLE [Pointing]
-
-	INSERT [Pointing] WITH (TABLOCKX)
-		(inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av)
-	SELECT inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av
-	FROM [load].[RawPointing]
-	WHERE (inst = 1 AND obsType = 1)		-- PACS photo
-		-- TODO: add other instruments
-
-	--DROP INDEX [IC_RawPointing] ON [load].[RawPointing]
-
-GO
+-- generate footprints here
 
 ---------------------------------------------------------------
 

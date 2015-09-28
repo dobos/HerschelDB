@@ -9,3 +9,12 @@ GO
 
 EXEC load.MergeSpectro
 GO
+
+--EXEC [load].[GenerateFootprint]
+--GO
+
+EXEC [load].[GeneratePacsSpireParallel]
+GO
+
+EXEC [load].[GenerateHtm]
+GO
