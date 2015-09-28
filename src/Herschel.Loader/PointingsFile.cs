@@ -12,9 +12,9 @@ namespace Herschel.Loader
 {
     abstract class PointingsFile
     {
-        private ObservationType observationType;
+        private PointingObservationType observationType;
 
-        public ObservationType ObservationType
+        public PointingObservationType ObservationType
         {
             get { return observationType; }
             set { observationType = value; }

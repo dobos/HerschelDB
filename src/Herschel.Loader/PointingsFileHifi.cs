@@ -22,21 +22,21 @@ namespace Herschel.Loader
 
             switch (ObservationType)
             {
-                case ObservationType.HifiPoint:
+                case PointingObservationType.HifiPoint:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
                     ps.Pa = double.Parse(parts[2]);
                     ps.FineTime = long.Parse(parts[3]);
                     break;
-                case ObservationType.HifiSpectralScan:
+                case PointingObservationType.HifiSpectralScan:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
                     ps.Pa = double.Parse(parts[2]);
                     ps.FineTime = long.Parse(parts[4]);
                     break;
-                case ObservationType.HifiMapping:
+                case PointingObservationType.HifiMapping:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);

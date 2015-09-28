@@ -22,9 +22,9 @@ namespace Herschel.Loader
 
             switch (ObservationType)
             {
-                case ObservationType.SpirePhoto:
-                case ObservationType.SpirePhotoSmallMap:
-                case ObservationType.SpirePhotoLargeMap:
+                case PointingObservationType.SpirePhoto:
+                case PointingObservationType.SpirePhotoSmallMap:
+                case PointingObservationType.SpirePhotoLargeMap:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
@@ -33,15 +33,15 @@ namespace Herschel.Loader
                     ps.SampleTime = Math.Floor(double.Parse(parts[4]) * 1e6);
                     ps.CorrTime = double.Parse(parts[5]);
                     break;
-                case ObservationType.SpireSpectro1:
-                case ObservationType.SpireSpectro7:
+                case PointingObservationType.SpireSpectro1:
+                case PointingObservationType.SpireSpectro7:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
                     ps.Pa = double.Parse(parts[2]);
                     ps.SampleTime = long.Parse(parts[3]);
                     break;
-                case ObservationType.SpireSpectro64:
+                case PointingObservationType.SpireSpectro64:
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);

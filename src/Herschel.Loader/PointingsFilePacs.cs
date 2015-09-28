@@ -21,7 +21,7 @@ namespace Herschel.Loader
 
             switch (ObservationType)
             {
-                case Lib.ObservationType.PacsPhoto:
+                case Lib.PointingObservationType.PacsPhoto:
                     pp.ObsID = long.Parse(parts[1]);
                     pp.FineTime = long.Parse(parts[6]);
                     pp.BBID = long.Parse(parts[2]);
@@ -41,7 +41,7 @@ namespace Herschel.Loader
                     //keep &= pp.BBID == 215131301;
 
                     break;
-                case ObservationType.PacsSpectroRange:
+                case PointingObservationType.PacsSpectroRange:
                     pp.ObsID = long.Parse(parts[1]);
                     pp.FineTime = long.Parse(parts[6]);
                     pp.BBID = long.Parse(parts[2]);
@@ -62,7 +62,7 @@ namespace Herschel.Loader
                     keep &= !bool.Parse(parts[43]); // isOffPosition
                     keep &= !bool.Parse(parts[50]); // isOutOfField
                     break;
-                case ObservationType.PacsSpectroLine:
+                case PointingObservationType.PacsSpectroLine:
                     // There are two different format here
                     var first = long.Parse(parts[0]);
 

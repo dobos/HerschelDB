@@ -31,16 +31,18 @@ namespace Herschel.Lib
         Level3 = 30,
     }
 
-    // Used in Observations only
+
+    // Used in Observations only only
     public enum ObservationType : sbyte
     {
         None = -1,
 
-        // TODO: change to 1 and 2
-        Photometry = 0,
-        Spectroscopy = 1,
+        Photometry = 1,
+        Spectroscopy = 2,
+    }
 
-
+    public enum PointingObservationType : sbyte
+    {
         // PACS
         PacsPhoto = 1,
         PacsSpectroRange = 2,
