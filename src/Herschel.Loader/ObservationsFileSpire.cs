@@ -96,7 +96,39 @@ namespace Herschel.Loader
             else if (parts.Length == 9)
             {
                 // Parallel mode
-                throw new Exception("Use PACS file.");
+
+                var aor = parts[4];
+
+                observation = new Observation()
+                {
+                    Instrument = Lib.Instrument.Spire,
+                    ObsID = long.Parse(parts[0]),
+                    Type = ObservationType.Photometry,
+                    Level = ParseObservationLevel(parts[7]),
+                    InstrumentMode = ParseInstrumentMode(parts[2]),
+                    PointingMode = Lib.PointingMode.PacsSpireParallel,
+                    Object = parts[8],
+                    Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
+
+                    RA = -999,
+                    Dec = -999,
+                    PA = -999,
+                    Aperture = -1,
+                    FineTimeStart = -1,
+                    FineTimeEnd = -1,
+                    Repetition = -1,       // TODO: missing
+
+                    ScanMap = new ScanMap()
+                    {
+                        AV = -1,
+                        Height = -1,
+                        Width = -1,
+                    },
+
+                    AOR = aor,
+                    AOT = parts[5]
+                };
+
             }
             else
             {
@@ -119,6 +151,8 @@ namespace Herschel.Loader
                 case "SpirePhotoSmall":         // calibration only
                 case "SpirePhotoSample":        // calibration only
                     return InstrumentMode.SpirePhoto;
+                case "SpirePacsParallel":
+                    return InstrumentMode.SpirePhotoLargeScan | InstrumentMode.Parallel;
                 case "SpireSpectroPoint":
                     return InstrumentMode.SpireSpectroPoint;
                 case "SpireSpectroRaster":

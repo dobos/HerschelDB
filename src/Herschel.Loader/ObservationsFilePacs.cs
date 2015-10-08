@@ -141,11 +141,11 @@ namespace Herschel.Loader
 
                 observation = new Observation()
                 {
-                    Instrument = Instrument.PacsSpireParallel,
+                    Instrument = Instrument.Pacs,
                     ObsID = long.Parse(parts[0]),
                     Type = ObservationType.Photometry,
                     Level = ParseObservationLevel(parts[12]),
-                    InstrumentMode = ParseInstrumentMode(parts[1]),
+                    InstrumentMode = Lib.InstrumentMode.Parallel | ParseInstrumentMode(parts[1]),
                     PointingMode = ParsePointingMode(parts[10]),
                     Object = parts[13],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
