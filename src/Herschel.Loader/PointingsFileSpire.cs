@@ -28,8 +28,8 @@ namespace Herschel.Loader
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
-                    ps.AV = double.Parse(parts[2]);
-                    ps.Pa = double.Parse(parts[3]);
+                    ps.AV = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
+                    ps.Pa = String.IsNullOrWhiteSpace(parts[3]) ? 0.0 : double.Parse(parts[3]);
                     ps.SampleTime = Math.Floor(double.Parse(parts[4]) * 1e6);
                     ps.CorrTime = double.Parse(parts[5]);
                     break;
