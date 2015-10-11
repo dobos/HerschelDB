@@ -142,7 +142,7 @@ AS
 Verify that legs are generated for every PACS and SPIRE scan maps
 */
 
-	SELECT o.inst, o.obsType, o.obsID, o.pointingMode, l.cnt
+	SELECT o.inst, o.obsType, o.obsID, o.pointingMode, o.calibration, o.obsLevel, l.cnt
 	FROM Observation o
 	LEFT OUTER JOIN 
 		( SELECT inst, obsID, COUNT(*) cnt
@@ -151,7 +151,6 @@ Verify that legs are generated for every PACS and SPIRE scan maps
 		) AS l
 		  ON l.inst = o.inst AND l.obsID = o.obsID
 	WHERE o.inst IN (1, 2) AND o.pointingMode IN (8, 16)
-		AND calibration = 0 AND obsLevel < 250
 		AND cnt IS NULL
 	ORDER BY 1,2
 	
@@ -312,6 +311,7 @@ AS
 	SET region = parallel.region
 	FROM [Observation] obs
 	INNER JOIN parallel ON parallel.inst = obs.inst AND parallel.obsID = obs.obsID
+	WHERE obs.region IS NULL
 
 	/*
 	-- Fill in problematic ones with 'CHULL' method
