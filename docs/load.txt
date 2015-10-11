@@ -1,15 +1,19 @@
-1. prepare pointing
-2. load pointing
-3. prepare observation
-4. load observation
-5. remove pointing duplicates
-6. merge pointing	
-7. merge observation
-5. detect legs
-6. generate leg footprints
-7. generate scan maps
-8. generate parallel maps
-9. generate htm
+1. prepare observation
+2. load observation
+3. prepare quality
+4. load quality
+5. prepare SSO
+6. load SSO
+7. prepare pointing
+8. load pointing
+9. remove pointing duplicates
+10. merge pointing	
+11. merge observation
+12. detect legs
+13. generate leg footprints
+14. generate scan maps
+15. generate parallel maps
+16. generate htm
 
 ...
 

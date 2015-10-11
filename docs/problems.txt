@@ -1,0 +1,110 @@
+1. Failed flaget adni a observation táblának
+   Az obs header fájlokban van olyan, hogy failed? A hsa program kiírja...
+   pl: 1342210983 SPIRE HSA szerint failed, de a header fájlban obsLevel 3.0 van
+   
+   ez mindenképpen failed = 1342270750
+   + egy másik speciális elbánásban részesül, ld. [load].[FilterPointingTurnaround]
+   
+   FAILED-flagek ezekben a fájlokban:
+   /quality/*.txt
+   
+   quality flag-ek:
+	FAILED
+	NOT_APPLICABLE
+	PASSED
+	PENDING
+	
+   processed flag-ek:
+    CREATED
+    LEVEL0_5_PROCESSED
+    LEVEL0_PROCESSED
+    LEVEL1_PROCESSED
+    LEVEL2_5_PROCESSED
+    LEVEL2_PROCESSED
+    LEVEL3_PROCESSED
+
+2. SSO-flagek ebben a fájlban:
+   sso_pacs.txt
+   SPIRE-re nincsen meg.
+
+3. Miért nem kerül be a három pacs parallel mérés: 1342211368, 1342211369, 1342211370?
+   Ezeknek volt valami hiba a pointing fájljában, de már javítva lett.
+   
+4. Van 16 SPIRE parallel mérés, amihez nincsen rendes pointing, és mind FAILED-del van flagelve.
+	1342210963
+	1342210964
+	1342210982
+	1342210983
+	1342250232
+	1342192680
+	1342192681
+	1342192682
+	1342192683
+	1342192697
+	1342192698
+	1342192699
+	1342219620
+	1342219621
+	1342219642
+	1342219643
+	
+	Ezeknél felhasználhatjuk a PACS pointingot, de az OFF...
+
+4. Van 65 db PACS chop-nod mérés. Ezekhez van pointing, de abban van on és off pozíció is.
+   IsAPosition IsBPosition oszlopok vszínű megadják, hogy melyik a target, melyik a referencia.
+   IsOffPos? OnTarget?
+   RasterLineNum RasterColumnNum
+   A HSA-ban megjelölt pozíció a két pointing (A és B) közötti pozícióra vonatkozik, ez a végső footprint közepe
+   Lehet, hogy csak a detektort kell letenni erre a pozícióra centrálva, és az a footprint?
+   Vagy esetleg az egész területet kell nézni, ami a HSA képeken látszik?
+   
+5. Van 4 db point-jiggle SPIRE mérés, ami vszínű kalibrációs:
+   1342187328, HIP 7978
+   1342189688, calib
+   1342189699, dark sky
+   1342189701; calib
+   
+   ezeket simán flageljük kalibrációsnak?
+   
+6. Van pár parallel mérés, ahol nem használjuk fel a parallel header fájlban levő flageket, emiatt
+   sok hibás parallel nincsen megfelelően flagelve
+   külön be kell processzálni a két parallel header fájlt
+   
+7. PACS raster mode (pointingMode = 2)
+   Összesen 13 darab
+   Ezek raster mapek, tehát le kell hozzá generálni a RasterMap táblát, és a footprintet.
+   sajnos nincsenek hozzá raster paraméterek
+   
+   ha kiszűrjük a BBID-kból a 1073741824 értékeket, akkor kipotyognak a rossz pontok, és csak a raszterpontok maradnak
+   megvannak-e a raszter paraméterek?
+
+8. Spektroszkópiához kell több info a pointingról
+   pointing fájlból beolvasni: isAPosition, isBPosition, onTarget, IsOffPos, Aperture   
+   RAWpointing táblát ezzel kiegészíteni
+ 
+9. PACS pointed spectro (pointingMode = 1)
+   itt két pozíció között bólogatott a távcső, ebből az egyik kell csak
+   ebben a módban van konkrét footprint (négyzet, de két sor picit off)
+   
+10. PACS mapping spectro (pointingMode = 4)
+   itt több on position van, uniót kell majd venni a footprintből
+   ebben a módban van konkrét footprint (négyzet, de két sor picit off)
+   
+11. SPIRE no-pointing spectro nem kell, mind csak kalibráció (vszínű kalibrációs targetre)
+
+12. SPIRE pointed spectro:
+    itt összesen két sor van a poiting fájlban, ebből kell időt számolni
+	ezek elvileg be is lettek már töltve
+	van PA minden pointinghoz, így tudjuk, hogy kb. hogyan áll a hatszög
+	az apertúra kérdéses... fact book szerint 2', ekkora köröket fogunk rajzolni
+	Ehhez mail Csabától 2015.06.03
+	Két spektro band van, kb. azonos, hatszögletű apertúrával
+	SLW és SSW, ezek egymás mellett vannak a fókuszsíkban
+	update-elni kell az obs táblát is, nem csak footprint!
+	
+13. SPIRE raster spectro
+	RAWobs táblában megvannak a map méretei, ellenőrizni, hogy ez nem line/col-e inkább
+	elvileg a méretekből közvetlenül generálható a footprint
+	rastermap táblát update-elni
+	map height and width valószínű arcmin
+	
