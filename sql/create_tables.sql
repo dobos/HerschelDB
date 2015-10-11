@@ -1,3 +1,45 @@
+IF OBJECT_ID (N'Observation', N'U') IS NOT NULL
+DROP TABLE [Observation]
+
+CREATE TABLE [Observation]
+(
+--/ <summary>Contains one entry for each observation</summary>
+--/ <remarks></remarks>
+	
+	[inst] tinyint NOT NULL,			--/ <column>Instrument</column>
+	[obsID] bigint NOT NULL,			--/ <column>Unique ID of the observation</column>
+	[obsType] tinyint NOT NULL,			--/ <column>Observation type, bit values depend on instrument</column>
+	[obsLevel] tinyint NOT NULL,		--/ <column>Maximum level of processing</column>
+	[instMode] int NOT NULL,			--/ <column>Instrument mode, bit values depend on instrument</column>
+	[pointingMode] tinyint NOT NULL,	--/ <column>Pointing mode</column>
+	[object] varchar(50) NOT NULL,		--/ <column>Name of the observed object</column>
+	[calibration] bit NOT NULL,
+	[failed] bit NOT NULL,
+	[sso] bit NOT NULL,
+	[ra] float NOT NULL,
+	[dec] float NOT NULL,
+	[pa] float NOT NULL,
+	[aperture] float NOT NULL,
+	[fineTimeStart] bigint NOT NULL,	--/ <column unit="10e-6 s">Start time of observation (turnarounds removed)</column>
+	[fineTimeEnd] bigint NOT NULL,		--/ <column unit="10e-6 s">End time of observation (turnarounds removed)</column>
+	[repetition] int NOT NULL,			--/ <column>Number of repetitions of the observation</column>
+	[aor] varchar(512) NOT NULL,		--/ <column>Astronomical observation request</column>
+	[aot] varchar(50) NOT NULL,			--/ <column>Astronomical observation template</column>
+	[region] varbinary(max) NULL,		--/ <column>Footprint of the observation in binary format</column>
+
+	CONSTRAINT [PK_Observation] PRIMARY KEY CLUSTERED 
+	(
+		[inst] ASC,
+		[obsID] ASC
+	)
+) ON [PRIMARY]
+
+GRANT SELECT ON [Observation] TO [User]
+
+GO
+
+---------------------------------------------------------------
+
 IF OBJECT_ID (N'Pointing', N'U') IS NOT NULL
 DROP TABLE [Pointing]
 
@@ -24,45 +66,6 @@ CREATE TABLE [Pointing]
 ) ON [PRIMARY]
 
 GRANT SELECT ON [Pointing] TO [User]
-
-GO
-
-
-IF OBJECT_ID (N'Observation', N'U') IS NOT NULL
-DROP TABLE [Observation]
-
-CREATE TABLE [Observation]
-(
---/ <summary>Contains one entry for each observation</summary>
---/ <remarks></remarks>
-	
-	[inst] tinyint NOT NULL,			--/ <column>Instrument</column>
-	[obsID] bigint NOT NULL,			--/ <column>Unique ID of the observation</column>
-	[obsType] tinyint NOT NULL,			--/ <column>Observation type, bit values depend on instrument</column>
-	[obsLevel] tinyint NOT NULL,		--/ <column>Maximum level of processing</column>
-	[instMode] int NOT NULL,			--/ <column>Instrument mode, bit values depend on instrument</column>
-	[pointingMode] tinyint NOT NULL,	--/ <column>Pointing mode</column>
-	[object] varchar(50) NOT NULL,		--/ <column>Name of the observed object</column>
-	[calibration] bit NOT NULL,
-	[ra] float NOT NULL,
-	[dec] float NOT NULL,
-	[pa] float NOT NULL,
-	[aperture] float NOT NULL,
-	[fineTimeStart] bigint NOT NULL,	--/ <column unit="10e-6 s">Start time of observation (turnarounds removed)</column>
-	[fineTimeEnd] bigint NOT NULL,		--/ <column unit="10e-6 s">End time of observation (turnarounds removed)</column>
-	[repetition] int NOT NULL,			--/ <column>Number of repetitions of the observation</column>
-	[aor] varchar(512) NOT NULL,		--/ <column>Astronomical observation request</column>
-	[aot] varchar(50) NOT NULL,			--/ <column>Astronomical observation template</column>
-	[region] varbinary(max) NULL,		--/ <column>Footprint of the observation in binary format</column>
-
-	CONSTRAINT [PK_Observation] PRIMARY KEY CLUSTERED 
-	(
-		[inst] ASC,
-		[obsID] ASC
-	)
-) ON [PRIMARY]
-
-GRANT SELECT ON [Observation] TO [User]
 
 GO
 

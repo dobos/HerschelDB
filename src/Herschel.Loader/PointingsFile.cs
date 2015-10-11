@@ -32,7 +32,14 @@ namespace Herschel.Loader
             writer.Write("{0} ", p.Ra);
             writer.Write("{0} ", p.Dec);
             writer.Write("{0} ", p.Pa);
-            writer.WriteLine("{0} ", p.AV);
+            writer.Write("{0} ", p.AV);
+            writer.Write("{0} ", p.IsAPosition ? 1 : 0);
+            writer.Write("{0} ", p.IsBPosition ? 1 : 0);
+            writer.Write("{0} ", p.IsOffPosition ? 1 : 0);
+            writer.Write("{0} ", p.IsOnTarget ? 1 : 0);
+            writer.Write("{0} ", p.RasterLineNum);
+            writer.Write("{0} ", p.RasterColumnNum);
+            writer.WriteLine();
         }
         
         protected IEnumerable<Pointing> ReadPointingsFile(string filename)

@@ -23,6 +23,8 @@ namespace Herschel.Loader
             writer.Write("{0}|", (short)o.PointingMode);
             writer.Write("{0}|", o.Object);
             writer.Write("{0}|", o.Calibration ? 1 : 0);
+            writer.Write("{0}|", o.Failed ? 1 : 0);
+            writer.Write("{0}|", o.Sso ? 1 : 0);
             writer.Write("{0}|", (sbyte)o.Level);
             writer.Write("{0}|", o.RA);
             writer.Write("{0}|", o.Dec);

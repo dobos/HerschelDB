@@ -38,6 +38,15 @@ namespace Herschel.Loader
                     pp.AVZ = double.Parse(parts[52]);
                     pp.AVZError = double.Parse(parts[55]);
 
+                    pp.IsAPosition = bool.Parse(parts[45]);
+                    pp.IsBPosition = bool.Parse(parts[46]);
+                    pp.IsOffPosition = bool.Parse(parts[40]);
+                    pp.IsOnTarget = bool.Parse(parts[37]);
+                    pp.RasterLineNum = int.Parse(parts[34]);
+                    pp.RasterColumnNum = int.Parse(parts[35]);
+
+                    // NOTE: this could be used to filter turn-around but
+                    // it's better to do it from SQL
                     //keep &= pp.BBID == 215131301;
 
                     break;
@@ -58,9 +67,13 @@ namespace Herschel.Loader
                     pp.AVZ = double.Parse(parts[55]);
                     pp.AVZError = double.Parse(parts[58]);
 
-                    keep &= bool.Parse(parts[40]);  // onTarget
-                    keep &= !bool.Parse(parts[43]); // isOffPosition
-                    keep &= !bool.Parse(parts[50]); // isOutOfField
+                    pp.IsAPosition = bool.Parse(parts[48]);
+                    pp.IsBPosition = bool.Parse(parts[49]);
+                    pp.IsOffPosition = bool.Parse(parts[43]);
+                    pp.IsOnTarget = bool.Parse(parts[40]);
+                    pp.RasterLineNum = int.Parse(parts[37]);
+                    pp.RasterColumnNum = int.Parse(parts[38]);
+
                     break;
                 case PointingObservationType.PacsSpectroLine:
                     // There are two different format here
@@ -68,6 +81,8 @@ namespace Herschel.Loader
 
                     if (first < 1000000000)
                     {
+                        // RESETINDEX in the 0th column
+
                         pp.ObsID = long.Parse(parts[1]);
                         pp.FineTime = long.Parse(parts[6]);
                         pp.BBID = long.Parse(parts[2]);
@@ -84,12 +99,17 @@ namespace Herschel.Loader
                         pp.AVZ = double.Parse(parts[55]);
                         pp.AVZError = double.Parse(parts[58]);
 
-                        keep &= bool.Parse(parts[40]);  // onTarget
-                        keep &= !bool.Parse(parts[43]); // isOffPosition
-                        keep &= !bool.Parse(parts[50]); // isOutOfField
+                        pp.IsAPosition = bool.Parse(parts[48]);
+                        pp.IsBPosition = bool.Parse(parts[49]);
+                        pp.IsOffPosition = bool.Parse(parts[43]);
+                        pp.IsOnTarget = bool.Parse(parts[40]);
+                        pp.RasterLineNum = int.Parse(parts[37]);
+                        pp.RasterColumnNum = int.Parse(parts[38]);
                     }
                     else
                     {
+                        // small files with much less columns
+
                         pp.ObsID = long.Parse(parts[0]);
                         pp.BBID = long.Parse(parts[1]);
                         pp.FineTime = long.Parse(parts[2]);
@@ -99,6 +119,13 @@ namespace Herschel.Loader
                         pp.AVX = double.Parse(parts[6]);
                         pp.AVY = double.Parse(parts[7]);
                         pp.AVZ = double.Parse(parts[8]);
+
+                        pp.IsAPosition = true;
+                        pp.IsBPosition = true;
+                        pp.IsOffPosition = true;
+                        pp.IsOnTarget = true;
+                        pp.RasterLineNum = -1;
+                        pp.RasterColumnNum = -1;
                     }
                     break;
                 default:
@@ -119,6 +146,13 @@ namespace Herschel.Loader
                 Dec = pp.Dec,
                 Pa = pp.Pa,
                 AV = Math.Sqrt(pp.AVY * pp.AVY + pp.AVZ * pp.AVZ),
+
+                IsAPosition = pp.IsAPosition,
+                IsBPosition = pp.IsBPosition,
+                IsOffPosition = pp.IsOffPosition,
+                IsOnTarget = pp.IsOnTarget,
+                RasterLineNum = pp.RasterLineNum,
+                RasterColumnNum = pp.RasterColumnNum,
             };
 
             // Accept only valid BBIDs

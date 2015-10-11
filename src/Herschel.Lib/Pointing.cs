@@ -18,5 +18,12 @@ namespace Herschel.Lib
         public double Dec;
         public double Pa;
         public double AV;
+
+        public bool IsAPosition;
+        public bool IsBPosition;
+        public bool IsOffPosition;
+        public bool IsOnTarget;
+        public int RasterLineNum;
+        public int RasterColumnNum;
     }
 }

@@ -27,6 +27,12 @@ namespace Herschel.Lib
         public double AVZError;
         public double AV;
         public long Utc;
-        
+
+        public bool IsAPosition;
+        public bool IsBPosition;
+        public bool IsOffPosition;
+        public bool IsOnTarget;
+        public int RasterLineNum;
+        public int RasterColumnNum;
     }
 }

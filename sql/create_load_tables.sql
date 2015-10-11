@@ -145,6 +145,8 @@ CREATE TABLE [load].[RawObservation]
 			HIFI (11)
 		*/
 	[calibration] bit NOT NULL,
+	[failed] bit NOT NULL,
+	[sso] bit NOT NULL,
 	[obsLevel] tinyint NOT NULL,
 		/*
 			PACS photo (13)
@@ -364,6 +366,49 @@ CREATE TABLE [load].[RawObservation]
 
 GO
 
+---------------------------------------------------------------
+
+IF OBJECT_ID (N'load.ObsQuality', N'U') IS NOT NULL
+DROP TABLE [load].[ObsQuality]
+
+GO
+
+CREATE TABLE [load].[ObsQuality]
+(
+	[inst] [tinyint] NOT NULL,
+	[obsID] [bigint] NOT NULL,
+	[failed] [bit] NOT NULL
+) ON [LOAD]
+
+CREATE CLUSTERED INDEX PK_ObsQuality ON [load].[ObsQuality]
+(
+	[inst], [obsID]
+)
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID (N'load.ObsSSO', N'U') IS NOT NULL
+DROP TABLE [load].[ObsSSO]
+
+GO
+
+CREATE TABLE [load].[ObsSSO]
+(
+	[inst] [tinyint] NOT NULL,
+	[obsID] [bigint] NOT NULL,
+	[sso] [bit] NOT NULL
+) ON [LOAD]
+
+CREATE CLUSTERED INDEX PK_ObsSSO ON [load].[ObsSSO]
+(
+	[inst], [obsID]
+)
+
+GO
+
+---------------------------------------------------------------
 
 IF OBJECT_ID (N'load.RawPointing', N'U') IS NOT NULL
 DROP TABLE [load].[RawPointing]
@@ -378,7 +423,13 @@ CREATE TABLE [load].[RawPointing]
 	[ra] [float] NOT NULL,
 	[dec] [float] NOT NULL,
 	[pa] [float] NOT NULL,
-	[av] [float] NOT NULL
+	[av] [float] NOT NULL,
+	[isAPosition] [bit] NOT NULL,
+	[isBPosition] [bit] NOT NULL,
+	[isOffPosition] [bit] NOT NULL,
+	[isOnTarget] [bit] NOT NULL,
+	[rasterLineNum] [bit] NOT NULL,
+	[rasterColumnNum] [bit] NOT NULL
 ) ON [LOAD]
 
 GO

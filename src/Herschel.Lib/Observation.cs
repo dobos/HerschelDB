@@ -41,6 +41,12 @@ namespace Herschel.Lib
         public bool Calibration { get; set; }
 
         [DataMember]
+        public bool Failed { get; set; }
+
+        [DataMember]
+        public bool Sso { get; set; }
+
+        [DataMember]
         public double RA { get; set; }
 
         [DataMember]
@@ -95,6 +101,8 @@ namespace Herschel.Lib
             PointingMode = PointingMode.None;
             Object = null;
             Calibration = false;
+            Failed = false;
+            Sso = false;
 
             RA = Double.NaN;
             Dec = Double.NaN;
@@ -130,6 +138,8 @@ namespace Herschel.Lib
             PointingMode = (PointingMode)reader.GetByte(o++);
             Object = reader.GetString(o++);
             Calibration = reader.GetBoolean(o++);
+            Failed = reader.GetBoolean(o++);
+            Sso = reader.GetBoolean(o++);
 
             RA = reader.GetDouble(o++);
             Dec = reader.GetDouble(o++);
