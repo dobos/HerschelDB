@@ -15,4 +15,3 @@ OUTDIR="../obs"
 ../bin/hload prepare obs spire "$INDIR/obs/spire_spectro.txt" "$OUTDIR/spire_spectro.dat"
 
 #../bin/hload prepare obs hifi "$INDIR/Hifi/hifi_all.headerF" "$OUTDIR/hifi.dat"
-
