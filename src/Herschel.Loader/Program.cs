@@ -162,8 +162,21 @@ namespace Herschel.Loader
                     }
 
                     var file = GetPointingsFile(inst, type);
-                    file.ConvertPointingsFile(infile, String.Format(output, i), true);
-                    Console.WriteLine("{0}: {1}", qq, infile);
+
+                    try
+                    {
+                        file.ConvertPointingsFile(infile, String.Format(output, i), true);
+                        Console.WriteLine("{0}: {1}", qq, infile);
+                    }
+                    catch (Exception ex)
+                    {
+
+                        Console.Error.WriteLine("Unhandled Exception processing '{0}'", infile);
+                        Console.Error.WriteLine("Output file '{0}' may be corrupt.", String.Format(output, i));
+                        Console.Error.WriteLine("Unhandled Exception: {0}: {1}", ex.GetType().FullName, ex.Message);
+                        Console.Error.WriteLine(ex.StackTrace);
+                        Console.WriteLine();
+                    }
                 }
             });
         }
@@ -191,8 +204,9 @@ LEFT OUTER JOIN RasterMap r ON r.inst = o.inst AND r.obsID = o.obsID
 LEFT OUTER JOIN Spectro p ON p.inst = o.inst AND p.obsID = o.obsID
 WHERE o.inst IN (1, 2)            -- PACS or SPIRE
   AND o.pointingMode IN (8, 16)   -- Scan map
-  AND o.calibration = 0           -- not a calibration
-  AND o.obsLevel < 250            -- only processed
+/*  AND o.calibration = 0           -- not a calibration
+  AND o.obsLevel < 250            -- only processed    */
+  AND o.region IS NULL
 ";
 
             if (args.Length > 2)
