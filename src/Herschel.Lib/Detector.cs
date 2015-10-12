@@ -51,8 +51,14 @@ namespace Herschel.Lib
 
         protected Region GetFootprintCircle(Cartesian pointing, double radius)
         {
-            // TODO:
-            throw new NotImplementedException();
+            // radius is in arc min
+            var cos0 = Math.Cos(radius * Constant.Arcmin2Radian);
+
+            var r = new Region();
+            r.Add(new Convex(new Halfspace(pointing, cos0)));
+            r.Simplify();
+
+            return r;
         }
 
         /// <summary>

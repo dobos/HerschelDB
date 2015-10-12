@@ -15,7 +15,7 @@ namespace Herschel.Lib
 
         public override Jhu.Spherical.Region GetFootprint(Jhu.Spherical.Cartesian pointing, double pa)
         {
-            throw new NotImplementedException();
+            return GetFootprintCircle(pointing, 1.0);
         }
     }
 }
