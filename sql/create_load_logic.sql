@@ -1,3 +1,5 @@
+/*
+TODO: delete
 IF OBJECT_ID ('load.MergePointing', N'P') IS NOT NULL
 DROP PROC [load].[MergePointing]
 
@@ -12,10 +14,35 @@ AS
 		(inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av)
 	SELECT inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av
 	FROM [load].[RawPointing]
-	WHERE (inst = 1 AND obsType = 1)			-- PACS photo
-	   OR (inst = 2 AND obsType IN (1, 2, 3))	-- SPIRE photo
-		-- TODO: add other instruments and obsTypes
+	WHERE (inst = 1 AND obsType IN (1))			-- PACS photo
+	   OR (inst = 2 AND obsType IN (1, 2, 3))	-- SPIRE photo (small, large, both)
 
+
+	INSERT [Pointing] WITH (TABLOCKX)
+		(inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av)
+	SELECT inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av
+	FROM [load].[RawPointing]
+	WHERE inst = 2 AND obsType IN (4)		-- SPIRE spectro (point)
+		
+	-- Avoid repetitions here
+	INSERT [Pointing] WITH (TABLOCKX)
+		(inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av)
+	SELECT inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av
+	FROM [load].[RawPointing]
+	WHERE inst = 2 AND obsType IN (8)		-- SPIRE spectro (jiggle7)
+		  AND obsID NOT IN (SELECT obsID FROM Pointing WHERE inst = 2)
+*/
+/*
+inst	obsType	(No column name)
+1	1	288249679
+1	2	93443502
+1	4	72493427
+2	1	50760930
+2	2	16675956
+2	3	96230561
+2	4	4336
+2	8	654
+*/
 
 GO
 
@@ -38,9 +65,11 @@ AS
 		pointingMode,
 		object,
 		calibration,
-		-9999 AS ra, 
-		-9999 AS dec, 
-		-9999 AS pa,
+		failed,
+		sso,
+		ra, 
+		dec, 
+		pa,
 		-9999 AS aperture,
 		-9999 AS fineTimeStart,
 		-9999 AS fineTimeEnd,		-- fine times will be updated from pointing
@@ -52,6 +81,22 @@ AS
 	UPDATE Observation
 	SET calibration = 1
 	WHERE inst = 1 AND obsID = 1342270750		-- this is a weird one with a parabola trajectory
+
+	-- Update failed and SSO flags
+
+	UPDATE Observation
+	SET failed = 1
+	FROM Observation o
+	INNER JOIN load.ObsQuality q
+		ON q.inst = o.inst AND q.obsID = o.obsID
+	WHERE q.failed = 1
+
+	UPDATE Observation
+	SET sso = 1
+	FROM Observation o
+	INNER JOIN load.ObsSSO q
+		ON q.inst = o.inst AND q.obsID = o.obsID
+	WHERE q.sso = 1
 
 	-- TODO: Update repetition value of parallel
 
@@ -73,6 +118,7 @@ AS
 
 	-- Verify valid observations with missing pointings
 	-- Should return 0
+	-- TODO: move it to verify script
 	DECLARE @nopointcount int
 	SELECT @nopointcount = ISNULL(COUNT(*), 0)
 	FROM Observation
@@ -95,36 +141,47 @@ AS
 			ON s.obsID = o.obsID
 	WHERE o.inst = 4							-- only parallel
 
-	-- Add parallel observations for both PACS and SPIRE
+	-- Add parallel observations
+	WITH pacs AS
+	(
+		SELECT * FROM Observation
+		WHERE inst = 1
+	),
+	spire AS
+	(
+		SELECT * FROM Observation
+		WHERE inst = 2
+	),
+	parallel AS
+	(
+		SELECT 
+			4 AS inst,
+			pacs.obsID AS obsID,
+			1 AS obsType,					-- Photometry
+			CASE WHEN pacs.obsLevel < spire.obsLevel THEN pacs.obsLevel
+			ELSE spire.obsLevel END AS obsLevel,
+			pacs.instMode | 7 AS instMode,
+			32 AS pointingMode,
+			pacs.object AS object,
+			pacs.calibration AS calibration,
+			pacs.failed | spire.failed AS failed,
+			pacs.sso | spire.sso AS sso,
+			pacs.ra AS ra,
+			pacs.dec AS dec,
+			pacs.pa AS pa,
+			pacs.aperture AS aperture,
+			pacs.fineTimeStart AS fineTimeStart,
+			pacs.fineTimeEnd AS fineTimeEnd,
+			pacs.repetition AS repetition,
+			pacs.aor AS aor,
+			pacs.aot AS aot,
+			NULL AS region
+		FROM pacs
+		INNER JOIN spire
+			ON pacs.obsID = spire.obsID
+	)
 	INSERT Observation WITH (TABLOCKX)
-	SELECT 1 AS inst, obsID,			-- PACS
-		1 AS obsType,					-- Photometry
-		obsLevel,
-		0x15 AS instMode,				-- Pacs Parallel Photometry PacsPhotoBlue
-		pointingMode, object,	
-		calibration,
-		ra, dec, pa,
-		aperture,
-		fineTimeStart, fineTimeEnd,
-		repetition, aor, aot,
-		NULL AS region 
-	FROM Observation
-	WHERE inst = 4
-		
-	INSERT Observation WITH (TABLOCKX)
-	SELECT 2 AS inst, obsID,			-- SPIRE
-		1 AS obsType,					-- Photometry
-		obsLevel,
-		0x16 AS instMode,				-- Pacs Parallel Photometry PacsPhotoBlue
-		pointingMode, object,	
-		calibration,
-		ra, dec, pa,
-		aperture,
-		fineTimeStart, fineTimeEnd,
-		repetition, aor, aot,
-		NULL AS region
-	FROM Observation
-	WHERE inst = 4
+	SELECT * FROM parallel
 
 GO
 
@@ -146,24 +203,35 @@ AS
 		ISNULL(mapHeight, -1) AS height,			-- will be updated from footprint
 		ISNULL(mapWidth, -1) AS width				-- will be updated from footprint
 	FROM load.RawObservation
-	WHERE calibration = 0 AND obsLevel < 250
-		AND inst IN (1, 2, 4)
+	WHERE inst IN (1, 2, 4)
 		AND obsType = 1								-- only photometry
-		AND pointingmode IN (8, 16)					-- line-scan and cross-scan
+		AND pointingmode IN (8, 16, 32)				-- line-scan, cross-scan and parallel
 
-	-- Parallel scan maps, added for both PACS and SPIRE as individual
-	-- observations
+	-- Parallel scan maps from PACS and SPIRE
+	WITH pacs AS
+	(
+		SELECT * FROM ScanMap
+		WHERE inst = 1
+	),
+	spire AS
+	(
+		SELECT * FROM ScanMap
+		WHERE inst = 2
+	),
+	parallel AS
+	(
+		SELECT 
+			4 AS inst,
+			pacs.obsID,
+			pacs.av,
+			pacs.height,
+			pacs.width
+		FROM pacs
+		INNER JOIN spire
+			ON pacs.obsID = spire.obsID
+	)
 	INSERT [ScanMap] WITH (TABLOCKX)
-	SELECT 1, obsID,							-- PACS
-		av, height, width
-	FROM [ScanMap]
-	WHERE inst = 4
-
-	INSERT [ScanMap] WITH (TABLOCKX)
-	SELECT 2, obsID,							-- Spire
-		av, height, width
-	FROM [ScanMap]
-	WHERE inst = 4
+	SELECT * FROM parallel
 
 	-- Update AV for spire scan maps
 	DECLARE @binsize float = 1;
@@ -214,7 +282,7 @@ AS
 		ra, dec, pa
 	FROM load.RawObservation
 	WHERE calibration = 0 AND obsLevel < 250
-		AND obsType = 1								-- only spectroscopy
+		AND obsType = 2								-- only spectroscopy
 		AND inst IN (1, 2)							-- TODO: add HIFI maps
 		AND pointingMode IN (4)
 
@@ -244,61 +312,11 @@ AS
 		specRangeID AS rangeID
 	FROM load.RawObservation
 	WHERE calibration = 0 AND obsLevel < 250
-		AND obsType = 1								-- only spectroscopy
-		AND (
-			   inst = 1 AND (instMode & 0x00080000) > 0
-			OR inst = 1 AND (instMode & 0x00040000) > 0)
-
-	-- TODO: add SPIRE and HIFI spec
+		AND obsType = 2								-- only spectroscopy
+		AND inst IN (1, 2, 8)
 
 GO
 
----------------------------------------------------------------
-
--- generate footprints here
-
----------------------------------------------------------------
-
-IF OBJECT_ID ('load.GenerateHtm', N'P') IS NOT NULL
-DROP PROC [load].[GenerateHtm]
-
-GO
-
-CREATE PROC [load].[GenerateHtm]
-AS
-/*
-	Generate HTM from observation regions
-*/
-
-	DROP INDEX [IX_ObservationHtm_Reverse] ON ObservationHtm;
-
-	TRUNCATE TABLE ObservationHtm;
-
-	DBCC SETCPUWEIGHT(1000); 
-
-	INSERT ObservationHtm WITH (TABLOCKX)
-	SELECT inst, obsID, htm.htmIDstart, htm.htmIDEnd, fineTimeStart, fineTimeEnd, htm.partial
-	FROM Observation
-	CROSS APPLY htm.Cover(region) htm
-	WHERE region IS NOT NULL		-- for debugging only
-
-	DBCC SETCPUWEIGHT(1); 
-
-	CREATE NONCLUSTERED INDEX [IX_ObservationHtm_Reverse] ON [dbo].[ObservationHtm]
-	(
-		[htmIDEnd] ASC,
-		[htmIDStart] ASC
-	)
-	INCLUDE ( 	
-		[inst],
-		[obsID],
-		[fineTimeStart],
-		[fineTimeEnd],
-		[partial]
-	)
-	WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-
-GO
 
 ---------------------------------------------------------------
 

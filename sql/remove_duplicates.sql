@@ -14,13 +14,20 @@ CREATE TABLE [load].[RawPointing_ID]
 	[ra] [float] NOT NULL,
 	[dec] [float] NOT NULL,
 	[pa] [float] NOT NULL,
-	[av] [float] NOT NULL
+	[av] [float] NOT NULL,
+	[isAPosition] [bit] NOT NULL,
+	[isBPosition] [bit] NOT NULL,
+	[isOffPosition] [bit] NOT NULL,
+	[isOnTarget] [bit] NOT NULL,
+	[rasterLineNum] [tinyint] NOT NULL,
+	[rasterColumnNum] [tinyint] NOT NULL
 ) ON [LOAD]
 
 GO
 
 INSERT [load].[RawPointing_ID] WITH (TABLOCKX)
-	([inst], [obsID], [BBID], [obsType], [fineTime], [ra], [dec], [pa], [av])
+	([inst], [obsID], [BBID], [obsType], [fineTime], [ra], [dec], [pa], [av],
+	 [isAPosition], [isBPosition], [isOffPosition], [isOnTarget], [rasterLineNum], [rasterColumnNum])
 SELECT * FROM [load].[RawPointing]
 -- 12:02
 
@@ -114,13 +121,13 @@ HAVING COUNT(*) > 1
 -- But still one entry by fine time remains
 
 SELECT COUNT(*) FROM load.Duplicate
--- 8645
+-- 9892
 
 SELECT COUNT(*)
 FROM load.Duplicate d
 INNER JOIN load.RawPointing p
 	ON d.inst = p.inst AND d.obsID = p.obsID AND d.obsType = p.obsType AND d.fineTime = p.fineTime
--- 8645
+-- 9892
 
 GO
 
