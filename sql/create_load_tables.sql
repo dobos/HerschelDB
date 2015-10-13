@@ -428,8 +428,8 @@ CREATE TABLE [load].[RawPointing]
 	[isBPosition] [bit] NOT NULL,
 	[isOffPosition] [bit] NOT NULL,
 	[isOnTarget] [bit] NOT NULL,
-	[rasterLineNum] [bit] NOT NULL,
-	[rasterColumnNum] [bit] NOT NULL
+	[rasterLineNum] [tinyint] NOT NULL,
+	[rasterColumnNum] [tinyint] NOT NULL
 ) ON [LOAD]
 
 GO
