@@ -11,8 +11,8 @@ inst	obsType	pointingMode	(No column name)
 1	2	1	5068		-- pointed
 1	2	4	1088		-- mapping?
 2	2	0	24			-- calibration?
-2	2	1	2129		-- pointed
-2	2	2	22			-- raster -- lesz hozzá új
+2	2	1	2129		-- pointed						OK
+2	2	2	22			-- raster						OK
 */
 
 -- Count those only which have pointing info associated
