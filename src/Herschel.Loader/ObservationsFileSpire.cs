@@ -84,8 +84,8 @@ namespace Herschel.Loader
                     {
                         Num = int.Parse(parts[14]),
                         Step = double.NaN,
-                        Line = -1,
-                        Column = -1,
+                        Line = (int)double.Parse(parts[12]),
+                        Column = (int)double.Parse(parts[13]),
                     },
 
                     AOR = aor,

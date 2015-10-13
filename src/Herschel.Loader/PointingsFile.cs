@@ -38,7 +38,7 @@ namespace Herschel.Loader
             writer.Write("{0} ", p.IsOffPosition ? 1 : 0);
             writer.Write("{0} ", p.IsOnTarget ? 1 : 0);
             writer.Write("{0} ", p.RasterLineNum);
-            writer.Write("{0} ", p.RasterColumnNum);
+            writer.Write("{0}", p.RasterColumnNum);
             writer.WriteLine();
         }
         

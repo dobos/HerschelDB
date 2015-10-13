@@ -32,7 +32,7 @@ namespace Herschel.Lib
     }
 
 
-    // Used in Observations only only
+    // Used in Observations only
     public enum ObservationType : sbyte
     {
         None = -1,
@@ -59,8 +59,9 @@ namespace Herschel.Lib
         SpireSpectro1 = 4,
         SpireSpectro7 = 8,
         SpireSpectro64 = 16,
+        SpireSpectroRaster = 32,
 
-        SpireSpectro = SpireSpectro1 | SpireSpectro7 | SpireSpectro64,
+        SpireSpectro = SpireSpectro1 | SpireSpectro7 | SpireSpectro64 | SpireSpectroRaster,
 
         // HIFI
         HifiPoint = 1,
@@ -180,44 +181,6 @@ namespace Herschel.Lib
         SpireSpectro = 4
         // TODO: Hifi
     }
-
-    /*
-    // Used in Pointings
-    [Flags]
-    public enum PacsObsType : byte
-    {
-        Photo = 1,
-        SpectroRange = 2,
-        SpectroLine = 4,
-
-        Spectro = SpectroRange | SpectroLine
-    }
-
-    // Used in Pointings
-    [Flags]
-    public enum SpireObsType : byte
-    {
-        PhotoLargeMap = 1,
-        PhotoSmallMap = 2,
-        
-        Photo = PhotoLargeMap | PhotoSmallMap,
-        
-        Spectro1 = 4,
-        Spectro7 = 8,
-        Spectro64 = 16,
-
-        Spectro = Spectro1 | Spectro7 | Spectro64,
-    }
-
-    // Used in Pointings
-    [Flags]
-    public enum HifiObsType : byte
-    {
-        Point = 1,
-        SpectralScan = 2,
-        Mapping = 4,
-    }
-    */
 
     // ----------------------------------------
 

@@ -25,13 +25,26 @@ namespace Herschel.Loader
                 case PointingObservationType.SpirePhoto:
                 case PointingObservationType.SpirePhotoSmallMap:
                 case PointingObservationType.SpirePhotoLargeMap:
-                    ps.ObsID = ObservationID;
-                    ps.Ra = double.Parse(parts[0]);
-                    ps.Dec = double.Parse(parts[1]);
-                    ps.AV = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
-                    ps.Pa = String.IsNullOrWhiteSpace(parts[3]) ? 0.0 : double.Parse(parts[3]);
-                    ps.SampleTime = Math.Floor(double.Parse(parts[4]) * 1e6);
-                    ps.CorrTime = double.Parse(parts[5]);
+                    if (parts[5] != "FAILED")
+                    {
+                        ps.ObsID = ObservationID;
+                        ps.Ra = double.Parse(parts[0]);
+                        ps.Dec = double.Parse(parts[1]);
+                        ps.AV = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
+                        ps.Pa = String.IsNullOrWhiteSpace(parts[3]) ? 0.0 : double.Parse(parts[3]);
+                        ps.SampleTime = Math.Floor(double.Parse(parts[4]) * 1e6);
+                        ps.CorrTime = double.Parse(parts[5]);
+                    }
+                    else
+                    {
+                        ps.ObsID = ObservationID;
+                        ps.Ra = double.Parse(parts[0]);
+                        ps.Dec = double.Parse(parts[1]);
+                        ps.AV = -1;
+                        ps.Pa = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
+                        ps.SampleTime = Math.Floor(double.Parse(parts[3]) * 1e6);
+                        ps.CorrTime = -1;
+                    }
                     break;
                 case PointingObservationType.SpireSpectro1:
                 case PointingObservationType.SpireSpectro7:
@@ -42,12 +55,33 @@ namespace Herschel.Loader
                     ps.SampleTime = long.Parse(parts[3]);
                     break;
                 case PointingObservationType.SpireSpectro64:
+                    if (parts.Length == 5)
+                    {
+                        ps.ObsID = ObservationID;
+                        ps.Ra = double.Parse(parts[0]);
+                        ps.Dec = double.Parse(parts[1]);
+                        ps.AV = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
+                        ps.Pa = String.IsNullOrWhiteSpace(parts[3]) ? 0.0 : double.Parse(parts[3]);
+                        ps.SampleTime = (long)double.Parse(parts[4]);
+                    }
+                    else if (parts.Length == 4)
+                    {
+                        ps.ObsID = ObservationID;
+                        ps.Ra = double.Parse(parts[0]);
+                        ps.Dec = double.Parse(parts[1]);
+                        ps.Pa = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
+                        ps.SampleTime = (long)double.Parse(parts[3]);
+                    }
+                    break;
+                case PointingObservationType.SpireSpectroRaster:
+                    // TODO: start and end time in separate rows
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);
-                    ps.AV = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
-                    ps.Pa = String.IsNullOrWhiteSpace(parts[3]) ? 0.0 : double.Parse(parts[3]);
-                    ps.SampleTime = (long)double.Parse(parts[4]);
+                    ps.Pa = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
+                    ps.AV = -1;
+                    ps.SampleTime = Math.Floor(double.Parse(parts[4]) * 1e6);
+                    ps.CorrTime = double.Parse(parts[5]);
                     break;
                 default:
                     throw new NotImplementedException();

@@ -22,32 +22,89 @@ namespace Herschel.Loader
             switch (ObservationType)
             {
                 case Lib.PointingObservationType.PacsPhoto:
-                    pp.ObsID = long.Parse(parts[1]);
-                    pp.FineTime = long.Parse(parts[6]);
-                    pp.BBID = long.Parse(parts[2]);
-                    pp.Ra = double.Parse(parts[27]);
-                    pp.RaError = double.Parse(parts[30]);
-                    pp.Dec = double.Parse(parts[28]);
-                    pp.DecError = double.Parse(parts[31]);
-                    pp.Pa = double.Parse(parts[29]);
-                    pp.PaError = double.Parse(parts[32]);
-                    pp.AVX = double.Parse(parts[50]);
-                    pp.AVXError = double.Parse(parts[53]);
-                    pp.AVY = double.Parse(parts[51]);
-                    pp.AVYError = double.Parse(parts[54]);
-                    pp.AVZ = double.Parse(parts[52]);
-                    pp.AVZError = double.Parse(parts[55]);
+                    if (parts.Length == 56 || parts.Length == 59)
+                    {
+                        pp.ObsID = long.Parse(parts[1]);
+                        pp.FineTime = long.Parse(parts[6]);
+                        pp.BBID = long.Parse(parts[2]);
+                        pp.Ra = double.Parse(parts[27]);
+                        pp.RaError = double.Parse(parts[30]);
+                        pp.Dec = double.Parse(parts[28]);
+                        pp.DecError = double.Parse(parts[31]);
+                        pp.Pa = double.Parse(parts[29]);
+                        pp.PaError = double.Parse(parts[32]);
+                        pp.AVX = double.Parse(parts[50]);
+                        pp.AVXError = double.Parse(parts[53]);
+                        pp.AVY = double.Parse(parts[51]);
+                        pp.AVYError = double.Parse(parts[54]);
+                        pp.AVZ = double.Parse(parts[52]);
+                        pp.AVZError = double.Parse(parts[55]);
 
-                    pp.IsAPosition = bool.Parse(parts[45]);
-                    pp.IsBPosition = bool.Parse(parts[46]);
-                    pp.IsOffPosition = bool.Parse(parts[40]);
-                    pp.IsOnTarget = bool.Parse(parts[37]);
-                    pp.RasterLineNum = int.Parse(parts[34]);
-                    pp.RasterColumnNum = int.Parse(parts[35]);
+                        pp.IsAPosition = bool.Parse(parts[45]);
+                        pp.IsBPosition = bool.Parse(parts[46]);
+                        pp.IsOffPosition = bool.Parse(parts[40]);
+                        pp.IsOnTarget = bool.Parse(parts[37]);
+                        pp.RasterLineNum = int.Parse(parts[34]);
+                        pp.RasterColumnNum = int.Parse(parts[35]);
 
-                    // NOTE: this could be used to filter turn-around but
-                    // it's better to do it from SQL
-                    //keep &= pp.BBID == 215131301;
+                        // NOTE: this could be used to filter turn-around but
+                        // it's better to do it from SQL
+                        //keep &= pp.BBID == 215131301;
+                    }
+                    else if (parts.Length == 57)
+                    {
+                        pp.ObsID = long.Parse(parts[1]);
+                        pp.FineTime = long.Parse(parts[6]);
+                        pp.BBID = long.Parse(parts[2]);
+                        pp.Ra = double.Parse(parts[27]);
+                        pp.RaError = double.Parse(parts[30]);
+                        pp.Dec = double.Parse(parts[28]);
+                        pp.DecError = double.Parse(parts[31]);
+                        pp.Pa = double.Parse(parts[29]);
+                        pp.PaError = double.Parse(parts[32]);
+                        pp.AVX = double.Parse(parts[51]);
+                        pp.AVXError = double.Parse(parts[54]);
+                        pp.AVY = double.Parse(parts[52]);
+                        pp.AVYError = double.Parse(parts[55]);
+                        pp.AVZ = double.Parse(parts[53]);
+                        pp.AVZError = double.Parse(parts[56]);
+
+                        pp.IsAPosition = bool.Parse(parts[45]);
+                        pp.IsBPosition = bool.Parse(parts[46]);
+                        pp.IsOffPosition = bool.Parse(parts[40]);
+                        pp.IsOnTarget = bool.Parse(parts[37]);
+                        pp.RasterLineNum = int.Parse(parts[34]);
+                        pp.RasterColumnNum = int.Parse(parts[35]);
+                    }
+                    else if (parts.Length == 60)
+                    {
+                        pp.ObsID = long.Parse(parts[1]);
+                        pp.FineTime = long.Parse(parts[6]);
+                        pp.BBID = long.Parse(parts[2]);
+                        pp.Ra = double.Parse(parts[27]);
+                        pp.RaError = double.Parse(parts[30]);
+                        pp.Dec = double.Parse(parts[28]);
+                        pp.DecError = double.Parse(parts[31]);
+                        pp.Pa = double.Parse(parts[29]);
+                        pp.PaError = double.Parse(parts[32]);
+                        pp.AVX = double.Parse(parts[51]);
+                        pp.AVXError = double.Parse(parts[54]);
+                        pp.AVY = double.Parse(parts[52]);
+                        pp.AVYError = double.Parse(parts[55]);
+                        pp.AVZ = double.Parse(parts[54]);
+                        pp.AVZError = double.Parse(parts[56]);
+
+                        pp.IsAPosition = bool.Parse(parts[45]);
+                        pp.IsBPosition = bool.Parse(parts[46]);
+                        pp.IsOffPosition = bool.Parse(parts[40]);
+                        pp.IsOnTarget = bool.Parse(parts[37]);
+                        pp.RasterLineNum = int.Parse(parts[34]);
+                        pp.RasterColumnNum = int.Parse(parts[35]);
+                    }
+                    else
+                    {
+                        throw new Exception("Unknown file format");
+                    }
 
                     break;
                 case PointingObservationType.PacsSpectroRange:
