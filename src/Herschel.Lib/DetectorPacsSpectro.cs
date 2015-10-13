@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Jhu.Spherical;
 
 namespace Herschel.Lib
 {
@@ -10,12 +11,23 @@ namespace Herschel.Lib
     {
         public override Jhu.Spherical.Cartesian[] Corners
         {
-            get { throw new NotImplementedException(); }
+            get {
+                double a = 2.25 / 3600.0;
+                double b = 2.25 / 3600.0;
+
+                return new Cartesian[]
+                {
+                    new Cartesian(a, b),
+                    new Cartesian(-a, b),
+                    new Cartesian(-a, -b),
+                    new Cartesian(a, -b)
+                };
+            }
         }
 
         public override Jhu.Spherical.Region GetFootprint(Jhu.Spherical.Cartesian pointing, double pa)
         {
-            throw new NotImplementedException();
+            return GetFootprintRectangle(pointing, pa);
         }
     }
 }
