@@ -39,12 +39,12 @@ DROP TABLE [load].[RawPointing]
 
 GO
 
-EXEC sp_rename 'load.RawPointing_ID', 'RawPointing'
+EXEC sp_rename 'load.RawPointing_ID', 'Pointing'
 
 ---
 
-CREATE INDEX [ID_RawPointing]
-ON [load].[RawPointing]
+CREATE INDEX [ID_Pointing]
+ON [load].[Pointing]
 (
 		inst,
 		obsID,
@@ -76,7 +76,7 @@ GO
 
 INSERT load.Duplicate WITH (TABLOCKX)
 SELECT inst,  obsID, obsType, fineTime, COUNT(*) cnt
-FROM load.RawPointing
+FROM load.Pointing
 GROUP BY inst,  obsID, obsType, fineTime
 HAVING COUNT(*) > 1
 -- 8645
@@ -98,13 +98,13 @@ GO
 WITH dup AS
 (
 	SELECT p.inst, p.obsID, p.obsType, p.fineTime, p.ra, p.ID, ROW_NUMBER() OVER (PARTITION BY p.inst, p.obsID, p.obsType, p.fineTime ORDER BY p.ID) rn
-	FROM load.RawPointing p
+	FROM load.Pointing p
 	INNER JOIN load.Duplicate d
 		ON d.inst = p.inst AND d.obsID = p.obsID AND d.obsType = p.obsType AND d.fineTime = p.fineTime
 	-- 17290
 )
-DELETE load.RawPointing
-FROM load.RawPointing p
+DELETE load.Pointing
+FROM load.Pointing p
 INNER JOIN dup d
 	ON d.inst = p.inst AND d.obsID = p.obsID AND d.obsType = p.obsType AND d.fineTime = p.fineTime AND d.ID = p.ID
 WHERE d.rn > 1
@@ -114,7 +114,7 @@ GO
 -- Verify that duplicates have gone
 
 SELECT inst,  obsID, obsType, fineTime, COUNT(*) cnt
-FROM load.RawPointing
+FROM load.Pointing
 GROUP BY inst,  obsID, obsType, fineTime
 HAVING COUNT(*) > 1
 
@@ -125,7 +125,7 @@ SELECT COUNT(*) FROM load.Duplicate
 
 SELECT COUNT(*)
 FROM load.Duplicate d
-INNER JOIN load.RawPointing p
+INNER JOIN load.Pointing p
 	ON d.inst = p.inst AND d.obsID = p.obsID AND d.obsType = p.obsType AND d.fineTime = p.fineTime
 -- 9892
 
