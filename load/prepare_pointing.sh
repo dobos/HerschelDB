@@ -19,6 +19,7 @@ OUTDIR="../pointing"
 ../bin/hload.exe prepare pointing spire 4 "$INDIR/spire/spectro1/myTable_*.txt" "$OUTDIR/spire_spectro1_{0}.dat" 16
 ../bin/hload.exe prepare pointing spire 8 "$INDIR/spire/spectro7/myTable_*.txt" "$OUTDIR/spire_spectro7_{0}.dat" 16
 ../bin/hload.exe prepare pointing spire 16 "$INDIR/spire/spectro64/myTable_*.txt" "$OUTDIR/spire_spectro64_{0}.dat" 16
+../bin/hload.exe prepare pointing spire 32 "$INDIR/spire/spectro_raster/myTable_*.txt" "$OUTDIR/spire_spectro_raster_{0}.dat" 16
 
 #HIFI
 
