@@ -421,7 +421,19 @@ WHERE inst = @inst AND obsID = @obsID";
                 using (var cmd = new SqlCommand(sql.Replace("[$datafile]", Path.GetFullPath(infile))))
                 {
                     cmd.CommandTimeout = 3600;  // 1h should be enough for bulk inserts
-                    DbHelper.ExecuteCommandNonQuery(cmd);
+
+                    try
+                    {
+                        DbHelper.ExecuteCommandNonQuery(cmd);
+                    }
+                    catch (Exception ex)
+                    {
+
+                        Console.Error.WriteLine("Unhandled Exception processing '{0}'", infile);
+                        Console.Error.WriteLine("Unhandled Exception: {0}: {1}", ex.GetType().FullName, ex.Message);
+                        Console.Error.WriteLine(ex.StackTrace);
+                        Console.WriteLine();
+                    }
                 }
             });
         }
