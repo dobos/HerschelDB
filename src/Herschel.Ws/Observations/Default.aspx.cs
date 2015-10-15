@@ -20,7 +20,7 @@ namespace Herschel.Ws.Observations
         {
             HerschelBrushes = new Brush[(int)Instrument.Hifi + 1];
 
-            for (int i = 0; i < HerschelBrushes.Length; i ++)
+            for (int i = 0; i < HerschelBrushes.Length; i++)
             {
                 HerschelBrushes[i] = Brushes.White;
             }
@@ -39,7 +39,7 @@ namespace Herschel.Ws.Observations
 
             HerschelBrushes[(int)Instrument.Hifi] =
                 new SolidBrush(Color.FromArgb(64, Color.Green));
-            
+
         }
 
         private enum RenderMode
@@ -50,7 +50,7 @@ namespace Herschel.Ws.Observations
 
         private RenderMode renderMode = RenderMode.Normal;
         private Lib.ObservationSearch searchObject;
-        
+
         private double ra;
         private double dec;
 
@@ -405,6 +405,23 @@ namespace Herschel.Ws.Observations
             var ids = observationList.SelectedDataKeys.Select(id => ObservationID.Parse(id)).ToArray();
             var observations = new List<Observation>(searchObject.FindID(ids));
 
+            // Find crossing SSOs
+            var ssos = new List<Sso>();
+
+            foreach (var obs in observations)
+            {
+                var ss = new Lib.SsoSearch();
+                ss.ObservationID = new ObservationID()
+                {
+                    Instrument = obs.Instrument,
+                    ID = obs.ObsID,
+                };
+
+                ssos.AddRange(ss.Find());
+            }
+
+            var ssods = new ObjectListDataSource(ssos);
+
             // Apply region transformations
             double epsilon = 0;
             if (plotReduce.Checked)
@@ -469,6 +486,27 @@ namespace Herschel.Ws.Observations
                     r2.ReduceEpsilon = epsilon;
                 }
             }
+
+            // SSO
+            if (plotSsos.Checked)
+            {
+                var ssoal = new ArcsLayer();
+                ssoal.DataSource = ssods;
+                ssoal.ArcDataField = "Trajectory";
+                ssoal.Outline.Pens = new[] { Pens.Red };
+                canvas.Plot.Layers.Add(ssoal);
+            
+                var ssopl = new PointsLayer();
+                ssopl.DataSource = ssods;
+                ssopl.PointDataField = "Position";
+                ssopl.Size = new SizeF(3, 3);
+                ssopl.Figure = FigureType.Circle;
+                ssopl.Fill.Brushes = new[] { Brushes.Red };
+                ssopl.Outline.Pens = new[] { Pens.Red };
+                canvas.Plot.Layers.Add(ssopl);
+            }
+
+            // Query
 
             if (queryLayer != null && plotQuery.Checked)
             {

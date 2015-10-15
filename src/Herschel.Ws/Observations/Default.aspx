@@ -103,7 +103,7 @@
             </asp:Panel>
         </ContentTemplate>
     </asp:UpdatePanel>
-    <%-- List --%>
+    <%--<asp:ListItem Value="Cover" Enabled="False">Cover</asp:ListItem>--%>
     <asp:UpdateProgress runat="server" DisplayAfter="3000">
         <ProgressTemplate>
             <div class="progress">
@@ -151,7 +151,7 @@
             </asp:Panel>
         </ContentTemplate>
     </asp:UpdatePanel>
-    <%-- Plot --%>
+    <%-- List --%>
     <asp:UpdatePanel runat="server">
         <ContentTemplate>
             <asp:Panel runat="server" ID="observationPlotPanel" Visible="false">
@@ -192,6 +192,8 @@
                                 <asp:ListItem Text="HMS-DMS" Value="Sexagesimal" />
                             </asp:RadioButtonList><br />
                             <p class="controls">
+                                <asp:CheckBox runat="server" ID="plotSsos" Text="SSO trajectories" Checked="true" AutoPostBack="true" />
+                                <br />
                                 <asp:CheckBox runat="server" ID="plotGrid" Text="Grid" Checked="true" AutoPostBack="true" /><br />
                                 <asp:CheckBox runat="server" ID="plotQuery" Text="Plot Query" Checked="true" AutoPostBack="true" />
                             </p>

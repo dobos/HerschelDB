@@ -55,6 +55,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="SsoSearch.cs" />
+    <Compile Include="Sso.cs" />
     <Compile Include="Spectro.cs" />
     <Compile Include="PointingHifi.cs" />
     <Compile Include="DbHelper.cs" />
