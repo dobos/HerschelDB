@@ -43,7 +43,7 @@ namespace Herschel.Lib
             var corners = GetCorners(pointing, pa);
 
             var r = new Region();
-            r.Add(new Convex(new List<Cartesian>(corners), PointOrder.CW));
+            r.Add(new Convex(new List<Cartesian>(corners), PointOrder.CCW));
             r.Simplify();
 
             return r;
