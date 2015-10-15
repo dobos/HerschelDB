@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Herschel.Ws", "src\Herschel
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Herschel.Plot", "src\Herschel.Plot\Herschel.Plot.csproj", "{DBDD5017-65B7-4E56-ADA9-9C54AA143190}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HerschelExtractPointing", "HerschelExtractPointing\HerschelExtractPointing.csproj", "{DA382BDC-156A-425C-B675-9E08261ADC59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +56,10 @@ Global
 		{DBDD5017-65B7-4E56-ADA9-9C54AA143190}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBDD5017-65B7-4E56-ADA9-9C54AA143190}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBDD5017-65B7-4E56-ADA9-9C54AA143190}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA382BDC-156A-425C-B675-9E08261ADC59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA382BDC-156A-425C-B675-9E08261ADC59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA382BDC-156A-425C-B675-9E08261ADC59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA382BDC-156A-425C-B675-9E08261ADC59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,5 +71,6 @@ Global
 		{6050142B-3974-4F12-9E2D-512EE1616D03} = {8D1C0B55-63DD-41E0-B4E4-1B1501FBB2D4}
 		{DF771E7C-2052-467F-9172-422E37135490} = {40F2C866-04E9-44E8-BEAE-19088E716B2B}
 		{DBDD5017-65B7-4E56-ADA9-9C54AA143190} = {8D1C0B55-63DD-41E0-B4E4-1B1501FBB2D4}
+		{DA382BDC-156A-425C-B675-9E08261ADC59} = {8D1C0B55-63DD-41E0-B4E4-1B1501FBB2D4}
 	EndGlobalSection
 EndGlobal
