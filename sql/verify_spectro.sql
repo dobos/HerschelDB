@@ -44,12 +44,19 @@ WHERE inst = 1 AND obsType = 2 AND pointingMode = 1
 SELECT *
 FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode = 1 AND
-	obsID NOT IN (SELECT obsID FROM load.RawPointing WHERE inst IN (1,2))
+	obsID NOT IN (SELECT obsID FROM load.Pointing WHERE inst IN (1))
 
 -- 86 with no pointing at all
 
 SELECT *
-FROM load.RawPointing
+FROM load.Pointing
+WHERE inst = 1 AND obsID = 1342186796
+
+SELECT AVG(ra), AVG(dec), AVG(pa)
+FROM load.Pointing
+WHERE inst = 1 AND obsID = 1342186307 AND isOnTarget = 1
+
+SELECT * FROM Observation
 WHERE inst = 1 AND obsID = 1342186307
 
 -------------------------------------
@@ -61,8 +68,8 @@ FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode = 4
 
 SELECT *
-FROM load.RawPointing
-WHERE inst = 1 AND obsID = 1342189410
+FROM load.Pointing
+WHERE inst = 1 AND obsID = 1342186971
 
 -------------------------------------
 
@@ -147,3 +154,6 @@ WHERE inst = 2 AND obsType = 2 AND pointingMode = 2 AND obsID = 1342227519
 SELECT *
 FROM load.RAwObservation
 WHERE inst = 2 AND obsType = 2 AND pointingMode = 2 AND obsID = 1342227454
+
+
+----------------------------
