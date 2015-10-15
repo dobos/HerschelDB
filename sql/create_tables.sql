@@ -160,6 +160,8 @@ CREATE TABLE [Sso]
 	)
 )
 
+GRANT SELECT ON [Sso] TO [User]
+
 ---------------------------------------------------------------
 
 IF OBJECT_ID (N'ObservationHtm', N'U') IS NOT NULL
