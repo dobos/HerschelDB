@@ -37,6 +37,8 @@ namespace Herschel.Loader
                     }
                     else
                     {
+                        // TODO: delete this
+
                         ps.ObsID = ObservationID;
                         ps.Ra = double.Parse(parts[0]);
                         ps.Dec = double.Parse(parts[1]);
@@ -74,7 +76,6 @@ namespace Herschel.Loader
                     }
                     break;
                 case PointingObservationType.SpireSpectroRaster:
-                    // TODO: start and end time in separate rows
                     ps.ObsID = ObservationID;
                     ps.Ra = double.Parse(parts[0]);
                     ps.Dec = double.Parse(parts[1]);

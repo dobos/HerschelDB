@@ -12,8 +12,8 @@ namespace Herschel.Lib
         public override Jhu.Spherical.Cartesian[] Corners
         {
             get {
-                double a = 2.25 / 3600.0;
-                double b = 2.25 / 3600.0;
+                double a = 23.5 / 3600.0;
+                double b = 23.5 / 3600.0;
 
                 return new Cartesian[]
                 {
