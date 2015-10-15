@@ -11,6 +11,40 @@ GO
 CREATE PROC [load].[GenerateFootprint]
 AS
 
+	-- PACS single point spectroscopy (5 x 5 spaxels)
+	
+	WITH p AS
+	(
+		SELECT p.*
+		FROM load.Pointing p
+		INNER JOIN Observation o
+			ON o.inst = p.inst AND o.obsID = p.obsID
+		WHERE o.inst = 1 AND o.pointingMode = 1 AND p.isOnTarget = 1
+	),
+	limits AS
+	(
+		SELECT p.inst, p.obsID,
+			AVG(ra) AS ra,
+			AVG(dec) AS dec,
+			AVG(pa) AS pa,
+			MIN(fineTime) AS fineTimeStart,
+			MAX(fineTime) AS fineTimeEnd,
+			COUNT(*) AS cnt
+		FROM p
+		GROUP BY p.inst, p.obsID
+	)
+	UPDATE Observation
+	SET ra = limits.ra,
+		dec = limits.dec,
+		pa = limits.pa,
+		aperture = 50.0 / 3600,
+		fineTimeStart = limits.fineTimeStart,
+		fineTimeEnd = limits.fineTimeEnd,
+		region = dbo.GetDetectorRegion(limits.ra, limits.dec, limits.pa, 'PacsSpectro')
+	FROM Observation o
+	INNER JOIN limits ON limits.inst = o.inst AND limits.obsID = o.ObsID
+	WHERE o.inst = 1 AND o.pointingMode = 1;		-- PACS pointed spectro
+
 	-- SPIRE single point or jiggle spectroscopy
 
 	WITH p AS
