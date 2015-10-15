@@ -41,10 +41,6 @@ namespace Herschel.Loader
                         case "merge":
                             MergePointings(args);
                             break;
-                        // TODO: add leg generation
-                        case "scanmap": // TODO: merge with merge ;-)
-                            GenerateScanMapFootprints(args);
-                            break;
                         case "cleanup":
                             CleanupPointings(args);
                             break;
@@ -67,6 +63,16 @@ namespace Herschel.Loader
                         /*case "cleanup":
                             CleanupObservations(args);
                             break;*/
+                        default:
+                            throw new NotImplementedException();
+                    }
+                    break;
+                case "scanmap":
+                    switch (verb)
+                    {
+                        case "generate":
+                            GenerateScanMapFootprints(args);
+                            break;
                         default:
                             throw new NotImplementedException();
                     }
