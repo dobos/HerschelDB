@@ -6,4 +6,4 @@ OUTDIR="../sso"
 mkdir -p "$OUTDIR"
 rm "$OUTDIR/sso.dat"
 
-tail "$INDIR/quality/sso_pacs.txt" -n+5 | awk '{print "1", $1, "1"}' >> "$OUTDIR/sso.dat"
+../bin/hload.exe prepare sso pacs "$INDIR/sso/herschel-2.out" "$OUTDIR/pacs_2.dat"

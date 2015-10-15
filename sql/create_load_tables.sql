@@ -6,10 +6,10 @@ END
 GO
 
 
-IF OBJECT_ID (N'load.RawObservation', N'U') IS NOT NULL
-DROP TABLE [load].[RawObservation]
+IF OBJECT_ID (N'load.Observation', N'U') IS NOT NULL
+DROP TABLE [load].[Observation]
 
-CREATE TABLE [load].[RawObservation]
+CREATE TABLE [load].[Observation]
 (
 	[inst] tinyint NOT NULL,
 	[obsID] bigint NOT NULL,
@@ -510,3 +510,29 @@ CREATE TABLE [load].[LegRegion]
 ) ON [LOAD]
 
 GO
+
+IF OBJECT_ID (N'loadSso', N'U') IS NOT NULL
+DROP TABLE [load].[Sso]
+
+GO
+
+CREATE TABLE [load].[Sso]
+(
+	[obsID] bigint NOT NULL,
+	[name] varchar(20) NOT NULL,
+	[coverage] real NOT NULL,
+	[mag] real NOT NULL,
+	[hh] real NOT NULL,
+	[r0] real NOT NULL,
+	[delta] real NOT NULL,
+	[ra] float NOT NULL,
+	[dec] float NOT NULL,
+	[pm_ra] real NOT NULL,
+	[pm_dec] real NOT NULL,
+	[pm] real NOT NULL,
+	[alpha] real NOT NULL,
+	[flux] real NOT NULL,
+	[g_slope] real NOT NULL,
+	[eta] real NOT NULL,
+	[pv] real NOT NULL
+)

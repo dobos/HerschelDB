@@ -320,6 +320,29 @@ GO
 
 ---------------------------------------------------------------
 
+IF OBJECT_ID ('load.MergeSso', N'P') IS NOT NULL
+DROP PROC [load].[MergeSso]
+
+GO
+
+CREATE PROC [load].[MergeSso]
+AS
+
+	TRUNCATE TABLE dbo.Sso
+
+	INSERT dbo.Sso WITH (TABLOCKX)
+	SELECT
+		1, obsID,
+		ROW_NUMBER() OVER (PARTITION BY obsID ORDER BY name) AS ssoID,
+		name,
+		coverage, mag, hh, r0, delta, ra, dec, pm_ra, pm_dec, pm,
+		alpha, flux, g_slope, eta, pv
+	FROM load.Sso
+
+GO
+
+---------------------------------------------------------------
+
 IF OBJECT_ID ('load.CleanUp', N'P') IS NOT NULL
 DROP PROC [load].[CleanUp]
 

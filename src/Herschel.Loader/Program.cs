@@ -77,6 +77,16 @@ namespace Herschel.Loader
                             throw new NotImplementedException();
                     }
                     break;
+                case "sso":
+                    switch (verb)
+                    {
+                        case "prepare":
+                            PrepareSsoCrossings(args);
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -442,6 +452,85 @@ WHERE inst = @inst AND obsID = @obsID";
                     }
                 }
             });
+        }
+
+        private static void PrepareSsoCrossings(string[] args)
+        {
+            var inst = args[2].ToLowerInvariant();
+            var path = args[3];
+            var output = args[4];
+
+            var sep = new char[] { ' ' };
+
+            Console.WriteLine("Preparing sso crossings file for bulk load...");
+
+            using (var infile = new StreamReader(path))
+            {
+                using (var outfile = new StreamWriter(output))
+                {
+                    string line;
+
+                    while ((line = infile.ReadLine()) != null)
+                    {
+                        if (line[0] == '#')
+                        {
+                            continue;
+                        }
+
+                        // "%d %12s %6.4f %9.1f %5.2f %5.2f %5.2f %5.2f %9.5f %9.5f %8.5f %8.5f %8.5f %4.1f %7.1f %3.1f %3.1f %3.1f\n"
+
+                        var parts = line.Split(sep, StringSplitOptions.RemoveEmptyEntries);
+
+                        int o = 0;
+
+                        long obsId = long.Parse(parts[o++]);
+                        var name = parts[o++].Replace("_", " ");
+                        var coverage = float.Parse(parts[o++]);
+                        var coverage2 = float.Parse(parts[o++]);
+                        var mag = float.Parse(parts[o++]);
+                        var hh = float.Parse(parts[o++]);
+                        var r0 = float.Parse(parts[o++]);
+                        var delta = float.Parse(parts[o++]);
+                        var ra = double.Parse(parts[o++]);
+                        var dec = double.Parse(parts[o++]);
+                        var pm_ra = float.Parse(parts[o++]);
+                        var pm_dec = float.Parse(parts[o++]);
+                        var pm = float.Parse(parts[o++]);
+                        var alpha = float.Parse(parts[o++]);
+                        var flux = float.Parse(parts[o++]);
+                        var g_slope = float.Parse(parts[o++]);
+                        var eta = float.Parse(parts[o++]);
+                        var pv = float.Parse(parts[o++]);
+
+                        /*
+                            obsid,o->name,
+                                coverage,coverage*jspan*2.0*86400.0+0.1,
+                                mag,o->hh,r0,delta,
+                                ra,dec,vra*3600.0/1440.0,vdec*3600.0/1440.0,vra*3600.0/1440.0*cos(dec*M_PI/180.0),
+                                alpha,flux,g_slope,eta,pv
+                        */
+
+                        outfile.Write("{0}|", obsId);
+                        outfile.Write("{0}|", name);
+                        outfile.Write("{0}|", coverage);
+                        outfile.Write("{0}|", mag);
+                        outfile.Write("{0}|", hh);
+                        outfile.Write("{0}|", r0);
+                        outfile.Write("{0}|", delta);
+                        outfile.Write("{0}|", ra);
+                        outfile.Write("{0}|", dec);
+                        outfile.Write("{0}|", pm_ra);
+                        outfile.Write("{0}|", pm_dec);
+                        outfile.Write("{0}|", pm);
+                        outfile.Write("{0}|", alpha);
+                        outfile.Write("{0}|", flux);
+                        outfile.Write("{0}|", g_slope);
+                        outfile.Write("{0}|", eta);
+                        outfile.Write("{0}", pv);
+                        outfile.WriteLine();
+                    }
+                }
+            }
         }
     }
 }

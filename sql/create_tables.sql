@@ -40,37 +40,6 @@ GO
 
 ---------------------------------------------------------------
 
-IF OBJECT_ID (N'Pointing', N'U') IS NOT NULL
-DROP TABLE [Pointing]
-
-CREATE TABLE [Pointing]
-(
---/ <summary>Contains raw pointings data</summary>
---/ <remarks></remarks>
-	[inst] [tinyint] NOT NULL,			--/ <column>Instrument</column>
-	[obsID] [bigint] NOT NULL,			--/ <column>Unique ID of the observation</column>
-	[obsType] [tinyint] NOT NULL,		--/ <column>Observations type: photometry or spectroscopy</column>
-	[fineTime] [bigint] NOT NULL,		--/ <column unit="1e-6 s">Time of pointing (TAI)</column>
-	[BBID] [bigint] NOT NULL,			--/ <column>BBID</column>
-	[ra] [float] NOT NULL,				--/ <column unit="deg">Right ascension of PACS instrument center</column>
-	[dec] [float] NOT NULL,				--/ <column unit="deg">Declination of instrument center</column>
-	[pa] [float] NOT NULL,				--/ <column unit="deg">Position angle of instrument</column>
-	[av] [float] NOT NULL,				--/ <column unit="arcsec s-1">Telescope's angular velocity</column>
-
-	CONSTRAINT [PK_Pointing] PRIMARY KEY CLUSTERED 
-	(
-		[inst] ASC,
-		[obsID] ASC,
-		[fineTime] ASC
-	)
-) ON [PRIMARY]
-
-GRANT SELECT ON [Pointing] TO [User]
-
-GO
-
----------------------------------------------------------------
-
 IF OBJECT_ID (N'ScanMap', N'U') IS NOT NULL
 DROP TABLE [ScanMap]
 
@@ -156,6 +125,42 @@ GRANT SELECT ON [Spectro] TO [User]
 
 ---------------------------------------------------------------
 
+IF OBJECT_ID (N'Sso', N'U') IS NOT NULL
+DROP TABLE [Sso]
+
+GO
+
+CREATE TABLE [Sso]
+(
+	[inst] tinyint NOT NULL,
+	[obsID] bigint NOT NULL,
+	[ssoID] smallint NOT NULL,
+	[name] varchar(20) NOT NULL,
+	[coverage] real NOT NULL,
+	[mag] real NOT NULL,
+	[hh] real NOT NULL,
+	[r0] real NOT NULL,
+	[delta] real NOT NULL,
+	[ra] real NOT NULL,
+	[dec] real NOT NULL,
+	[pm_ra] real NOT NULL,
+	[pm_dec] real NOT NULL,
+	[pm] real NOT NULL,
+	[alpha] real NOT NULL,
+	[flux] real NOT NULL,
+	[g_slope] real NOT NULL,
+	[eta] real NOT NULL,
+	[pv] real NOT NULL,
+
+	CONSTRAINT [PK_Sso] PRIMARY KEY CLUSTERED 
+	(
+		[inst] ASC,
+		[obsID] ASC,
+		[ssoID] ASC
+	)
+)
+
+---------------------------------------------------------------
 
 IF OBJECT_ID (N'ObservationHtm', N'U') IS NOT NULL
 DROP TABLE [ObservationHtm]
