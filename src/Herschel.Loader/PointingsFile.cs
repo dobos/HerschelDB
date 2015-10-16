@@ -24,6 +24,11 @@ namespace Herschel.Loader
 
         protected void Write(Pointing p, TextWriter writer)
         {
+            if (p.FineTime < 1000000000000000 || p.FineTime > 2000000000000000)
+            {
+                throw new Exception("Suspicious value of fine time.");
+            }
+
             writer.Write("{0} ", (byte)p.Instrument);
             writer.Write("{0} ", p.ObsID);
             writer.Write("{0} ", p.BBID);

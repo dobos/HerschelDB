@@ -37,14 +37,13 @@ namespace Herschel.Loader
                     }
                     else
                     {
-                        // TODO: delete this
-
+                        // These are read from photo failed folder
                         ps.ObsID = ObservationID;
                         ps.Ra = double.Parse(parts[0]);
                         ps.Dec = double.Parse(parts[1]);
                         ps.AV = -1;
                         ps.Pa = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
-                        ps.SampleTime = Math.Floor(double.Parse(parts[3]) * 1e6);
+                        ps.SampleTime = Math.Floor(double.Parse(parts[3]));
                         ps.CorrTime = -1;
                     }
                     break;
@@ -86,6 +85,12 @@ namespace Herschel.Loader
                     break;
                 default:
                     throw new NotImplementedException();
+            }
+
+            // Fix fine time scale problem with certain input files
+            if (ps.SampleTime < 1000000000000000)
+            {
+                ps.SampleTime *= 1e6;
             }
 
             // Convert to common format
