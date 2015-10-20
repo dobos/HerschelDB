@@ -16,6 +16,10 @@ namespace Herschel.Lib
         public double Dec;
         public double Pa;
         public double AV;
+        public double Aperture;
+        public double Width;
+        public double Height;
         public long FineTime;
+        public double PatternAngle;
     }
 }

@@ -38,12 +38,17 @@ namespace Herschel.Loader
             writer.Write("{0} ", p.Dec);
             writer.Write("{0} ", p.Pa);
             writer.Write("{0} ", p.AV);
+            writer.Write("{0} ", p.Aperture);
+            writer.Write("{0} ", p.Width);
+            writer.Write("{0} ", p.Height);
             writer.Write("{0} ", p.IsAPosition ? 1 : 0);
             writer.Write("{0} ", p.IsBPosition ? 1 : 0);
             writer.Write("{0} ", p.IsOffPosition ? 1 : 0);
             writer.Write("{0} ", p.IsOnTarget ? 1 : 0);
             writer.Write("{0} ", p.RasterLineNum);
-            writer.Write("{0}", p.RasterColumnNum);
+            writer.Write("{0} ", p.RasterColumnNum);
+            writer.Write("{0}", p.RasterAngle);
+
             writer.WriteLine();
         }
         

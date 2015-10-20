@@ -37,11 +37,28 @@ namespace Herschel.Loader
                     ps.FineTime = long.Parse(parts[4]);
                     break;
                 case PointingObservationType.HifiMapping:
-                    ps.ObsID = ObservationID;
-                    ps.Ra = double.Parse(parts[0]);
-                    ps.Dec = double.Parse(parts[1]);
-                    ps.Pa = double.Parse(parts[2]);
-                    ps.FineTime = long.Parse(parts[5]);
+                    if (parts.Length == 7)
+                    {
+                        ps.ObsID = ObservationID;
+                        ps.Ra = double.Parse(parts[0]);
+                        ps.Dec = double.Parse(parts[1]);
+                        ps.Pa = double.Parse(parts[2]);
+                        ps.FineTime = long.Parse(parts[3]);
+                        ps.Width = double.Parse(parts[4]);
+                        ps.Height = double.Parse(parts[5]);
+                        ps.PatternAngle = double.Parse(parts[6]);
+                    }
+                    else
+                    {
+                        ps.ObsID = ObservationID;
+                        ps.Ra = double.Parse(parts[0]);
+                        ps.Dec = double.Parse(parts[1]);
+                        ps.Pa = double.Parse(parts[2]);
+                        ps.Aperture = double.Parse(parts[4]);
+                        ps.Width = double.Parse(parts[6]);
+                        ps.Height = double.Parse(parts[7]);
+                        ps.FineTime = long.Parse(parts[5]);
+                    }
                     break;
                 default:
                     throw new NotImplementedException();
@@ -59,6 +76,10 @@ namespace Herschel.Loader
                 Dec = ps.Dec,
                 Pa = ps.Pa,
                 AV = ps.AV * 3600,  // convert from deg s-1 to arcsec s-1
+                Aperture = ps.Aperture,
+                Width = ps.Width,
+                Height = ps.Height,
+                RasterAngle = ps.PatternAngle,
             };
 
             return true;
