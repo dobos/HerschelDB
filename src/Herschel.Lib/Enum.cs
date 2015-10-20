@@ -41,6 +41,7 @@ namespace Herschel.Lib
         Spectroscopy = 2,
     }
 
+    // Used during load only
     public enum PointingObservationType : sbyte
     {
         // PACS

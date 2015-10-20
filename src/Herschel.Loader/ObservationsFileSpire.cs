@@ -25,6 +25,7 @@ namespace Herschel.Loader
                     Level = ParseObservationLevel(parts[14]),
                     InstrumentMode = ParseInstrumentMode(parts[5]),
                     PointingMode = ParsePointingMode(parts[9]),
+                    Band = "",
                     Object = parts[16],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
                     RA = double.Parse(parts[1]),
@@ -60,7 +61,8 @@ namespace Herschel.Loader
                     InstrumentMode = ParseInstrumentMode(parts[5]) |
                                      ParseSampling(parts[11]) |
                                      ParseResolution(parts[19]),
-                    PointingMode = ParsePointingMode(parts[9]),             // TODO ***** ?
+                    PointingMode = ParsePointingMode(parts[9]),
+                    Band = "",
                     Object = parts[17],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
                                   aor.IndexOf("dark sky", StringComparison.InvariantCultureIgnoreCase) >= 0,
@@ -107,6 +109,7 @@ namespace Herschel.Loader
                     Level = ParseObservationLevel(parts[7]),
                     InstrumentMode = ParseInstrumentMode(parts[2]),
                     PointingMode = Lib.PointingMode.PacsSpireParallel,
+                    Band = "",
                     Object = parts[8],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
 

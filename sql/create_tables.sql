@@ -12,6 +12,7 @@ CREATE TABLE [Observation]
 	[obsLevel] tinyint NOT NULL,		--/ <column>Maximum level of processing</column>
 	[instMode] int NOT NULL,			--/ <column>Instrument mode, bit values depend on instrument</column>
 	[pointingMode] tinyint NOT NULL,	--/ <column>Pointing mode</column>
+	[band] varchar(10) NOT NULL,
 	[object] varchar(50) NOT NULL,		--/ <column>Name of the observed object</column>
 	[calibration] bit NOT NULL,
 	[failed] bit NOT NULL,
@@ -50,8 +51,11 @@ CREATE TABLE [ScanMap]
 	[inst] tinyint NOT NULL,			--/ <column>Instrument</column>
 	[obsID] bigint NOT NULL,			--/ <column>Unique ID of the observation</column>
 	[av] float NOT NULL,				--/ <column unit="arcsec s-1">Target angular velocity of telescope during leg scans</column>
+	[ra] float NOT NULL,
+	[dec] float NOT NULL,
 	[height] float NOT NULL,
-	[width] float NOT NULL
+	[width] float NOT NULL,
+	[pa] float NOT NULL,
 
 	CONSTRAINT [PK_ScanMap] PRIMARY KEY CLUSTERED 
 	(

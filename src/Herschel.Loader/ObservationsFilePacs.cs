@@ -29,6 +29,7 @@ namespace Herschel.Loader
                     Level = ParseObservationLevel(parts[12]),
                     InstrumentMode = ParseInstrumentMode(parts[1]),
                     PointingMode = ParsePointingMode(parts[10]),
+                    Band = ParseBand(parts[1]),
                     Object = parts[13],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
 
@@ -65,6 +66,7 @@ namespace Herschel.Loader
                     Level = ParseObservationLevel(parts[15]),
                     InstrumentMode = ParseInstrumentMode(parts[5]) | ParseChoppingMode(parts[10]),
                     PointingMode = ParsePointingMode(parts[6]),
+                    Band = "",
                     Object = parts[16],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
 
@@ -147,6 +149,7 @@ namespace Herschel.Loader
                     Level = ParseObservationLevel(parts[12]),
                     InstrumentMode = Lib.InstrumentMode.Parallel | ParseInstrumentMode(parts[1]),
                     PointingMode = ParsePointingMode(parts[10]),
+                    Band = ParseBand(parts[1]),
                     Object = parts[13],
                     Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
 
@@ -175,6 +178,18 @@ namespace Herschel.Loader
             }
 
             return true;
+        }
+
+        private string ParseBand(string value)
+        {
+            switch (value)
+            {
+                case "blue1":
+                case "blue2":
+                    return value;
+                default:
+                    return "";
+            }
         }
 
         protected override InstrumentMode ParseInstrumentMode(string value)

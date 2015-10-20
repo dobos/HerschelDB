@@ -46,6 +46,64 @@ FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode = 1 AND
 	obsID NOT IN (SELECT obsID FROM load.Pointing WHERE inst IN (1))
 
+-- PACS pointed spectro where raster col/line num is set
+-- these are not simple pointings but rasters
+
+SELECT DISTINCT p.inst, p.obsID
+FROM load.Pointing p
+INNER JOIN Observation o
+	ON o.inst = p.inst AND o.obsID = p.obsID
+WHERE o.inst = 1 AND o.pointingMode = 1 AND p.isOnTarget = 1
+AND p.rasterColumnNum > 0 AND p.rasterColumnNum != 255
+AND p.rasterLineNum > 0 AND p.rasterLineNum != 255
+
+/*
+inst	obsID
+1	1342182010
+*/
+
+SELECT *
+FROM Observation
+WHERE inst = 1 AND obsID = 1342182010
+
+-- Apparently, 1342182010 is a raster instead of single pointing
+
+SELECT DISTINCT p.inst, p.obsID
+FROM load.Pointing p
+INNER JOIN Observation o
+	ON o.inst = p.inst AND o.obsID = p.obsID
+WHERE o.inst = 1 AND o.pointingMode = 1 AND p.isOnTarget = 1
+AND (p.rasterColumnNum = 255 OR p.rasterLineNum = 255)
+
+/*
+inst	obsID
+1	1342182005
+1	1342182011
+1	1342188041
+1	1342182003
+1	1342182002
+1	1342182004
+*/
+
+-- These seem to be wrong/calibration observations with incorrect raster col/num
+
+SELECT *
+FROM Observation
+WHERE inst = 1 AND obsID IN
+(
+1342182005,
+1342182011,
+1342188041,
+1342182003,
+1342182002,
+1342182004
+)
+
+SELECT *
+FROM load.Pointing
+WHERE inst = 1 AND obsID = 1342182005
+
+
 -- 86 with no pointing at all
 
 SELECT *
@@ -61,7 +119,7 @@ WHERE inst = 1 AND obsID = 1342186307
 
 -------------------------------------
 
--- PACS mapping spectro
+-- PACS mapping (raster) spectro
 
 SELECT TOP 100 *
 FROM Observation

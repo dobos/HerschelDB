@@ -17,8 +17,11 @@ namespace Herschel.Lib
         public Int64 ObsID { get; set; }
 
         public double AV { get; set; }
+        public double RA { get; set; }
+        public double Dec { get; set; }
         public double Height { get; set; }
         public double Width { get; set; }
+        public double PA { get; set; }
 
         public ScanMap()
         {
@@ -31,8 +34,11 @@ namespace Herschel.Lib
             ObsID = -1;
 
             AV = double.NaN;
+            RA = double.NaN;
+            Dec = double.NaN;
             Height = double.NaN;
-            Width = double.NaN;            
+            Width = double.NaN;
+            PA = double.NaN;
         }
 
         public void LoadFromDataReader(SqlDataReader reader)
@@ -48,8 +54,11 @@ namespace Herschel.Lib
                 Instrument = (Instrument)reader.GetByte(o++);
                 ObsID = reader.GetInt64(o++);
                 AV = reader.GetDouble(o++);
+                RA = reader.GetDouble(o++);
+                Dec = reader.GetDouble(o++);
                 Height = reader.GetDouble(o++);
                 Width = reader.GetDouble(o++);
+                PA = reader.GetDouble(o++);
             }
         }
     }

@@ -1,4 +1,4 @@
-BULK INSERT [load].[RawObservation]
+BULK INSERT [load].[Observation]
 FROM '[$datafile]'
 WITH 
 ( 

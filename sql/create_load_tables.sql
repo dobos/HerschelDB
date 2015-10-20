@@ -133,6 +133,7 @@ CREATE TABLE [load].[Observation]
 			-- HifiSScanModeLoadChopNoRef
 
 		*/
+	[band] varchar(50) NOT NULL,
 	[object] varchar(50) NOT NULL,
 		/*
 			PACS photo (14)

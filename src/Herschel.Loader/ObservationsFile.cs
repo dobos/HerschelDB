@@ -21,6 +21,7 @@ namespace Herschel.Loader
             writer.Write("{0}|", (sbyte)o.Type);
             writer.Write("{0}|", (int)o.InstrumentMode);
             writer.Write("{0}|", (short)o.PointingMode);
+            writer.Write("{0}|", o.Band);
             writer.Write("{0}|", o.Object);
             writer.Write("{0}|", o.Calibration ? 1 : 0);
             writer.Write("{0}|", o.Failed ? 1 : 0);

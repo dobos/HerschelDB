@@ -1,51 +1,3 @@
-/*
-TODO: delete
-IF OBJECT_ID ('load.MergePointing', N'P') IS NOT NULL
-DROP PROC [load].[MergePointing]
-
-GO
-
-CREATE PROC [load].[MergePointing]
-AS
-
-	TRUNCATE TABLE [Pointing]
-
-	INSERT [Pointing] WITH (TABLOCKX)
-		(inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av)
-	SELECT inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av
-	FROM [load].[RawPointing]
-	WHERE (inst = 1 AND obsType IN (1))			-- PACS photo
-	   OR (inst = 2 AND obsType IN (1, 2, 3))	-- SPIRE photo (small, large, both)
-
-
-	INSERT [Pointing] WITH (TABLOCKX)
-		(inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av)
-	SELECT inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av
-	FROM [load].[RawPointing]
-	WHERE inst = 2 AND obsType IN (4)		-- SPIRE spectro (point)
-		
-	-- Avoid repetitions here
-	INSERT [Pointing] WITH (TABLOCKX)
-		(inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av)
-	SELECT inst, ObsID, obsType, fineTime, BBID, ra, dec, pa, av
-	FROM [load].[RawPointing]
-	WHERE inst = 2 AND obsType IN (8)		-- SPIRE spectro (jiggle7)
-		  AND obsID NOT IN (SELECT obsID FROM Pointing WHERE inst = 2)
-*/
-/*
-inst	obsType	(No column name)
-1	1	288249679
-1	2	93443502
-1	4	72493427
-2	1	50760930
-2	2	16675956
-2	3	96230561
-2	4	4336
-2	8	654
-*/
-
-GO
-
 ---------------------------------------------------------------
 
 IF OBJECT_ID ('load.MergeObservations', N'P') IS NOT NULL
@@ -63,6 +15,7 @@ AS
 		obsLevel,
 		instMode,
 		pointingMode,
+		band,
 		object,
 		calibration,
 		failed,
@@ -75,14 +28,16 @@ AS
 		-9999 AS fineTimeEnd,		-- fine times will be updated from pointing
 		repetition, AOR_Label, AOT,
 		NULL AS region								-- region will be computed later
-	FROM load.RawObservation
+	FROM load.Observation
 
 	-- Set funny obsID to calibration
 	UPDATE Observation
-	SET calibration = 1
+	SET calibration = 0,
+	    failed = 1,
+		sso = 0
 	WHERE inst = 1 AND obsID = 1342270750		-- this is a weird one with a parabola trajectory
 
-	-- Update failed and SSO flags
+	-- Update failed flags
 
 	UPDATE Observation
 	SET failed = 1
@@ -91,12 +46,20 @@ AS
 		ON q.inst = o.inst AND q.obsID = o.obsID
 	WHERE q.failed = 1
 
+	-- Update SSO flags
+
 	UPDATE Observation
 	SET sso = 1
 	FROM Observation o
 	INNER JOIN load.ObsSSO q
 		ON q.inst = o.inst AND q.obsID = o.obsID
 	WHERE q.sso = 1
+
+	-- Update pointing of special observations:
+	-- raster instead of single pointing
+	UPDATE Observation
+	SET pointingMode = 4
+	WHERE inst = 1 AND obsID = 1342182010
 
 	-- TODO: Update repetition value of parallel
 
@@ -111,7 +74,7 @@ AS
 		(
 			SELECT inst, obsID,
 				MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
-			FROM Pointing
+			FROM load.Pointing
 			GROUP BY inst, obsID
 		) s 
 			ON s.inst = o.inst AND s.obsID = o.obsID
@@ -134,12 +97,12 @@ AS
 	FROM Observation o
 	INNER JOIN (
 		SELECT obsID, MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
-		FROM Pointing
+		FROM load.Pointing
 		--WHERE -- TODO: add filter on BBID etc
 		WHERE inst IN (1, 2)
 		GROUP BY inst, obsID) s 
 			ON s.obsID = o.obsID
-	WHERE o.inst = 4							-- only parallel
+	WHERE o.inst = 4;							-- only parallel
 
 	-- Add parallel observations
 	WITH pacs AS
@@ -162,6 +125,7 @@ AS
 			ELSE spire.obsLevel END AS obsLevel,
 			pacs.instMode | 7 AS instMode,
 			32 AS pointingMode,
+			pacs.band,
 			pacs.object AS object,
 			pacs.calibration AS calibration,
 			pacs.failed | spire.failed AS failed,
@@ -200,12 +164,41 @@ AS
 	INSERT [ScanMap] WITH (TABLOCKX)
 	SELECT inst, obsID, 
 		ISNULL(mapScanSpeed, -1) AS av,				-- will be updated from footprint
+		ISNULL(ra, -1) AS ra,
+		ISNULL(dec, -1) AS dec,
 		ISNULL(mapHeight, -1) AS height,			-- will be updated from footprint
-		ISNULL(mapWidth, -1) AS width				-- will be updated from footprint
-	FROM load.RawObservation
-	WHERE inst IN (1, 2, 4)
-		AND obsType = 1								-- only photometry
-		AND pointingmode IN (8, 16, 32)				-- line-scan, cross-scan and parallel
+		ISNULL(mapWidth, -1) AS width,				-- will be updated from footprint
+		ISNULL(pa, -1) AS pa
+	FROM load.Observation
+	WHERE inst IN (1, 2, 4)	AND obsType = 1	AND pointingmode IN (8, 16, 32)	
+	   OR inst IN (8) AND obsType = 2 AND pointingmode IN (4)
+
+
+	-- Update AV for spire scan maps
+	DECLARE @binsize float = 1;
+
+	WITH
+	velhist AS
+	(
+		SELECT inst, obsID, ROUND(av / @binsize, 0) * @binsize vvv, COUNT(*) cnt
+		FROM load.Pointing
+		GROUP BY inst, obsID, ROUND(av / @binsize, 0) * @binsize
+	),
+	velhistmax AS
+	(
+		SELECT *, ROW_NUMBER() OVER(PARTITION BY obsID ORDER BY cnt DESC) rn
+		FROM velhist
+		--WHERE vvv > 2	-- velocity is low at turn around
+	)
+	UPDATE ScanMap
+	SET	av = v.vvv
+	FROM ScanMap s
+	INNER JOIN Observation o
+		ON o.inst = s.inst AND o.obsID = s.obsID
+	INNER JOIN velhistmax v
+		ON v.inst = s.inst AND v.obsID = s.obsID AND v.rn = 1
+	WHERE o.inst = 2 AND o.pointingMode IN (8, 16)		-- SPIRE scan maps
+
 
 	-- Parallel scan maps from PACS and SPIRE
 	WITH pacs AS
@@ -224,40 +217,17 @@ AS
 			4 AS inst,
 			pacs.obsID,
 			pacs.av,
+			pacs.ra,
+			pacs.dec,
 			pacs.height,
-			pacs.width
+			pacs.width,
+			pacs.pa
 		FROM pacs
 		INNER JOIN spire
 			ON pacs.obsID = spire.obsID
 	)
 	INSERT [ScanMap] WITH (TABLOCKX)
 	SELECT * FROM parallel
-
-	-- Update AV for spire scan maps
-	DECLARE @binsize float = 1;
-
-	WITH
-	velhist AS
-	(
-		SELECT inst, obsID, ROUND(av / @binsize, 0) * @binsize vvv, COUNT(*) cnt
-		FROM Pointing
-		GROUP BY inst, obsID, ROUND(av / @binsize, 0) * @binsize
-	),
-	velhistmax AS
-	(
-		SELECT *, ROW_NUMBER() OVER(PARTITION BY obsID ORDER BY cnt DESC) rn
-		FROM velhist
-		--WHERE vvv > 2	-- velocity is low at turn around
-	)
-	UPDATE ScanMap
-	SET	av = v.vvv
-	FROM ScanMap s
-	INNER JOIN Observation o
-		ON o.inst = s.inst AND o.obsID = s.obsID
-	INNER JOIN velhistmax v
-		ON v.inst = s.inst AND v.obsID = s.obsID AND v.rn = 1
-	WHERE o.inst = 2 AND o.pointingMode IN (8, 16)		-- SPIRE scan maps
-
 GO
 
 ---------------------------------------------------------------
@@ -280,7 +250,7 @@ AS
 		rasterColumn AS [column],
 		rasterNumPoint AS [num],
 		ra, dec, pa
-	FROM load.RawObservation
+	FROM load.Observation
 	WHERE calibration = 0 AND obsLevel < 250
 		AND obsType = 2								-- only spectroscopy
 		AND inst IN (1, 2)							-- TODO: add HIFI maps
@@ -310,9 +280,8 @@ AS
 		specRange2From AS lambda2From,
 		specRange2To AS lambda2To,
 		specRangeID AS rangeID
-	FROM load.RawObservation
-	WHERE calibration = 0 AND obsLevel < 250
-		AND obsType = 2								-- only spectroscopy
+	FROM load.Observation
+	WHERE obsType = 2								-- only spectroscopy
 		AND inst IN (1, 2, 8)
 
 GO

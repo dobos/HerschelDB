@@ -35,6 +35,9 @@ namespace Herschel.Lib
         public PointingMode PointingMode { get; set; }
 
         [DataMember]
+        public string Band { get; set; }
+
+        [DataMember]
         public string @Object { get; set; }
 
         [DataMember]
@@ -136,6 +139,7 @@ namespace Herschel.Lib
             Level = (ObservationLevel)reader.GetByte(o++);
             InstrumentMode = (InstrumentMode)reader.GetInt32(o++);
             PointingMode = (PointingMode)reader.GetByte(o++);
+            Band = reader.GetString(o++);
             Object = reader.GetString(o++);
             Calibration = reader.GetBoolean(o++);
             Failed = reader.GetBoolean(o++);

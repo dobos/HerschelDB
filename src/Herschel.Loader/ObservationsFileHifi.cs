@@ -22,19 +22,44 @@ namespace Herschel.Loader
                 Level = ParseObservationLevel(parts[9]),
                 InstrumentMode = ParseInstrumentMode(parts[2]),
                 PointingMode = ParsePointingMode(parts[2]),
+                Band = parts[1],
                 Object = parts[10],
                 Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
 
-                RA = -999,
-                Dec = -999,
-                PA = -999,
-                Aperture = -1,
-                FineTimeStart = -1,
-                FineTimeEnd = -1,
+                RA = double.Parse(parts[34]),
+                Dec = double.Parse(parts[35]),
+                PA = double.Parse(parts[43]),
+                Aperture = double.Parse(parts[14]),     // HPBW
+                FineTimeStart = long.Parse(parts[21]),
+                FineTimeEnd = long.Parse(parts[22]),
                 Repetition = 1,         // TODO
+
+                ScanMap = new ScanMap()
+                {
+                    AV = -1,
+                    Height = double.Parse(parts[12]),
+                    Width = double.Parse(parts[11])
+                },
 
                 AOR = aor,
                 AOT = parts[6],
+            };
+
+            // Calculate spectro range from WCS header
+
+            var naxis3 = double.Parse(parts[27]);
+            var cdelt3 = double.Parse(parts[30]);
+            var crpix3 = double.Parse(parts[33]);
+            var crval3 = double.Parse(parts[36]);
+
+            var lambda1 = crval3 - crpix3 * cdelt3;
+            var lambda2 = crval3 + (naxis3 - crpix3) * cdelt3;
+
+            observation.Spectro = new Spectro()
+            {
+                RangeID = observation.Band,
+                LambdaFrom = lambda1,
+                LambdaTo = lambda2,
             };
 
             return true;
