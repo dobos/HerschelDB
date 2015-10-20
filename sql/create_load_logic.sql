@@ -30,55 +30,6 @@ AS
 		NULL AS region								-- region will be computed later
 	FROM load.Observation
 
-	-- Set funny obsID to calibration
-	UPDATE Observation
-	SET calibration = 0,
-	    failed = 1,
-		sso = 0
-	WHERE inst = 1 AND obsID = 1342270750		-- this is a weird one with a parabola trajectory
-
-	-- Update failed flags
-
-	UPDATE Observation
-	SET failed = 1
-	FROM Observation o
-	INNER JOIN load.ObsQuality q
-		ON q.inst = o.inst AND q.obsID = o.obsID
-	WHERE q.failed = 1
-
-	-- Update SSO flags
-
-	UPDATE Observation
-	SET sso = 1
-	FROM Observation o
-	INNER JOIN load.ObsSSO q
-		ON q.inst = o.inst AND q.obsID = o.obsID
-	WHERE q.sso = 1
-
-	-- Update pointing of special observations:
-	-- raster instead of single pointing
-	UPDATE Observation
-	SET pointingMode = 4
-	WHERE inst = 1 AND obsID = 1342182010
-
-	-- TODO: Update repetition value of parallel
-
-	-- Update obsType and fineTime from pointings (all observations)
-	-- TODO: fineTime of scan maps will need to be updated once scan legs
-	--       are identified and turn-around filtering is done
-	UPDATE Observation
-	SET fineTimeStart = s.fineTimeStart,
-		fineTimeEnd = s.fineTimeEnd
-	FROM Observation o
-	INNER JOIN 
-		(
-			SELECT inst, obsID,
-				MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
-			FROM load.Pointing
-			GROUP BY inst, obsID
-		) s 
-			ON s.inst = o.inst AND s.obsID = o.obsID
-
 	-- Verify valid observations with missing pointings
 	-- Should return 0
 	-- TODO: move it to verify script
@@ -89,20 +40,19 @@ AS
 
 	-- TODO: raise error
 
-	-- Update obsType and fineTime of PACS/SPIRE parallel
-	UPDATE Observation
-	SET obsType = 1,
-		fineTimeStart = s.fineTimeStart,
-		fineTimeEnd = s.fineTimeEnd
-	FROM Observation o
-	INNER JOIN (
-		SELECT obsID, MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
-		FROM load.Pointing
-		--WHERE -- TODO: add filter on BBID etc
-		WHERE inst IN (1, 2)
-		GROUP BY inst, obsID) s 
-			ON s.obsID = o.obsID
-	WHERE o.inst = 4;							-- only parallel
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.MergeObservationsParallel', N'P') IS NOT NULL
+DROP PROC [load].[MergeObservationsParallel]
+
+GO
+
+CREATE PROC [load].[MergeObservationsParallel]
+AS
+
+	-- TODO: Update repetition value of parallel
 
 	-- Add parallel observations
 	WITH pacs AS
@@ -146,6 +96,111 @@ AS
 	)
 	INSERT Observation WITH (TABLOCKX)
 	SELECT * FROM parallel
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.UpdateObservationsPointings', N'P') IS NOT NULL
+DROP PROC [load].[UpdateObservationsPointings]
+
+GO
+
+CREATE PROC [load].[UpdateObservationsPointings]
+AS
+	-- PACS needs to be filtered for turn around
+
+	/*UPDATE Observation
+	SET fineTimeStart = s.fineTimeStart,
+		fineTimeEnd = s.fineTimeEnd
+	FROM Observation o
+	INNER JOIN 
+		(
+			SELECT inst, obsID,
+				MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
+			FROM load.Pointing
+			GROUP BY inst, obsID
+		) s 
+			ON s.inst = o.inst AND s.obsID = o.obsID*/
+
+	-- Update obsType and fineTime of PACS/SPIRE parallel
+	UPDATE Observation
+	SET obsType = 1,
+		fineTimeStart = s.fineTimeStart,
+		fineTimeEnd = s.fineTimeEnd
+	FROM Observation o
+	INNER JOIN (
+		SELECT obsID, MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
+		FROM load.Pointing
+		--WHERE -- TODO: add filter on BBID etc
+		WHERE inst IN (1, 2)
+		GROUP BY inst, obsID) s 
+			ON s.obsID = o.obsID
+	WHERE o.inst = 4;							-- only parallel
+
+
+
+	-- HIFI
+	WITH limits AS
+	(
+		SELECT inst, obsID, MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd,
+			MAX(ra) AS ra, MAX(dec) AS dec, MAX(pa) AS pa, MAX(aperture) AS aperture
+		FROM load.Pointing
+		GROUP BY inst, obsID
+	)
+	UPDATE Observation
+	SET ra = limits.ra,
+		dec = limits.dec,
+		pa = limits.pa,
+		aperture = limits.aperture,
+		fineTimeStart = limits.fineTimeStart,
+	    fineTimeEnd = limits.fineTimeEnd
+	FROM Observation o
+	INNER JOIN limits ON limits.inst = o.inst AND limits.ObsID = o.obsID
+
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.UpdateObservationsFlags', N'P') IS NOT NULL
+DROP PROC [load].[UpdateObservationsFlags]
+
+GO
+
+CREATE PROC [load].[UpdateObservationsFlags]
+AS
+	-- Update failed flags
+
+	UPDATE Observation
+	SET failed = 1
+	FROM Observation o
+	INNER JOIN load.ObsQuality q
+		ON q.inst = o.inst AND q.obsID = o.obsID
+	WHERE q.failed = 1
+
+	-- Update SSO flags
+
+	UPDATE Observation
+	SET sso = 1
+	FROM Observation o
+	INNER JOIN load.ObsSSO q
+		ON q.inst = o.inst AND q.obsID = o.obsID
+	WHERE q.sso = 1
+
+	-- Update individual observations with wrong values
+
+	-- Set funny obsID to calibration
+	UPDATE Observation
+	SET calibration = 0,
+	    failed = 1,
+		sso = 0
+	WHERE inst = 1 AND obsID = 1342270750		-- this is a weird one with a parabola trajectory
+
+	-- raster instead of single pointing
+	UPDATE Observation
+	SET pointingMode = 4
+	WHERE inst = 1 AND obsID = 1342182010
 
 GO
 
@@ -197,7 +252,28 @@ AS
 		ON o.inst = s.inst AND o.obsID = s.obsID
 	INNER JOIN velhistmax v
 		ON v.inst = s.inst AND v.obsID = s.obsID AND v.rn = 1
-	WHERE o.inst = 2 AND o.pointingMode IN (8, 16)		-- SPIRE scan maps
+	WHERE o.inst = 2 AND o.pointingMode IN (8, 16);		-- SPIRE scan maps
+
+
+	-- HIFI
+
+	WITH limits AS
+	(
+		SELECT inst, obsID, MAX(ra) AS ra, MAX(dec) AS dec, 
+		       MAX(width) AS width, MAX(height) AS height, MAX(pa) AS pa
+		FROM load.Pointing
+		GROUP BY inst, obsID
+	)
+	UPDATE ScanMap
+	SET ra = limits.ra,
+	    dec = limits.dec,
+		height = limits.height,
+		width = limits.width,
+		pa = limits.pa					-- TODO: verify
+	FROM ScanMap
+	INNER JOIN limits ON limits.inst = ScanMap.inst AND limits.obsID = ScanMap.obsID
+	WHERE ScanMap.inst = 8
+	
 
 
 	-- Parallel scan maps from PACS and SPIRE
