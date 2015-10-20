@@ -1,14 +1,16 @@
 #!/bin/bash
 
+source ./settings.sh
+
+INDIR="$HERSCHEL_SOURCE/Raw/pointing"
+OUTDIR="$HERSCHEL_TEMP/pointing"
+
 #PACS
 
-INDIR="//blackhole/data/Raid6_2/vo/Herschel/Raw/pointing"
-OUTDIR="../pointing"
-
-../bin/hload.exe prepare pointing pacs 1 "$INDIR/pacs/photo/myTable_*.txt" "$OUTDIR/pacs_photo_{0}.dat" 16
-../bin/hload.exe prepare pointing pacs 1 "$INDIR/pacs/parallel/myTable_*.txt" "$OUTDIR/pacs_parallel_{0}.dat" 16
-../bin/hload.exe prepare pointing pacs 4 "$INDIR/pacs/spectro_line/myTable_*.txt" "$OUTDIR/pacs_linespec_{0}.dat" 16
-../bin/hload.exe prepare pointing pacs 2 "$INDIR/pacs/spectro_range/myTable_*.txt" "$OUTDIR/pacs_rangespec_{0}.dat" 16
+#../bin/hload.exe prepare pointing pacs 1 "$INDIR/pacs/photo/myTable_*.txt" "$OUTDIR/pacs_photo_{0}.dat" 16
+#../bin/hload.exe prepare pointing pacs 1 "$INDIR/pacs/parallel/myTable_*.txt" "$OUTDIR/pacs_parallel_{0}.dat" 16
+#../bin/hload.exe prepare pointing pacs 4 "$INDIR/pacs/spectro_line/myTable_*.txt" "$OUTDIR/pacs_linespec_{0}.dat" 16
+#../bin/hload.exe prepare pointing pacs 2 "$INDIR/pacs/spectro_range/myTable_*.txt" "$OUTDIR/pacs_rangespec_{0}.dat" 16
 
 #SPIRE
 

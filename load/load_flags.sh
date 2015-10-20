@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SERVER="FUTURE1"
-DB="Herschel_3"
-DIR="../flags"
+source ./settings.sh
 
-bcp load.ObsQuality in "$DIR/quality.dat" -S$SERVER -d$DB -T -c -t" " -r"0x0A"
-bcp load.ObsSso in "$DIR/sso.dat" -S$SERVER -d$DB -T -c -t" " -r"0x0A"
+DIR="$HERSCHEL_TEMP/flags"
+
+bcp load.ObsQuality in "$DIR/quality.dat" -S$HERSCHEL_SERVER -d$HERSCHEL_DB -T -c -t" " -r"0x0A"
+bcp load.ObsSso in "$DIR/sso.dat" -S$HERSCHEL_SERVER -d$HERSCHEL_DB -T -c -t" " -r"0x0A"

@@ -1,7 +1,9 @@
 #!/bin/bash
 
-INDIR="//blackhole/data/Raid6_2/vo/Herschel/Raw"
-OUTDIR="../sso"
+source ./settings.sh
+
+INDIR="$HERSCHEL_SOURCE/Raw"
+OUTDIR="$HERSCHEL_TEMP/sso"
 
 mkdir -p "$OUTDIR"
 rm "$OUTDIR/sso.dat"

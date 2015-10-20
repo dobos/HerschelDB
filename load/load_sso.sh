@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SERVER="FUTURE1"
-DB="Herschel_3"
-DIR="../sso"
+source ./settings.sh
 
-bcp load.Sso in "$DIR/pacs_2.dat" -S$SERVER -d$DB -T -c -t"|" -r'\n'
+DIR="$HERSCHEL_TEMP/sso"
+
+bcp load.Sso in "$DIR/pacs_2.dat" -S$HERSCHEL_SERVER -d$HERSCHEL_DB -T -c -t"|" -r'\n'
