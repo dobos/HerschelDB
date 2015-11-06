@@ -61,16 +61,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enum.cs" />
     <Compile Include="ObservationsFileSpire.cs" />
     <Compile Include="ObservationsFilePacs.cs" />
     <Compile Include="ObservationsFileHifi.cs" />
     <Compile Include="ObservationsFile.cs" />
+    <Compile Include="Pointing.cs" />
+    <Compile Include="PointingCluster.cs" />
+    <Compile Include="PointingGroup.cs" />
     <Compile Include="PointingsFileHifi.cs" />
     <Compile Include="PointingsFile.cs" />
     <Compile Include="PointingsFilePacs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PointingsFileSpire.cs" />
+    <Compile Include="RawPointing.cs" />
+    <Compile Include="RawPointingHifi.cs" />
+    <Compile Include="RawPointingPacs.cs" />
+    <Compile Include="RawPointingSpire.cs" />
     <Compile Include="SqlScripts.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

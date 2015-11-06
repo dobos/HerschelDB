@@ -439,6 +439,32 @@ CREATE TABLE [load].[RawPointing]
 
 GO
 
+---------------------------------------------------------------
+
+IF OBJECT_ID (N'load.PointingCluster', N'U') IS NOT NULL
+DROP TABLE [load].[PointingCluster]
+
+CREATE TABLE [load].[PointingCluster]
+(
+	[inst] [tinyint] NOT NULL,
+	[obsID] [bigint] NOT NULL,
+	[groupID] [tinyint] NOT NULL,
+	[clusterID] [int] NOT NULL,
+	[isRotated] [bit] NOT NULL,
+	[num] [int] NOT NULL,
+	[fineTimeStart] [bigint] NOT NULL,
+	[fineTimeEnd] [bigint] NOT NULL,
+	[ra] [float] NOT NULL,
+	[dec] [float] NOT NULL,
+	[pa] [float] NOT NULL,
+
+	CONSTRAINT PK_PointingCluster PRIMARY KEY
+	(
+		[inst], [obsID], [groupID], [clusterID], [isRotated]
+	)
+)
+
+---------------------------------------------------------------
 
 IF OBJECT_ID (N'load.LegEnds', N'U') IS NOT NULL
 DROP TABLE [load].[LegEnds]

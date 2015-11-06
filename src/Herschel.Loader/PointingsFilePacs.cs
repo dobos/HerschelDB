@@ -10,10 +10,10 @@ namespace Herschel.Loader
     class PointingsFilePacs : PointingsFile
     {
 
-        protected override bool Parse(string[] parts, out Pointing pointing)
+        protected override bool Parse(string[] parts, out RawPointing pointing)
         {
             bool keep = true;
-            var pp = new PointingPacs();
+            var pp = new RawPointingPacs();
 
             pp.Instrument = Instrument.Pacs;
 
@@ -21,7 +21,7 @@ namespace Herschel.Loader
 
             switch (ObservationType)
             {
-                case Lib.PointingObservationType.PacsPhoto:
+                case PointingObservationType.PacsPhoto:
                     if (parts.Length == 56 || parts.Length == 59)
                     {
                         pp.ObsID = long.Parse(parts[1]);
@@ -192,7 +192,7 @@ namespace Herschel.Loader
 
             // Convert PACS pointing to unified format
 
-            pointing = new Pointing()
+            pointing = new RawPointing()
             {
                 Instrument = pp.Instrument,
                 ObsID = pp.ObsID,

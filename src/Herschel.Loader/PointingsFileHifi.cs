@@ -12,9 +12,9 @@ namespace Herschel.Loader
     {
         public long ObservationID;
 
-        protected override bool Parse(string[] parts, out Pointing pointing)
+        protected override bool Parse(string[] parts, out RawPointing pointing)
         {
-            var ps = new PointingHifi();
+            var ps = new RawPointingHifi();
 
             ps.Instrument = Instrument.Hifi;
 
@@ -66,7 +66,7 @@ namespace Herschel.Loader
 
             // Convert to common format
 
-            pointing = new Pointing()
+            pointing = new RawPointing()
             {
                 Instrument = ps.Instrument,
                 ObsID = ps.ObsID,

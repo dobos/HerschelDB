@@ -41,6 +41,9 @@ namespace Herschel.Loader
                         case "merge":
                             MergePointings(args);
                             break;
+                        case "cluster":
+                            ClusterPointings(args);
+                            break;
                         case "cleanup":
                             CleanupPointings(args);
                             break;
@@ -205,6 +208,388 @@ namespace Herschel.Loader
         private static void MergePointings(string[] args)
         {
             ExecuteScript(SqlScripts.MergePointing);
+        }
+
+        private static IEnumerable<Observation> LoadObservations(string sql)
+        {
+            var observations = new List<Observation>();
+
+            using (var cmd = new SqlCommand(sql))
+            {
+                observations.AddRange(
+                    DbHelper.ExecuteCommandReader<Observation>(cmd));
+            }
+
+            return observations;
+        }
+
+        private static void ClusterPointings(string[] args)
+        {
+            // PACS spectro chop-nod single pointings etc.
+
+            var sql = @"
+SELECT *
+FROM Observation o
+WHERE inst = 1 AND obsType = 2 AND pointingMode IN (1, 2, 4)";
+
+            if (args.Length > 2)
+            {
+                sql += "  AND o.inst = " + args[2];
+            }
+
+            if (args.Length > 3)
+            {
+                sql += "  AND o.obsID = " + args[3];
+            }
+
+            Parallel.ForEach(LoadObservations(sql), ClusterPointings);
+        }
+
+        private static void ClusterPointings(Observation obs)
+        {
+            Console.WriteLine("Processing pointings for {0}", obs.ObsID);
+
+            // Find pointings
+            var sql = @"
+SELECT fineTime, ra, dec, pa
+FROM Herschel_3.load.Pointing
+WHERE inst = @inst AND obsID = @obsid AND isOnTarget = 1
+ORDER BY fineTime";
+
+            var pointings = new List<Pointing>();
+
+            using (var cn = DbHelper.OpenConnection())
+            {
+                using (var cmd = new SqlCommand(sql, cn))
+                {
+                    cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = (byte)obs.Instrument;
+                    cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = obs.ObsID;
+
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            var p = new Pointing()
+                            {
+                                FineTime = dr.GetInt64(0),
+                                Point = new Cartesian(dr.GetDouble(1), dr.GetDouble(2)),
+                                PA = dr.GetDouble(3)
+                            };
+
+                            pointings.Add(p);
+                        }
+                    }
+                }
+            }
+
+            try
+            {
+                var clusters = FindClusters(obs, pointings, 0.01);
+                var groups = GroupClusters(clusters, 1);
+
+                if ((obs.InstrumentMode & InstrumentMode.Chopping) != 0)
+                {
+                    switch (obs.PointingMode)
+                    {
+                        case PointingMode.Pointed:
+                            SaveClusters_ChopNod(obs, groups);
+                            break;
+                        case PointingMode.Raster:
+                        case PointingMode.Mapping:
+                            SaveClusters_ChopNod(obs, groups);
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
+                else if ((obs.InstrumentMode & InstrumentMode.Chopping) == 0)
+                {
+                    switch (obs.PointingMode)
+                    {
+                        case PointingMode.Pointed:
+                            SaveClusters_NoChop(obs, groups);
+                            break;
+                        case PointingMode.Raster:
+                        case PointingMode.Mapping:
+                            SaveClusters_NoChop(obs, groups);
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("Error determining pointing cluster for observation {0}", obs.ObsID);
+                Console.Error.WriteLine(ex.Message);
+            }
+        }
+
+        private static List<PointingCluster> FindClusters(Observation obs, List<Pointing> pointings, double dist)
+        {
+            var clusters = new List<PointingCluster>();
+
+            foreach (var pointing in pointings)
+            {
+                bool found = false;
+                PointingCluster cc = null;
+
+                // Find next matching cluster
+                for (int ci = 0; ci < clusters.Count; ci++)
+                {
+                    var c = clusters[ci];
+
+                    for (int pi = 0; pi < c.Pointings.Count; pi++)
+                    {
+                        var p = c.Pointings[pi];
+                        var d = pointing.Point.AngleInArcmin(p.Point);
+
+                        // Shortcut when very far
+                        if (d > 10 * dist)
+                        {
+                            break;
+                        }
+                        else if (d < dist)
+                        {
+                            if (cc != null)
+                            {
+                                // merge c into cc
+                                cc.Pointings.AddRange(c.Pointings);
+                                clusters.RemoveAt(ci);
+                            }
+                            else
+                            {
+                                // add to cluster
+                                c.Pointings.Add(pointing);
+                                cc = c;
+                            }
+
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found)
+                {
+                    // new cluster
+                    cc = new PointingCluster();
+                    cc.Pointings.Add(pointing);
+                    clusters.Add(cc);
+                }
+            }
+
+            foreach (var cluster in clusters)
+            {
+                cluster.Observation = obs;
+                cluster.CalculateAverage();
+            }
+
+            return clusters;
+        }
+
+        private static List<PointingGroup> GroupClusters(List<PointingCluster> clusters, double dist)
+        {
+            var groups = new List<PointingGroup>();
+
+            foreach (var cluster in clusters)
+            {
+                bool found = false;
+                PointingGroup gg = null;
+
+                // Find next matching group
+                for (int gi = 0; gi < groups.Count; gi++)
+                {
+                    var g = groups[gi];
+
+                    for (int ci = 0; ci < g.Clusters.Count; ci++)
+                    {
+                        var c = g.Clusters[ci];
+                        var d = cluster.Center.AngleInArcmin(c.Center);
+
+                        if (d < dist)
+                        {
+                            if (gg != null)
+                            {
+                                // merge c into cc
+                                gg.Clusters.AddRange(g.Clusters);
+                                groups.RemoveAt(ci);
+                            }
+                            else
+                            {
+                                // add to group
+                                g.Clusters.Add(cluster);
+                                gg = g;
+                            }
+
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!found)
+                {
+                    // new cluster
+                    gg = new PointingGroup();
+                    gg.Clusters.Add(cluster);
+                    groups.Add(gg);
+                }
+            }
+
+            if (groups.Count > 2)
+            {
+                throw new Exception("More than two groups");
+            }
+
+            // Average out groups and determine mean distance
+            for (int gi = 0; gi < groups.Count; gi++)
+            {
+                var group = groups[gi];
+
+                double cxavg = 0;
+                double cyavg = 0;
+                double czavg = 0;
+                double paavg = 0;
+                int cnt = 0;
+
+                foreach (var cluster in group.Clusters)
+                {
+                    cxavg += cluster.Center.X;
+                    cyavg += cluster.Center.Y;
+                    czavg += cluster.Center.Z;
+                    paavg += cluster.PA;
+                    cnt++;
+
+                    cluster.GroupID = gi;
+                }
+
+                cxavg /= (double)cnt;
+                cyavg /= (double)cnt;
+                czavg /= (double)cnt;
+                paavg /= (double)cnt;
+
+                if (double.IsNaN(cxavg))
+                {
+                    Console.WriteLine("Nan in center coordinate");
+                }
+
+                group.Center = new Cartesian(cxavg, cyavg, czavg, true);
+                group.PA = paavg;
+            }
+
+            return groups;
+        }
+
+        private static void SaveClusters_ChopNod(Observation obs, List<PointingGroup> groups)
+        {
+            if (groups.Count != 2)
+            {
+                throw new Exception("More than two pointing groups for chop-nod");
+            }
+
+            // Rotate to the centerpoint 
+            var axis = groups[0].Center.Cross(groups[1].Center, true);
+            var ang = groups[0].Center.AngleInDegree(groups[1].Center);
+            var rot = new Rotation(axis, ang / 2.0);
+
+            foreach (var group in groups)
+            {
+                int c = 0;
+
+                foreach (var cluster in group.Clusters)
+                {
+                    cluster.ClusterID = c++;
+
+                    // Save only real cluster (at least 1 sec integration)
+                    if (cluster.Pointings.Count > 10)
+                    {
+                        cluster.Save();
+
+                        if (cluster.GroupID == 0)
+                        {
+                            cluster.Center.Rotate(rot);
+                        }
+                        else
+                        {
+                            cluster.Center.RotateBack(rot);
+                        }
+
+                        cluster.IsRotated = true;
+                        cluster.Save();
+                    }
+                }
+            }
+        }
+
+        private static void SaveClusters_NoChop(Observation obs, List<PointingGroup> groups)
+        {
+            if (groups.Count > 2)
+            {
+                throw new Exception("More than two pointing groups for non-chop");
+            }
+
+            // Find group with least fineTime, that's the calibration point
+            int ming = -1;
+
+            if (groups.Count == 1)
+            {
+                // no calibration point
+            }
+            else
+            {
+
+                long minft = long.MaxValue;
+
+                for (int i = 0; i < groups.Count; i++)
+                {
+                    if (ming == -1)
+                    {
+                        ming = i;
+                    }
+
+                    int minc = -1;
+
+                    for (int j = 0; j < groups[i].Clusters.Count; j++)
+                    {
+                        if (minc == -1)
+                        {
+                            minc = j;
+                        }
+
+                        if (groups[i].Clusters[j].FineTimeStart < minft)
+                        {
+                            ming = i;
+                            minc = j;
+                            minft = groups[i].Clusters[j].FineTimeStart;
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < groups.Count; i++)
+            {
+                var group = groups[i];
+                int c = 0;
+
+                if (i != ming)
+                {
+                    foreach (var cluster in group.Clusters)
+                    {
+                        cluster.ClusterID = c++;
+
+                        // Save only real cluster (at least 1 sec integration)
+                        if (cluster.Pointings.Count > 10)
+                        {
+                            cluster.Save();
+                        }
+                    }
+                }
+            }
         }
 
         private static void GenerateScanMapFootprints(string[] args)

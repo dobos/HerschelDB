@@ -8,7 +8,7 @@ using Herschel.Lib;
 
 namespace Herschel.Loader
 {
-    public struct PointingHifi
+    public struct RawPointingHifi
     {
         public Instrument Instrument;
         public long ObsID;

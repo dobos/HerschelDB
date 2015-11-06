@@ -8,7 +8,7 @@ using Herschel.Lib;
 
 namespace Herschel.Loader
 {
-    public struct PointingSpire
+    public struct RawPointingSpire
     {
         public Instrument Instrument;
         public long ObsID;

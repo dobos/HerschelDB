@@ -20,9 +20,9 @@ namespace Herschel.Loader
             set { observationType = value; }
         }
 
-        protected abstract bool Parse(string[] parts, out Pointing pointing);
+        protected abstract bool Parse(string[] parts, out RawPointing pointing);
 
-        protected void Write(Pointing p, TextWriter writer)
+        protected void Write(RawPointing p, TextWriter writer)
         {
             if (p.FineTime < 1000000000000000 || p.FineTime > 2000000000000000)
             {
@@ -52,7 +52,7 @@ namespace Herschel.Loader
             writer.WriteLine();
         }
         
-        protected IEnumerable<Pointing> ReadPointingsFile(string filename)
+        protected IEnumerable<RawPointing> ReadPointingsFile(string filename)
         {
             // Open file
             using (var infile = new StreamReader(filename))
@@ -66,7 +66,7 @@ namespace Herschel.Loader
                 string line;
                 while ((line = infile.ReadLine()) != null)
                 {
-                    Pointing p;
+                    RawPointing p;
                     if (Parse(line.Split(' '), out p))
                     {
                         yield return p;

@@ -55,14 +55,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="DetectorHifi.cs" />
     <Compile Include="SsoSearch.cs" />
     <Compile Include="Sso.cs" />
     <Compile Include="Spectro.cs" />
-    <Compile Include="PointingHifi.cs" />
     <Compile Include="DbHelper.cs" />
     <Compile Include="ObservationID.cs" />
-    <Compile Include="PointingSpire.cs" />
-    <Compile Include="PointingPacs.cs" />
     <Compile Include="DataReaderEnumerator.cs" />
     <Compile Include="Detector.cs" />
     <Compile Include="DetectorPacsPhoto.cs" />
@@ -74,7 +72,6 @@
     <Compile Include="IDatabaseTableObject.cs" />
     <Compile Include="Observation.cs" />
     <Compile Include="ObservationSearch.cs" />
-    <Compile Include="Pointing.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RasterMap.cs" />
     <Compile Include="ScanMap.cs" />

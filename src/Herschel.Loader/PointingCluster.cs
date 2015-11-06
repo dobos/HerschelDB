@@ -13,7 +13,7 @@ namespace Herschel.Loader
     class PointingCluster
     {
         public Observation Observation;
-        public List<RawPointing> Pointings;
+        public List<Pointing> Pointings;
         public int ClusterID;
         public int GroupID;
         public bool IsRotated;
@@ -25,7 +25,7 @@ namespace Herschel.Loader
         public PointingCluster()
         {
             Observation = null;
-            Pointings = new List<RawPointing>();
+            Pointings = new List<Pointing>();
             ClusterID = -1;
             GroupID = -1;
             IsRotated = false;
@@ -35,11 +35,58 @@ namespace Herschel.Loader
             PA = double.NaN;
         }
 
+        public PointingCluster(PointingCluster old)
+        {
+            this.Observation = old.Observation;
+            this.ClusterID = old.ClusterID;
+            this.GroupID = old.GroupID;
+            this.IsRotated = old.IsRotated;
+            this.FineTimeStart = old.FineTimeStart;
+            this.FineTimeEnd = old.FineTimeEnd;
+            this.Center = old.Center;
+            this.PA = old.PA;
+        }
+
+        public PointingCluster Clone()
+        {
+            return new PointingCluster(this);
+        }
+
+        public void CalculateAverage()
+        {
+            var fineTimeStart = long.MaxValue;
+            var fineTimeEnd = long.MinValue;
+            double cxavg = 0;
+            double cyavg = 0;
+            double czavg = 0;
+            double paavg = 0;
+
+            foreach (var pi in Pointings)
+            {
+                fineTimeStart = Math.Min(fineTimeStart, pi.FineTime);
+                fineTimeEnd = Math.Max(fineTimeEnd, pi.FineTime);
+                cxavg += pi.Point.X;
+                cyavg += pi.Point.Y;
+                czavg += pi.Point.Z;
+                paavg += pi.PA;
+            }
+
+            cxavg /= Pointings.Count;
+            cyavg /= Pointings.Count;
+            czavg /= Pointings.Count;
+            paavg /= Pointings.Count;
+
+            Center = new Cartesian(cxavg, cyavg, czavg, true);
+            PA = paavg;
+            FineTimeStart = fineTimeStart;
+            FineTimeEnd = fineTimeEnd;
+        }
+
         public void Save()
         {
             var sql = @"
 INSERT [load].[PointingCluster]
-    (inst, obsID, clusterID, groupID, isRotated, num, fineTimeStart, fineTimeEnd, ra, dec, pa)
+    (inst, obsID, groupID, clusterID, isRotated, num, fineTimeStart, fineTimeEnd, ra, dec, pa)
 VALUES
     (@inst, @obsID, @clusterID, @groupID, @isRotated, @num, @fineTimeStart, @fineTimeEnd, @ra, @dec, @pa)";
 
@@ -50,10 +97,10 @@ VALUES
                 {
                     cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = (byte)Observation.Instrument;
                     cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = Observation.ObsID;
-                    cmd.Parameters.Add("@clusterID", SqlDbType.Int).Value = ClusterID + 1;
                     cmd.Parameters.Add("@groupID", SqlDbType.TinyInt).Value = GroupID;
+                    cmd.Parameters.Add("@clusterID", SqlDbType.Int).Value = ClusterID + 1;
                     cmd.Parameters.Add("@isRotated", SqlDbType.Bit).Value = IsRotated;
-                    cmd.Parameters.Add("@num", SqlDbType.Int).Value = Points.Count;
+                    cmd.Parameters.Add("@num", SqlDbType.Int).Value = Pointings.Count;
                     cmd.Parameters.Add("@fineTimeStart", SqlDbType.BigInt).Value = FineTimeStart;
                     cmd.Parameters.Add("@fineTimeEnd", SqlDbType.BigInt).Value = FineTimeEnd;
                     cmd.Parameters.Add("@ra", SqlDbType.Float).Value = Center.RA;

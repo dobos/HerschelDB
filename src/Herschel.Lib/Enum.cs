@@ -41,35 +41,6 @@ namespace Herschel.Lib
         Spectroscopy = 2,
     }
 
-    // Used during load only
-    public enum PointingObservationType : sbyte
-    {
-        // PACS
-        PacsPhoto = 1,
-        PacsSpectroRange = 2,
-        PacsSpectroLine = 4,
-
-        PacsSpectro = PacsSpectroRange | PacsSpectroLine,
-
-        // SPIRE
-        SpirePhotoLargeMap = 1,
-        SpirePhotoSmallMap = 2,
-        
-        SpirePhoto = SpirePhotoLargeMap | SpirePhotoSmallMap,
-        
-        SpireSpectro1 = 4,
-        SpireSpectro7 = 8,
-        SpireSpectro64 = 16,
-        SpireSpectroRaster = 32,
-
-        SpireSpectro = SpireSpectro1 | SpireSpectro7 | SpireSpectro64 | SpireSpectroRaster,
-
-        // HIFI
-        HifiPoint = 1,
-        HifiSpectralScan = 2,
-        HifiMapping = 4,
-    }
-
     [Flags]
     public enum InstrumentMode : int
     {
@@ -92,6 +63,8 @@ namespace Herschel.Lib
         Photometry = 0x0010,
         Spectroscopy = 0x0020,
 
+        Chopping = 0x00100000,
+
         // *** PACS specific settings (band, spec mode, chopper)
 
         // 8:   PACS blue/green photometry
@@ -103,9 +76,8 @@ namespace Herschel.Lib
         PacsSpectroRange = Pacs | Spectroscopy | 0x00040000,
         PacsSpectroLine = Pacs | Spectroscopy | 0x00080000,
 
-        PacsChopperOff = Pacs | 0x00000000,
-        PacsChopperOn = Pacs | 0x00100000,
-        PacsChopperRaster = Pacs | 0x00200000,
+        PacsChopperOff = Pacs,
+        PacsChopperOn = Pacs | Chopping,
 
         // *** SPIRE specific settings (BSM)
 
@@ -179,8 +151,8 @@ namespace Herschel.Lib
         PacsPhoto = 1,
         PacsSpectro = 2,
         SpirePhoto = 3,
-        SpireSpectro = 4
-        // TODO: Hifi
+        SpireSpectro = 4,
+        Hifi = 5
     }
 
     // ----------------------------------------

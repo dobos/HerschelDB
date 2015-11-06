@@ -19,7 +19,7 @@ inst	obsType	pointingMode	(No column name)
 
 SELECT inst, obsType, pointingMode, COUNT(*)
 FROM Observation
-WHERE obsType = 2 AND obsID IN (SELECT obsID FROM load.RawPointing WHERE inst IN (1, 2))
+WHERE obsType = 2 AND obsID IN (SELECT obsID FROM load.Pointing WHERE inst IN (1, 2))
 GROUP BY inst, obsType, pointingMode
 ORDER BY 1, 2, 3
 
@@ -35,16 +35,59 @@ inst	obsType	pointingMode	(No column name)
 -------------------------------------
 
 -- PACS pointed spectro
+-- ra, dec and pa should be correct in the obs header
 
+SELECT CAST(instMode AS binary(8)), COUNT(*)
+FROM Observation
+WHERE inst = 1 AND obsType = 2 AND pointingMode = 1
+GROUP BY CAST(instMode AS binary(8))
+
+/*
+(No column name)	(No column name)
+0x0000000000140021	2456			-- range + chopper
+0x0000000000040021	685				-- range
+0x0000000000180021	1550			-- line + chopper
+0x0000000000080021	376				-- line
+*/
+
+-- uncopped single pointing
 SELECT TOP 100 *
 FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode = 1
+	AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+
+-- uncopped raster pointing
+SELECT TOP 100 *
+FROM Observation
+WHERE inst = 1 AND obsType = 2 AND pointingMode = 4
+	AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+
+-- raster points + a calibration point is visible
+-- filter out calibration based on BBID
+SELECT DISTINCT CAST(BBID as binary(8))
+FROM Observation o
+INNER JOIN load.Pointing p ON p.inst = o.inst AND p.obsID = o.obsID
+WHERE o.inst = 1 AND o.obsType = 2 AND pointingMode = 4
+	AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
 
 -- PACS pointed spectro with no pointing
 SELECT *
 FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode = 1 AND
 	obsID NOT IN (SELECT obsID FROM load.Pointing WHERE inst IN (1))
+
+-- PACS pointed spectro with no valid pointing
+SELECT *
+FROM Observation
+WHERE inst = 1 AND obsType = 2 AND pointingMode = 1 
+	AND	obsID NOT IN 
+	(SELECT obsID 
+	 FROM load.Pointing 
+	 WHERE inst IN (1) 
+	 AND BBID IN (0x00000000401C0001, 0x0000000040230001))
 
 -- PACS pointed spectro where raster col/line num is set
 -- these are not simple pointings but rasters
@@ -121,9 +164,28 @@ WHERE inst = 1 AND obsID = 1342186307
 
 -- PACS mapping (raster) spectro
 
+SELECT CAST(instMode AS binary(8)), COUNT(*)
+FROM Observation
+WHERE inst = 1 AND obsType = 2 AND pointingMode = 4
+GROUP BY CAST(instMode AS binary(8))
+
+/*
+(No column name)	(No column name)
+0x0000000000040021	116		-- range
+0x0000000000080021	656		-- line
+0x0000000000140021	59		-- range + chopper
+0x0000000000180021	258		-- line + chopper
+*/
+
 SELECT TOP 100 *
 FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode = 4
+      AND instMode = 0x0000000000180021
+
+SELECT TOP 100 *
+FROM Observation
+WHERE inst = 1 AND obsType = 2 AND pointingMode = 4
+      AND region IS NOT NULL
 
 SELECT *
 FROM load.Pointing

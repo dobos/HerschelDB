@@ -8,7 +8,7 @@ using Herschel.Lib;
 
 namespace Herschel.Loader
 {
-    public struct PointingPacs
+    public struct RawPointingPacs
     {
         public long ObsID;
         public long BBID;

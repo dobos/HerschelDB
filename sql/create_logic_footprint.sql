@@ -12,38 +12,41 @@ CREATE PROC [load].[GenerateFootprint]
 AS
 
 	-- PACS single point spectroscopy (5 x 5 spaxels)
-	
-	WITH p AS
+	-- inst = 1, obsType = 2, pointingMode = 1
+	-- only unchopped
+	UPDATE Observation
+	SET aperture = 50.0 / 3600,
+		region = dbo.GetDetectorRegion(ra, dec, pa, 0, 'PacsSpectro')
+	WHERE inst = 1 AND obsType = 2 AND pointingMode = 1 
+		  AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+
+	-- PACS raster spectroscopy
+	-- inst = 1, obsType = 2, pointingMode = 4
+	-- only unchopped
+	WITH r AS
 	(
-		SELECT p.*
-		FROM load.Pointing p
-		INNER JOIN Observation o
-			ON o.inst = p.inst AND o.obsID = p.obsID
-		WHERE o.inst = 1 AND o.pointingMode = 1 AND p.isOnTarget = 1
-	),
-	limits AS
-	(
-		SELECT p.inst, p.obsID,
-			AVG(ra) AS ra,
-			AVG(dec) AS dec,
-			AVG(pa) AS pa,
-			MIN(fineTime) AS fineTimeStart,
-			MAX(fineTime) AS fineTimeEnd,
-			COUNT(*) AS cnt
-		FROM p
-		GROUP BY p.inst, p.obsID
+		SELECT region.UnionEvery(dbo.GetDetectorRegion(ra, dec, pa, 0, 'PacsSpectro'))
+		FROM load.PointingCluster
 	)
 	UPDATE Observation
-	SET ra = limits.ra,
-		dec = limits.dec,
-		pa = limits.pa,
-		aperture = 50.0 / 3600,
-		fineTimeStart = limits.fineTimeStart,
-		fineTimeEnd = limits.fineTimeEnd,
-		region = dbo.GetDetectorRegion(limits.ra, limits.dec, limits.pa, 'PacsSpectro')
+	SET aperture = 50.0 / 3600,
+		region = dbo.GetDetectorRegion(r.ra, r.dec, r.pa, 0, 'PacsSpectro')
 	FROM Observation o
-	INNER JOIN limits ON limits.inst = o.inst AND limits.obsID = o.ObsID
-	WHERE o.inst = 1 AND o.pointingMode = 1;		-- PACS pointed spectro
+	WHERE o.inst = 1 AND o.obsType = 2 AND o.pointingMode = 4
+	    AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+		AND r.[column] > 0 AND r.line > 0
+
+	-- PACS chopped raster spectroscopy
+	-- inst = 1, obsType = 2, pointingMode = 4
+	-- only chopped
+	UPDATE Observation
+	SET aperture = 50.0 / 3600,
+		region = dbo.GetDetectorRegion(r.ra, r.dec, r.pa, 0, 'PacsSpectro')
+	FROM Observation o
+	INNER JOIN RasterMap r ON r.inst = o.inst AND r.obsID = o.obsID
+	WHERE o.inst = 1 AND o.obsType = 2 AND o.pointingMode = 4
+	    AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+		AND r.[column] > 0 AND r.line > 0
 
 	-- SPIRE single point or jiggle spectroscopy
 
@@ -67,7 +70,7 @@ AS
 		aperture = 2,		-- 2 arc min in diameter
 		fineTimeStart = start.fineTime,
 		fineTimeEnd = stop.fineTime,
-		region = dbo.GetDetectorRegion(start.ra, start.dec, 0, 'SpireSpectro')
+		region = dbo.GetDetectorRegion(start.ra, start.dec, 0, 0, 0, 0, 0, 'SpireSpectro')
 	FROM Observation o
 	INNER JOIN start ON start.inst = o.inst AND start.obsID = o.ObsID
 	INNER JOIN stop ON stop.inst = o.inst AND stop.obsID = o.ObsID	
@@ -118,6 +121,25 @@ AS
 	WHERE o.inst = 2 AND o.pointingMode = 2		-- SPIRE raster spectro
 		AND o.repetition != 0;
 
+	-- HIFI pointed spectroscopy
+
+	WITH p AS
+	(
+		SELECT ROW_NUMBER() OVER (PARTITION BY p.inst, p.obsID ORDER BY p.fineTime) rn, p.*
+		FROM load.Pointing p
+		INNER JOIN Observation o
+			ON o.inst = p.inst AND o.obsID = p.obsID
+		WHERE o.inst = 8 AND o.pointingMode = 1
+	),
+	limits AS
+	(
+		SELECT * FROM p WHERE rn = 1
+	)
+	UPDATE Observation
+	SET region = dbo.GetDetectorRegion(limits.ra, limits.dec, limits.pa, 0.3 / 60.0, 'SpireSpectro')
+	FROM Observation o
+	INNER JOIN limits ON limits.inst = o.inst AND limits.obsID = o.obsID
+	WHERE o.inst = 8 AND o.pointingMode = 1
 GO
 
 ---------------------------------------------------------------
