@@ -9,11 +9,9 @@ namespace Herschel.Lib
 {
     public class DetectorPacsPhoto : Detector
     {
-        public override Cartesian[] Corners
+        public override Cartesian[] GetDefaultCorners()
         {
-            get
-            {
-                double a = 1.75 / 60.0;
+            double a = 1.75 / 60.0;
                 double b = 0.875 / 60.0;
 
                 return new Cartesian[]
@@ -23,16 +21,15 @@ namespace Herschel.Lib
                     new Cartesian(-a, -b),
                     new Cartesian(a, -b)
                 };
-            }
         }
 
         /// <summary>
         /// Returns the footprint of the detector
         /// </summary>
         /// <returns></returns>
-        public override Region GetFootprint(Cartesian pointing, double pa)
+        public override Region GetFootprint(Cartesian pointing, double pa, double aperture)
         {
-            return GetFootprintRectangle(pointing, pa);
+            return GetFootprintRectangle(GetDefaultCorners(), pointing, pa);
         }
     }
 }

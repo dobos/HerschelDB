@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Herschel.Lib
 {
-    public class DetectorSpireSpectro : Detector
+    public class DetectorHifi : Detector
     {
         public override Jhu.Spherical.Region GetFootprint(Jhu.Spherical.Cartesian pointing, double pa, double aperture)
         {
-            return GetFootprintCircle(pointing, 1.0);
+            return GetFootprintCircle(pointing, aperture);
         }
     }
 }

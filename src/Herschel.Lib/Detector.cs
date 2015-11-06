@@ -23,6 +23,8 @@ namespace Herschel.Lib
                     return new DetectorSpirePhoto();
                 case DetectorFootprint.SpireSpectro:
                     return new DetectorSpireSpectro();
+                case DetectorFootprint.Hifi:
+                    return new DetectorHifi();
                 default:
                     throw new NotImplementedException();
             }
@@ -30,17 +32,20 @@ namespace Herschel.Lib
 
         public string Name { get; protected set; }
 
-        public abstract Cartesian[] Corners { get; }
+        public virtual Cartesian[] GetDefaultCorners()
+        {
+            return null;
+        }
 
         protected Detector()
         {
         }
 
-        public abstract Region GetFootprint(Cartesian pointing, double pa);
+        public abstract Region GetFootprint(Cartesian pointing, double pa, double aperture);
 
-        protected Region GetFootprintRectangle(Cartesian pointing, double pa)
+        protected Region GetFootprintRectangle(Cartesian[] corners, Cartesian pointing, double pa)
         {
-            var corners = GetCorners(pointing, pa);
+            corners = GetCorners(corners, pointing, pa);
 
             var r = new Region();
             r.Add(new Convex(new List<Cartesian>(corners), PointOrder.CCW));
@@ -61,12 +66,17 @@ namespace Herschel.Lib
             return r;
         }
 
+        public Cartesian[] GetCorners(Cartesian pointing, double pa)
+        {
+            return GetCorners(GetDefaultCorners(), pointing, pa);
+        }
+
         /// <summary>
         /// Calculates the footprint of the detector
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
-        public Cartesian[] GetCorners(Cartesian pointing, double pa)
+        public Cartesian[] GetCorners(Cartesian[] corners, Cartesian pointing, double pa)
         {
             // Rotate around x (PA)
             double ang = (180 - pa) * Constants.Degree2Radian;
@@ -99,11 +109,11 @@ namespace Herschel.Lib
             double[] r = Util.MatMul(Util.MatMul(r3, r2), r1);
 
             // Rotate corners
-            var res = new Cartesian[Corners.Length];
+            var res = new Cartesian[corners.Length];
 
-            for (int i = 0; i < Corners.Length; i++)
+            for (int i = 0; i < corners.Length; i++)
             {
-                res[i] = Util.Rotate(r, Corners[i]);
+                res[i] = Util.Rotate(r, corners[i]);
             }
 
             return res;

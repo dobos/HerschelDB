@@ -97,11 +97,20 @@ public partial class UserDefinedFunctions
     }
 
     [SqlFunction(Name = "GetDetectorRegion", IsPrecise = false, IsDeterministic = true)]
-    public static SqlBytes GetDetectorRegion(SqlDouble ra, SqlDouble dec, SqlDouble pa, SqlString detector)
+    public static SqlBytes GetDetectorRegion(SqlDouble ra, SqlDouble dec, SqlDouble pa, SqlDouble aperture, SqlString detector)
     {
         var d = Detector.Create(detector.Value);
+        Region r;
 
-        var r = d.GetFootprint(new Cartesian(ra.Value, dec.Value), pa.Value);
+        try
+        {
+            r = d.GetFootprint(new Cartesian(ra.Value, dec.Value), pa.Value, aperture.Value);
+        }
+        catch (Exception ex)
+        {
+            r = new Region();
+            r.SetErrorMessage(ex);
+        }
 
         return r.ToSqlBytes();
     }
