@@ -1,0 +1,121 @@
+Wrong chop-nod - can be fixed
+
+	 78 Error determining pointing cluster for observation 1342245400		-- FIXED
+     79 More than two groups
+	 
+Real problem with no-chop raster
+	 
+     11 Error determining pointing cluster for observation 1342254286		-- FIXED
+     12 More than two groups
+     17 Error determining pointing cluster for observation 1342254287		-- FIXED
+     18 More than two groups
+     19 Error determining pointing cluster for observation 1342267851		-- FIXED
+     20 More than two groups
+     23 Error determining pointing cluster for observation 1342267852		-- FIXED
+     24 More than two groups
+	 25 Error determining pointing cluster for observation 1342267853		-- FIXED
+     26 More than two groups
+     27 Error determining pointing cluster for observation 1342254291		-- FIXED
+     28 More than two groups
+	 29 Error determining pointing cluster for observation 1342254292		-- FIXED
+     30 More than two groups
+     76 Error determining pointing cluster for observation 1342256246		-- FIXED
+     77 More than two groups
+     80 Error determining pointing cluster for observation 1342261475		-- FIXED
+     81 More than two groups
+     82 Error determining pointing cluster for observation 1342261476		-- FIXED
+     83 More than two groups
+	 86 Error determining pointing cluster for observation 1342262045		-- FIXED
+     87 More than two groups
+	 88 Error determining pointing cluster for observation 1342262046		-- FIXED
+     89 More than two groups
+	 
+Non-chop raster w/o reference point ?
+
+     92 Error determining pointing cluster for observation 1342270346		-- FIXED
+     93 More than two groups
+	 
+	 
+	 
+	 
+	
+	 
+Weird ones
+	 
+     21 Error determining pointing cluster for observation 1342182011
+     22 More than two pointing groups for chop-nod
+	 31 Error determining pointing cluster for observation 1342271194
+     32 More than two groups
+	 33 Error determining pointing cluster for observation 1342271195
+     34 More than two groups
+	 35 Error determining pointing cluster for observation 1342271196
+     36 More than two groups
+     57 Error determining pointing cluster for observation 1342269922
+     58 More than two groups
+     72 Error determining pointing cluster for observation 1342245804
+     73 More than two pointing groups for chop-nod
+     74 Error determining pointing cluster for observation 1342245811
+     75 More than two groups
+     84 Error determining pointing cluster for observation 1342270642
+     85 More than two groups
+	 
+Probably calibration
+
+      1 Error determining pointing cluster for observation 1342181982
+      2 More than two groups
+      3 Error determining pointing cluster for observation 1342182002
+      4 More than two pointing groups for chop-nod
+      5 Error determining pointing cluster for observation 1342182003
+      6 More than two pointing groups for chop-nod
+      7 Error determining pointing cluster for observation 1342182004
+      8 More than two pointing groups for chop-nod
+      9 Error determining pointing cluster for observation 1342182005
+     10 More than two pointing groups for chop-nod
+	 
+     13 Error determining pointing cluster for observation 1342182008
+     14 More than two pointing groups for chop-nod
+     15 Error determining pointing cluster for observation 1342182009
+     16 More than two pointing groups for chop-nod
+	 
+	 39 Error determining pointing cluster for observation 1342265703
+     40 More than two pointing groups for chop-nod
+	 
+	 59 Error determining pointing cluster for observation 1342188041
+     60 Arithmetic overflow error for data type tinyint, value = 298.
+     
+Possibly SSO not flagged as such
+     
+     37 Error determining pointing cluster for observation 1342199882
+     38 More than two groups
+     62 Error determining pointing cluster for observation 1342207192
+     63 More than two groups
+     64 Error determining pointing cluster for observation 1342228529
+     65 More than two groups
+     66 Error determining pointing cluster for observation 1342231008
+     67 More than two groups
+     68 Error determining pointing cluster for observation 1342231009
+     69 More than two groups
+     70 Error determining pointing cluster for observation 1342209013
+     71 More than two groups
+     90 Error determining pointing cluster for observation 1342231306
+     91 More than two groups
+	 
+No pointing at al
+	 
+     41 Error determining pointing cluster for observation 1342200155
+     42 More than two pointing groups for chop-nod
+     43 Error determining pointing cluster for observation 1342200156
+     44 More than two pointing groups for chop-nod
+     45 Error determining pointing cluster for observation 1342200157
+     46 More than two pointing groups for chop-nod
+     47 Error determining pointing cluster for observation 1342200158
+     48 More than two pointing groups for chop-nod
+     49 Error determining pointing cluster for observation 1342200159
+     50 More than two pointing groups for chop-nod
+     51 Error determining pointing cluster for observation 1342200160
+     52 More than two pointing groups for chop-nod
+     53 Error determining pointing cluster for observation 1342200166
+     54 More than two pointing groups for chop-nod
+     55 Error determining pointing cluster for observation 1342200167
+     56 More than two pointing groups for chop-nod
+	

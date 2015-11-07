@@ -15,19 +15,24 @@ CREATE TABLE [load].[RawPointing_ID]
 	[dec] [float] NOT NULL,
 	[pa] [float] NOT NULL,
 	[av] [float] NOT NULL,
+	[aperture] [float] NOT NULL,
+	[width] [float] NOT NULL,
+	[height] [float] NOT NULL,
 	[isAPosition] [bit] NOT NULL,
 	[isBPosition] [bit] NOT NULL,
 	[isOffPosition] [bit] NOT NULL,
 	[isOnTarget] [bit] NOT NULL,
 	[rasterLineNum] [tinyint] NOT NULL,
-	[rasterColumnNum] [tinyint] NOT NULL
+	[rasterColumnNum] [tinyint] NOT NULL,
+	[rasterAngle] [float] NOT NULL
 ) ON [LOAD]
 
 GO
 
 INSERT [load].[RawPointing_ID] WITH (TABLOCKX)
 	([inst], [obsID], [BBID], [obsType], [fineTime], [ra], [dec], [pa], [av],
-	 [isAPosition], [isBPosition], [isOffPosition], [isOnTarget], [rasterLineNum], [rasterColumnNum])
+	 [aperture], [width], [height],
+	 [isAPosition], [isBPosition], [isOffPosition], [isOnTarget], [rasterLineNum], [rasterColumnNum], [rasterAngle])
 SELECT * FROM [load].[RawPointing]
 -- 12:02
 

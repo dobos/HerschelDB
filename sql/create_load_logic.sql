@@ -202,6 +202,20 @@ AS
 	SET pointingMode = 4
 	WHERE inst = 1 AND obsID = 1342182010
 
+	-- Missing SSO flags
+	UPDATE Observation
+	SET sso = 1
+	WHERE inst = 1 AND obsID IN
+	(
+		1342199882,
+		1342207192,
+		1342228529,
+		1342231008,
+		1342231009,
+		1342209013,
+		1342231306
+	)
+
 GO
 
 ---------------------------------------------------------------

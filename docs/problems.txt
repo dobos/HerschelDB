@@ -108,3 +108,6 @@
 	rastermap táblát update-elni
 	map height and width valószínű arcmin
 	
+	RawObservation.ra, dec : ez a raszter-map közepe
+	              .mapheight és .mapwidth nem lehet a map méretei
+				  

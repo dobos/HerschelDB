@@ -243,6 +243,53 @@ WHERE inst = 1 AND obsType = 2 AND pointingMode IN (1, 2, 4)";
             }
 
             Parallel.ForEach(LoadObservations(sql), ClusterPointings);
+
+            /*
+            string sql;
+
+            // single point / no-chop
+
+            sql = @"
+SELECT TOP 100 *
+FROM Observation
+WHERE inst = 1 AND calibration = 0 AND failed = 0
+  AND sso = 0
+  AND pointingMode = 1 AND obsType = 2 AND (instMode & 0x0000000000100000) = 0";
+
+            Parallel.ForEach(LoadObservations(sql), ClusterPointings);
+
+            // raster / no-chop
+
+            sql = @"
+SELECT TOP 100 *
+FROM Observation
+WHERE inst = 1 AND calibration = 0 AND failed = 0
+  AND sso = 0
+  AND pointingMode IN (2, 4) AND obsType = 2 AND (instMode & 0x0000000000100000) = 0";
+
+            Parallel.ForEach(LoadObservations(sql), ClusterPointings);
+
+            // single point w/ chop-nod
+
+            sql = @"
+SELECT TOP 100 *
+FROM Observation
+WHERE inst = 1 AND calibration = 0 AND failed = 0
+  AND sso = 0
+  AND pointingMode = 1 AND obsType = 2 AND (instMode & 0x0000000000100000) != 0";
+
+            Parallel.ForEach(LoadObservations(sql), ClusterPointings);
+
+            //raster w/ chop-nod
+
+            sql = @"
+SELECT TOP 100 *
+FROM Observation
+WHERE inst = 1 AND calibration = 0 AND failed = 0
+  AND sso = 0
+  AND pointingMode IN (2, 4) AND obsType = 2 AND (instMode & 0x0000000000100000) != 0";
+
+            Parallel.ForEach(LoadObservations(sql), ClusterPointings);*/
         }
 
         private static void ClusterPointings(Observation obs)
@@ -285,17 +332,20 @@ ORDER BY fineTime";
             try
             {
                 var clusters = FindClusters(obs, pointings, 0.01);
-                var groups = GroupClusters(clusters, 1);
+                List<PointingGroup> groups;
 
                 if ((obs.InstrumentMode & InstrumentMode.Chopping) != 0)
                 {
                     switch (obs.PointingMode)
                     {
                         case PointingMode.Pointed:
+                            groups = GroupClusters(clusters, 0.8);
                             SaveClusters_ChopNod(obs, groups);
                             break;
                         case PointingMode.Raster:
                         case PointingMode.Mapping:
+                            groups = GroupClusters(clusters, 0.8);
+                            FilterGroups_ChopNodRaster(obs, groups);
                             SaveClusters_ChopNod(obs, groups);
                             break;
                         default:
@@ -307,10 +357,23 @@ ORDER BY fineTime";
                     switch (obs.PointingMode)
                     {
                         case PointingMode.Pointed:
+                            groups = GroupClusters(clusters, 0.8);
                             SaveClusters_NoChop(obs, groups);
                             break;
                         case PointingMode.Raster:
                         case PointingMode.Mapping:
+                            try
+                            {
+                                groups = GroupClusters(clusters, 0.8);
+                                FilterGroups_NoChopRaster(obs, groups);
+                            }
+                            catch (Exception)
+                            {
+                                // There's a few rasters where lines are very distant from each other
+                                // e.g. 1342267851,  1342267852
+                                groups = GroupClusters(clusters, 2.5);
+                                FilterGroups_NoChopRaster(obs, groups);
+                            }
                             SaveClusters_NoChop(obs, groups);
                             break;
                         default:
@@ -441,11 +504,6 @@ ORDER BY fineTime";
                 }
             }
 
-            if (groups.Count > 2)
-            {
-                throw new Exception("More than two groups");
-            }
-
             // Average out groups and determine mean distance
             for (int gi = 0; gi < groups.Count; gi++)
             {
@@ -485,21 +543,46 @@ ORDER BY fineTime";
             return groups;
         }
 
-        private static void SaveClusters_ChopNod(Observation obs, List<PointingGroup> groups)
+        private static void FilterGroups_ChopNodRaster(Observation obs, List<PointingGroup> groups)
         {
-            if (groups.Count != 2)
+            // Certain chop-nod observations have a false "reference point",
+            // a group with just one cluster
+            // e.g. 1342245400
+
+            var gg = groups.ToArray();
+            for (int i = 0; i < gg.Length; i++)
             {
-                throw new Exception("More than two pointing groups for chop-nod");
+                if (gg[i].Clusters.Count == 1)
+                {
+                    groups.Remove(gg[i]);
+                }
             }
 
+            if (groups.Count > 2)
+            {
+                throw new Exception("More than two pointing groups for chop-nod raster");
+            }
+        }
+
+        private static void FilterGroups_NoChopRaster(Observation obs, List<PointingGroup> groups)
+        {
+            if (groups.Count > 2)
+            {
+                throw new Exception("More than two pointing groups for non-chop");
+            }
+        }
+
+        private static void SaveClusters_ChopNod(Observation obs, List<PointingGroup> groups)
+        {
             // Rotate to the centerpoint 
             var axis = groups[0].Center.Cross(groups[1].Center, true);
             var ang = groups[0].Center.AngleInDegree(groups[1].Center);
             var rot = new Rotation(axis, ang / 2.0);
 
-            foreach (var group in groups)
+            for (var gi = 0; gi < groups.Count; gi++)
             {
                 int c = 0;
+                var group = groups[gi];
 
                 foreach (var cluster in group.Clusters)
                 {
@@ -528,11 +611,6 @@ ORDER BY fineTime";
 
         private static void SaveClusters_NoChop(Observation obs, List<PointingGroup> groups)
         {
-            if (groups.Count > 2)
-            {
-                throw new Exception("More than two pointing groups for non-chop");
-            }
-
             // Find group with least fineTime, that's the calibration point
             int ming = -1;
 
