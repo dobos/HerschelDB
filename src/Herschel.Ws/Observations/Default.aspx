@@ -20,9 +20,9 @@
                                         <td class="field" style="width: 520px">
                                             <asp:CheckBoxList ID="instrumentList" runat="server" RepeatDirection="Horizontal">
                                                 <asp:ListItem Value="Pacs" Text="PACS" Selected="True" />
-                                                <asp:ListItem Value="Spire" Text="SPIRE"/>
-                                                <asp:ListItem Value="PacsSpireParallel" Text="PACS/SPIRE parallel"/>
-                                                <asp:ListItem Value="Hifi" Text="HIFI" Enabled="false" />
+                                                <asp:ListItem Value="Spire" Text="SPIRE" Selected="True"/>
+                                                <asp:ListItem Value="PacsSpireParallel" Text="PACS/SPIRE parallel" Selected="True"/>
+                                                <asp:ListItem Value="Hifi" Text="HIFI" Selected="True"/>
                                             </asp:CheckBoxList>
                                         </td>
                                     </tr>
