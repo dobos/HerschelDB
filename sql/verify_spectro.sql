@@ -51,147 +51,158 @@ GROUP BY CAST(instMode AS binary(8))
 */
 
 -- uncopped single pointing
-SELECT TOP 100 *
+SELECT *
+FROM Observation
+WHERE inst = 1 AND obsType = 2 AND pointingMode = 1
+	--AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+
+-- 1061 (702)
+
+SELECT *
 FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode = 1
 	AND calibration = 0 AND failed = 0
 	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+    AND obsID NOT IN (SELECT obsID FROM load.PointingCluster)
+
+-- 0 (77)
+
+-- More than one pointing:
+
+SELECT o.obsID
+FROM Observation o
+INNER JOIN load.PointingCluster p
+	ON p.inst = o.inst AND p.obsID = o.obsID
+WHERE o.inst = 1 AND obsType = 2 AND pointingMode = 1
+	AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+GROUP BY o.ObsID
+HAVING COUNT(*) > 1
+
+---------------------------------------------------------------
 
 -- uncopped raster pointing
-SELECT TOP 100 *
+SELECT *
 FROM Observation
-WHERE inst = 1 AND obsType = 2 AND pointingMode = 4
+WHERE inst = 1 AND obsType = 2 AND pointingMode IN (2, 4)
 	AND calibration = 0 AND failed = 0
 	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
 
--- raster points + a calibration point is visible
--- filter out calibration based on BBID
-SELECT DISTINCT CAST(BBID as binary(8))
+-- 742 (772)
+
+SELECT *
+FROM Observation
+WHERE inst = 1 AND obsType = 2 AND pointingMode IN (2, 4)
+	AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+	AND obsID NOT IN (SELECT obsID FROM load.PointingCluster)
+
+-- 6 (21)
+
+/*
+obsID
+1342245811
+1342269922
+1342270642
+1342271194
+1342271195
+1342271196
+*/
+
+---------------------------------------------------------------
+
+-- chopped single pointing
+
+SELECT *
+FROM Observation
+WHERE inst = 1 AND obsType = 2 AND pointingMode = 1
+	AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
+
+-- 3331 (4006)
+
+-- with more than one point
+
+SELECT o.obsID
 FROM Observation o
-INNER JOIN load.Pointing p ON p.inst = o.inst AND p.obsID = o.obsID
-WHERE o.inst = 1 AND o.obsType = 2 AND pointingMode = 4
+INNER JOIN load.PointingCluster p
+	ON p.inst = o.inst AND p.obsID = o.obsID
+WHERE o.inst = 1 AND obsType = 2 AND pointingMode = 1
+	AND calibration = 0 AND failed = 0 AND sso = 0
+	AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
+	AND p.isRotated = 1
+GROUP BY o.ObsID
+HAVING COUNT(*) > 2
+
+-- with not enough points
+
+SELECT o.obsID
+FROM Observation o
+WHERE o.inst = 1 AND obsType = 2 AND pointingMode = 1
+	AND calibration = 0 AND failed = 0 AND sso = 0
+	AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
+	AND obsID NOT IN (SELECT obsID FROM load.PointingCluster WHERE clusterID = 0 AND isRotated = 1)
+
+-- 0
+
+
+---------------------------------------------------------------
+
+-- PACS chopped raster
+
+SELECT *
+FROM Observation
+WHERE inst = 1 AND obsType = 2 AND pointingMode IN (2, 4)
 	AND calibration = 0 AND failed = 0
-	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+	AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
 
--- PACS pointed spectro with no pointing
-SELECT *
-FROM Observation
-WHERE inst = 1 AND obsType = 2 AND pointingMode = 1 AND
-	obsID NOT IN (SELECT obsID FROM load.Pointing WHERE inst IN (1))
-
--- PACS pointed spectro with no valid pointing
-SELECT *
-FROM Observation
-WHERE inst = 1 AND obsType = 2 AND pointingMode = 1 
-	AND	obsID NOT IN 
-	(SELECT obsID 
-	 FROM load.Pointing 
-	 WHERE inst IN (1) 
-	 AND BBID IN (0x00000000401C0001, 0x0000000040230001))
-
--- PACS pointed spectro where raster col/line num is set
--- these are not simple pointings but rasters
-
-SELECT DISTINCT p.inst, p.obsID
-FROM load.Pointing p
-INNER JOIN Observation o
-	ON o.inst = p.inst AND o.obsID = p.obsID
-WHERE o.inst = 1 AND o.pointingMode = 1 AND p.isOnTarget = 1
-AND p.rasterColumnNum > 0 AND p.rasterColumnNum != 255
-AND p.rasterLineNum > 0 AND p.rasterLineNum != 255
-
-/*
-inst	obsID
-1	1342182010
-*/
+-- 270 (317)
 
 SELECT *
-FROM Observation
-WHERE inst = 1 AND obsID = 1342182010
+FROM Observation o
+INNER JOIN RasterMap r ON r.inst = o.inst AND r.obsID = o.obsID
+WHERE o.inst = 1 AND obsType = 2 AND pointingMode IN (2, 4)
+	AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
 
--- Apparently, 1342182010 is a raster instead of single pointing
+-- 270 (270)
 
-SELECT DISTINCT p.inst, p.obsID
-FROM load.Pointing p
-INNER JOIN Observation o
-	ON o.inst = p.inst AND o.obsID = p.obsID
-WHERE o.inst = 1 AND o.pointingMode = 1 AND p.isOnTarget = 1
-AND (p.rasterColumnNum = 255 OR p.rasterLineNum = 255)
-
-/*
-inst	obsID
-1	1342182005
-1	1342182011
-1	1342188041
-1	1342182003
-1	1342182002
-1	1342182004
-*/
-
--- These seem to be wrong/calibration observations with incorrect raster col/num
+-- missing pointing
 
 SELECT *
-FROM Observation
-WHERE inst = 1 AND obsID IN
+FROM Observation o
+WHERE o.inst = 1 AND obsType = 2 AND pointingMode IN (2, 4)
+	AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
+	AND obsID NOT IN (SELECT obsID FROM load.PointingCluster)
+
+SELECT *
+FROM Observation o
+WHERE o.inst = 1 AND obsType = 2 AND pointingMode IN (2, 4)
+	AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
+	AND obsID NOT IN (SELECT obsID FROM load.PointingCluster WHERE groupID = 0 AND isRotated = 1)
+
+-- unreal number of pointings
+
+WITH pp AS
 (
-1342182005,
-1342182011,
-1342188041,
-1342182003,
-1342182002,
-1342182004
+	SELECT inst, obsID, COUNT(*) cc
+	FROM load.PointingCluster
+	WHERE groupID = 0 AND isRotated = 1
+	GROUP BY inst, obsID
 )
+SELECT o.obsID, pp.cc, r.num
+FROM Observation o
+INNER JOIN RasterMap r ON r.inst = o.inst AND r.obsID = o.obsID
+INNER JOIN pp ON pp.inst = o.inst AND pp.obsID = o.obsID
+WHERE o.inst = 1 AND obsType = 2 AND pointingMode IN (2, 4)
+	AND calibration = 0 AND failed = 0
+	AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
+	AND pp.cc != r.num
 
-SELECT *
-FROM load.Pointing
-WHERE inst = 1 AND obsID = 1342182005
-
-
--- 86 with no pointing at all
-
-SELECT *
-FROM load.Pointing
-WHERE inst = 1 AND obsID = 1342186796
-
-SELECT AVG(ra), AVG(dec), AVG(pa)
-FROM load.Pointing
-WHERE inst = 1 AND obsID = 1342186307 AND isOnTarget = 1
-
-SELECT * FROM Observation
-WHERE inst = 1 AND obsID = 1342186307
-
--------------------------------------
-
--- PACS mapping (raster) spectro
-
-SELECT CAST(instMode AS binary(8)), COUNT(*)
-FROM Observation
-WHERE inst = 1 AND obsType = 2 AND pointingMode = 4
-GROUP BY CAST(instMode AS binary(8))
-
-/*
-(No column name)	(No column name)
-0x0000000000040021	116		-- range
-0x0000000000080021	656		-- line
-0x0000000000140021	59		-- range + chopper
-0x0000000000180021	258		-- line + chopper
-*/
-
-SELECT TOP 100 *
-FROM Observation
-WHERE inst = 1 AND obsType = 2 AND pointingMode = 4
-      AND instMode = 0x0000000000180021
-
-SELECT TOP 100 *
-FROM Observation
-WHERE inst = 1 AND obsType = 2 AND pointingMode = 4
-      AND region IS NOT NULL
-
-SELECT *
-FROM load.Pointing
-WHERE inst = 1 AND obsID = 1342186971
-
--------------------------------------
+---------------------------------------------------------------
 
 -- SPIRE no pointing
 

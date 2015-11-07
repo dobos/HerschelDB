@@ -88,7 +88,7 @@ namespace Herschel.Loader
 INSERT [load].[PointingCluster]
     (inst, obsID, groupID, clusterID, isRotated, num, fineTimeStart, fineTimeEnd, ra, dec, pa)
 VALUES
-    (@inst, @obsID, @clusterID, @groupID, @isRotated, @num, @fineTimeStart, @fineTimeEnd, @ra, @dec, @pa)";
+    (@inst, @obsID, @groupID, @clusterID, @isRotated, @num, @fineTimeStart, @fineTimeEnd, @ra, @dec, @pa)";
 
 
             using (var cn = DbHelper.OpenConnection())

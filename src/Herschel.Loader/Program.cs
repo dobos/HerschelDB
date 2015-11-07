@@ -358,6 +358,7 @@ ORDER BY fineTime";
                     {
                         case PointingMode.Pointed:
                             groups = GroupClusters(clusters, 0.8);
+                            FilterGroups_NoChopSingle(obs, groups);
                             SaveClusters_NoChop(obs, groups);
                             break;
                         case PointingMode.Raster:
@@ -561,6 +562,31 @@ ORDER BY fineTime";
             if (groups.Count > 2)
             {
                 throw new Exception("More than two pointing groups for chop-nod raster");
+            }
+        }
+
+        private static void FilterGroups_NoChopSingle(Observation obs, List<PointingGroup> groups)
+        {
+            if (groups.Count > 1)
+            {
+                throw new Exception("More than one pointing group for non-chop single");
+            }
+
+            if (groups[0].Clusters.Count > 1)
+            {
+                // Find cluster with most number of points
+                PointingCluster cc = null;
+
+                for (int i = 0; i < groups[0].Clusters.Count; i++)
+                {
+                    if (cc == null || groups[0].Clusters[i].Pointings.Count > cc.Pointings.Count)
+                    {
+                        cc = groups[0].Clusters[i];
+                    }
+                }
+
+                groups[0].Clusters.Clear();
+                groups[0].Clusters.Add(cc);
             }
         }
 

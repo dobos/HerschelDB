@@ -3,6 +3,89 @@
 
 ---------------------------------------------------------------
 
+IF OBJECT_ID ('load.GenerateFootprint_PacsSpectro', N'P') IS NOT NULL
+DROP PROC [load].[GenerateFootprint_PacsPhoto]
+
+GO
+
+CREATE PROC [load].[GenerateFootprint_PacsPhoto]
+AS
+
+-- TODO: implement PACS single pointing photometry
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.GenerateFootprint_PacsSpectro', N'P') IS NOT NULL
+DROP PROC [load].[GenerateFootprint_PacsSpectro]
+
+GO
+
+CREATE PROC [load].[GenerateFootprint_PacsSpectro]
+AS
+
+	-- unchopped single point spectroscopy (5 x 5 spaxels)
+	-- inst = 1, obsType = 2, pointingMode = 1
+	UPDATE Observation
+	SET aperture = 50.0 / 3600,
+		region = dbo.GetDetectorRegion(p.ra, p.dec, p.pa, 0, 'PacsSpectro')
+	FROM Observation o
+	INNER JOIN load.PointingCluster p
+		ON p.inst = o.inst AND p.obsID = o.obsID
+	WHERE o.inst = 1 AND obsType = 2 AND pointingMode = 1 
+		  AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+
+	-- unchopped raster spectroscopy
+	-- inst = 1, obsType = 2, pointingMode = 4
+	WITH r AS
+	(
+		SELECT inst, obsID, region.UnionEvery(dbo.GetDetectorRegion(ra, dec, pa, 0, 'PacsSpectro')) AS region
+		FROM load.PointingCluster
+		GROUP BY inst, obsID
+	)
+	UPDATE Observation
+	SET aperture = 50.0 / 3600,
+		region = r.region
+	FROM Observation o
+	INNER JOIN r ON r.inst = o.inst AND r.obsID = o.obsID
+	WHERE o.inst = 1 AND o.obsType = 2 AND o.pointingMode IN (2, 4)
+	    AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+
+	-- chopped single point spectroscopy
+	UPDATE Observation
+	SET aperture = 50.0 / 3600,
+		region = dbo.GetDetectorRegion(p.ra, p.dec, p.pa, 0, 'PacsSpectro')
+	FROM Observation o
+	INNER JOIN load.PointingCluster p
+		ON p.inst = o.inst AND p.obsID = o.obsID
+	WHERE o.inst = 1 AND obsType = 2 AND pointingMode = 1 
+		  AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
+		  AND p.clusterID = 0 AND p.isRotated = 1
+
+	-- 3964
+
+	-- chopped raster spectroscopy
+	-- inst = 1, obsType = 2, pointingMode = 4
+	WITH r AS
+	(
+		SELECT inst, obsID, region.UnionEvery(dbo.GetDetectorRegion(ra, dec, pa, 0, 'PacsSpectro')) AS region
+		FROM load.PointingCluster
+		WHERE groupID = 0 AND isRotated = 1
+		GROUP BY inst, obsID
+	)
+	UPDATE Observation
+	SET aperture = 50.0 / 3600,
+		region = r.region
+	FROM Observation o
+	INNER JOIN r ON r.inst = o.inst AND r.obsID = o.obsID
+	WHERE o.inst = 1 AND o.obsType = 2 AND o.pointingMode IN (2, 4)
+	    AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
+
+	-- 313
+
+GO
+
 IF OBJECT_ID ('load.GenerateFootprint', N'P') IS NOT NULL
 DROP PROC [load].[GenerateFootprint]
 
@@ -11,42 +94,7 @@ GO
 CREATE PROC [load].[GenerateFootprint]
 AS
 
-	-- PACS single point spectroscopy (5 x 5 spaxels)
-	-- inst = 1, obsType = 2, pointingMode = 1
-	-- only unchopped
-	UPDATE Observation
-	SET aperture = 50.0 / 3600,
-		region = dbo.GetDetectorRegion(ra, dec, pa, 0, 'PacsSpectro')
-	WHERE inst = 1 AND obsType = 2 AND pointingMode = 1 
-		  AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
-
-	-- PACS raster spectroscopy
-	-- inst = 1, obsType = 2, pointingMode = 4
-	-- only unchopped
-	WITH r AS
-	(
-		SELECT region.UnionEvery(dbo.GetDetectorRegion(ra, dec, pa, 0, 'PacsSpectro'))
-		FROM load.PointingCluster
-	)
-	UPDATE Observation
-	SET aperture = 50.0 / 3600,
-		region = dbo.GetDetectorRegion(r.ra, r.dec, r.pa, 0, 'PacsSpectro')
-	FROM Observation o
-	WHERE o.inst = 1 AND o.obsType = 2 AND o.pointingMode = 4
-	    AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
-		AND r.[column] > 0 AND r.line > 0
-
-	-- PACS chopped raster spectroscopy
-	-- inst = 1, obsType = 2, pointingMode = 4
-	-- only chopped
-	UPDATE Observation
-	SET aperture = 50.0 / 3600,
-		region = dbo.GetDetectorRegion(r.ra, r.dec, r.pa, 0, 'PacsSpectro')
-	FROM Observation o
-	INNER JOIN RasterMap r ON r.inst = o.inst AND r.obsID = o.obsID
-	WHERE o.inst = 1 AND o.obsType = 2 AND o.pointingMode = 4
-	    AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
-		AND r.[column] > 0 AND r.line > 0
+	
 
 	-- SPIRE single point or jiggle spectroscopy
 
