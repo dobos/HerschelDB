@@ -38,6 +38,7 @@ SELECT * FROM [load].[RawPointing]
 
 GO
 
+
 ---
 
 DROP TABLE [load].[RawPointing]
@@ -84,7 +85,7 @@ SELECT inst,  obsID, obsType, fineTime, COUNT(*) cnt
 FROM load.Pointing
 GROUP BY inst,  obsID, obsType, fineTime
 HAVING COUNT(*) > 1
--- 8645
+-- 9804
 -- 2:00
 
 GO
@@ -126,13 +127,13 @@ HAVING COUNT(*) > 1
 -- But still one entry by fine time remains
 
 SELECT COUNT(*) FROM load.Duplicate
--- 9892
+-- 9804
 
 SELECT COUNT(*)
 FROM load.Duplicate d
 INNER JOIN load.Pointing p
 	ON d.inst = p.inst AND d.obsID = p.obsID AND d.obsType = p.obsType AND d.fineTime = p.fineTime
--- 9892
+-- 9804
 
 GO
 
