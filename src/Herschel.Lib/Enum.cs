@@ -149,6 +149,7 @@ namespace Herschel.Lib
     {
         None = 0,
         PacsPhoto = 1,
+        PacsPhotoChopNod = 11,
         PacsSpectro = 2,
         SpirePhoto = 3,
         SpireSpectro = 4,

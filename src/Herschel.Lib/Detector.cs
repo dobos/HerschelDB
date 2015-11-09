@@ -17,6 +17,8 @@ namespace Herschel.Lib
             {
                 case DetectorFootprint.PacsPhoto:
                     return new DetectorPacsPhoto();
+                case DetectorFootprint.PacsPhotoChopNod:
+                    return new DetectorPacsPhotoChopNod();
                 case DetectorFootprint.PacsSpectro:
                     return new DetectorPacsSpectro();
                 case DetectorFootprint.SpirePhoto:

@@ -11,7 +11,19 @@ GO
 CREATE PROC [load].[GenerateFootprint_PacsPhoto]
 AS
 
--- TODO: implement PACS single pointing photometry
+	WITH p AS
+	(
+		SELECT inst, obsID, point.AvgEq(ra, dec).RA ra, point.AvgEq(ra, dec).Dec dec, AVG(pa) pa
+		FROM load.PointingCluster
+		WHERE isRotated = 1
+		GROUP BY inst, obsID
+	)
+	UPDATE Observation
+	SET aperture = 50.0 / 3600,
+		region = dbo.GetDetectorRegion(p.ra, p.dec, p.pa, 0, 'PacsPhotoChopNod')
+	FROM Observation o
+	INNER JOIN p ON p.inst = o.inst AND p.obsID = o.obsID
+	WHERE o.inst = 1 AND o.obsType = 1 AND o.pointingMode = 0x0000000000000041
 
 GO
 
