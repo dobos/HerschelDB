@@ -230,7 +230,10 @@ namespace Herschel.Loader
             var sql = @"
 SELECT *
 FROM Observation o
-WHERE inst = 1 AND obsType = 2 AND pointingMode IN (1, 2, 4)";
+WHERE (inst = 1 AND obsType = 2 AND pointingMode IN (1, 2, 4))
+   OR (inst = 1 AND obsType = 1 AND pointingMode = 0x0000000000000041)";
+
+
 
             if (args.Length > 2)
             {
@@ -243,53 +246,6 @@ WHERE inst = 1 AND obsType = 2 AND pointingMode IN (1, 2, 4)";
             }
 
             Parallel.ForEach(LoadObservations(sql), ClusterPointings);
-
-            /*
-            string sql;
-
-            // single point / no-chop
-
-            sql = @"
-SELECT TOP 100 *
-FROM Observation
-WHERE inst = 1 AND calibration = 0 AND failed = 0
-  AND sso = 0
-  AND pointingMode = 1 AND obsType = 2 AND (instMode & 0x0000000000100000) = 0";
-
-            Parallel.ForEach(LoadObservations(sql), ClusterPointings);
-
-            // raster / no-chop
-
-            sql = @"
-SELECT TOP 100 *
-FROM Observation
-WHERE inst = 1 AND calibration = 0 AND failed = 0
-  AND sso = 0
-  AND pointingMode IN (2, 4) AND obsType = 2 AND (instMode & 0x0000000000100000) = 0";
-
-            Parallel.ForEach(LoadObservations(sql), ClusterPointings);
-
-            // single point w/ chop-nod
-
-            sql = @"
-SELECT TOP 100 *
-FROM Observation
-WHERE inst = 1 AND calibration = 0 AND failed = 0
-  AND sso = 0
-  AND pointingMode = 1 AND obsType = 2 AND (instMode & 0x0000000000100000) != 0";
-
-            Parallel.ForEach(LoadObservations(sql), ClusterPointings);
-
-            //raster w/ chop-nod
-
-            sql = @"
-SELECT TOP 100 *
-FROM Observation
-WHERE inst = 1 AND calibration = 0 AND failed = 0
-  AND sso = 0
-  AND pointingMode IN (2, 4) AND obsType = 2 AND (instMode & 0x0000000000100000) != 0";
-
-            Parallel.ForEach(LoadObservations(sql), ClusterPointings);*/
         }
 
         private static void ClusterPointings(Observation obs)
@@ -334,56 +290,68 @@ ORDER BY fineTime";
                 var clusters = FindClusters(obs, pointings, 0.01);
                 List<PointingGroup> groups;
 
-                if ((obs.InstrumentMode & InstrumentMode.Chopping) != 0)
+                switch (obs.Type)
                 {
-                    switch (obs.PointingMode)
-                    {
-                        case PointingMode.Pointed:
-                            groups = GroupClusters(clusters, 0.8);
-                            SaveClusters_ChopNod(obs, groups);
-                            break;
-                        case PointingMode.Raster:
-                        case PointingMode.Mapping:
-                            groups = GroupClusters(clusters, 0.8);
-                            FilterGroups_ChopNodRaster(obs, groups);
-                            SaveClusters_ChopNod(obs, groups);
-                            break;
-                        default:
-                            throw new NotImplementedException();
-                    }
-                }
-                else if ((obs.InstrumentMode & InstrumentMode.Chopping) == 0)
-                {
-                    switch (obs.PointingMode)
-                    {
-                        case PointingMode.Pointed:
-                            groups = GroupClusters(clusters, 0.8);
-                            FilterGroups_NoChopSingle(obs, groups);
-                            SaveClusters_NoChop(obs, groups);
-                            break;
-                        case PointingMode.Raster:
-                        case PointingMode.Mapping:
-                            try
+                    case ObservationType.Photometry:
+                        // PACS pointed chop measurements
+                        groups = GroupClusters(clusters, 0.8);
+                        SaveClusters_Photo(obs, groups);
+                        break;
+                    case ObservationType.Spectroscopy:
+                        if ((obs.InstrumentMode & InstrumentMode.Chopping) != 0)
+                        {
+                            switch (obs.PointingMode)
                             {
-                                groups = GroupClusters(clusters, 0.8);
-                                FilterGroups_NoChopRaster(obs, groups);
+                                case PointingMode.Pointed:
+                                    groups = GroupClusters(clusters, 0.8);
+                                    SaveClusters_ChopNod(obs, groups);
+                                    break;
+                                case PointingMode.Raster:
+                                case PointingMode.Mapping:
+                                    groups = GroupClusters(clusters, 0.8);
+                                    FilterGroups_ChopNodRaster(obs, groups);
+                                    SaveClusters_ChopNod(obs, groups);
+                                    break;
+                                default:
+                                    throw new NotImplementedException();
                             }
-                            catch (Exception)
+                        }
+                        else if ((obs.InstrumentMode & InstrumentMode.Chopping) == 0)
+                        {
+                            switch (obs.PointingMode)
                             {
-                                // There's a few rasters where lines are very distant from each other
-                                // e.g. 1342267851,  1342267852
-                                groups = GroupClusters(clusters, 2.5);
-                                FilterGroups_NoChopRaster(obs, groups);
+                                case PointingMode.Pointed:
+                                    groups = GroupClusters(clusters, 0.8);
+                                    FilterGroups_NoChopSingle(obs, groups);
+                                    SaveClusters_NoChop(obs, groups);
+                                    break;
+                                case PointingMode.Raster:
+                                case PointingMode.Mapping:
+                                    try
+                                    {
+                                        groups = GroupClusters(clusters, 0.8);
+                                        FilterGroups_NoChopRaster(obs, groups);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        // There's a few rasters where lines are very distant from each other
+                                        // e.g. 1342267851,  1342267852
+                                        groups = GroupClusters(clusters, 2.5);
+                                        FilterGroups_NoChopRaster(obs, groups);
+                                    }
+                                    SaveClusters_NoChop(obs, groups);
+                                    break;
+                                default:
+                                    throw new NotImplementedException();
                             }
-                            SaveClusters_NoChop(obs, groups);
-                            break;
-                        default:
+                        }
+                        else
+                        {
                             throw new NotImplementedException();
-                    }
-                }
-                else
-                {
-                    throw new NotImplementedException();
+                        }
+                        break;
+                    default:
+                        throw new NotImplementedException();
                 }
             }
             catch (Exception ex)
@@ -595,6 +563,43 @@ ORDER BY fineTime";
             if (groups.Count > 2)
             {
                 throw new Exception("More than two pointing groups for non-chop");
+            }
+        }
+
+        private static void SaveClusters_Photo(Observation obs, List<PointingGroup> groups)
+        {
+            // Rotate to the centerpoint 
+            var axis = groups[0].Center.Cross(groups[1].Center, true);
+            var ang = groups[0].Center.AngleInDegree(groups[1].Center);
+            var rot = new Rotation(axis, ang / 2.0);
+
+            for (var gi = 0; gi < groups.Count; gi++)
+            {
+                int c = 0;
+                var group = groups[gi];
+
+                foreach (var cluster in group.Clusters)
+                {
+                    cluster.ClusterID = c++;
+
+                    // Save only real cluster (at least 1 sec integration)
+                    if (cluster.Pointings.Count > 10)
+                    {
+                        cluster.Save();
+
+                        if (cluster.GroupID == 0)
+                        {
+                            cluster.Center.Rotate(rot);
+                        }
+                        else
+                        {
+                            cluster.Center.RotateBack(rot);
+                        }
+
+                        cluster.IsRotated = true;
+                        cluster.Save();
+                    }
+                }
             }
         }
 
