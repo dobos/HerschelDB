@@ -126,8 +126,6 @@ Raw points are filtered for scan legs. Legs are detected from gaps in pointings.
 	WHERE a.start = 0 AND b.start = 1
 		AND a.inst = 2 AND o.pointingMode IN (8, 16)
 
-	--TRUNCATE TABLE [load].[LegEnds];
-
 GO
 
 ----------------------------------------------------------------
@@ -182,6 +180,8 @@ AS
 			WHEN 2 THEN 'SpirePhoto'
 			END)
 	FROM [load].Leg leg
+
+	DBCC SETCPUWEIGHT(1); 
 
 GO
 
@@ -269,9 +269,9 @@ GO
 CREATE PROC [load].[VerifyFootprints]
 AS
 
-	SELECT inst, obsid, repetition, region.GetErrorMessage(region)
+	SELECT inst, obsid, repetition, region.Error(region)
 	FROM Observation
 	WHERE inst IN (1,2,4) AND pointingMode IN (8, 16)
-		AND calibration = 0 AND obsLevel < 250
+		AND calibration = 0 AND failed = 0 AND  obsLevel < 250
 		AND (region IS NULL OR region.HasError(region) = 1)
 	ORDER BY inst, obsid

@@ -223,9 +223,9 @@ AS
 
 	INSERT ObservationHtm WITH (TABLOCKX)
 	SELECT inst, obsID, htm.htmIDstart, htm.htmIDEnd, fineTimeStart, fineTimeEnd, htm.partial
-	FROM Observation
+	FROM Observation o
 	CROSS APPLY htm.Cover(region) htm
-	WHERE region IS NOT NULL		-- for debugging only
+	WHERE o.region IS NOT NULL		-- for debugging only
 
 	DBCC SETCPUWEIGHT(1); 
 
