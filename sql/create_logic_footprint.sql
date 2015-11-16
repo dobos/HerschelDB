@@ -98,18 +98,17 @@ AS
 
 GO
 
-IF OBJECT_ID ('load.GenerateFootprint', N'P') IS NOT NULL
-DROP PROC [load].[GenerateFootprint]
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.GenerateFootprint_SpireSpectro', N'P') IS NOT NULL
+DROP PROC [load].[GenerateFootprint_SpireSpectro]
 
 GO
 
-CREATE PROC [load].[GenerateFootprint]
+CREATE PROC [load].[GenerateFootprint_SpireSpectro]
 AS
 
-	
-
 	-- SPIRE single point or jiggle spectroscopy
-
 	WITH p AS
 	(
 		SELECT ROW_NUMBER() OVER (PARTITION BY inst, obsID ORDER BY fineTime) rn, *
@@ -127,17 +126,16 @@ AS
 	SET ra = start.ra,
 		dec = start.dec,
 		pa = start.pa,
-		aperture = 2,		-- 2 arc min in diameter
+		aperture = 2.6,		-- 2 arc min in diameter
 		fineTimeStart = start.fineTime,
 		fineTimeEnd = stop.fineTime,
-		region = dbo.GetDetectorRegion(start.ra, start.dec, 0, 0, 0, 0, 0, 'SpireSpectro')
+		region = dbo.GetDetectorRegion(start.ra, start.dec, 0, 2.6, 'SpireSpectro')
 	FROM Observation o
 	INNER JOIN start ON start.inst = o.inst AND start.obsID = o.ObsID
 	INNER JOIN stop ON stop.inst = o.inst AND stop.obsID = o.ObsID	
-	WHERE o.inst = 2 AND o.pointingMode = 1;		-- SPIRE single pointing or jiggle
+	WHERE o.inst = 2 AND o.pointingMode = 1;
 
 	-- SPIRE raster spectroscopy
-
 	WITH p AS
 	(
 		SELECT ROW_NUMBER() OVER (PARTITION BY p.inst, p.obsID ORDER BY p.fineTime) rn, p.*
@@ -158,7 +156,7 @@ AS
 	r AS
 	(
 		SELECT p.inst, p.obsID,
-			region.UnionEvery(dbo.GetDetectorRegion(p.ra, p.dec, 0, 'SpireSpectro')) AS region
+			region.UnionEvery(dbo.GetDetectorRegion(p.ra, p.dec, 0, 2.6, 'SpireSpectro')) AS region
 		FROM p
 		INNER JOIN Observation o
 			ON o.inst = p.inst AND o.obsID = p.obsID
@@ -180,6 +178,18 @@ AS
 	INNER JOIN r ON r.inst = o.inst AND r.obsID = o.obsID
 	WHERE o.inst = 2 AND o.pointingMode = 2		-- SPIRE raster spectro
 		AND o.repetition != 0;
+
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.GenerateFootprint', N'P') IS NOT NULL
+DROP PROC [load].[GenerateFootprint]
+
+GO
+
+CREATE PROC [load].[GenerateFootprint]
+AS
+
+
 
 	-- HIFI pointed spectroscopy
 
