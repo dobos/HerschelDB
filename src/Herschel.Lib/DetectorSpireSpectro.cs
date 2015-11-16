@@ -10,7 +10,7 @@ namespace Herschel.Lib
     {
         public override Jhu.Spherical.Region GetFootprint(Jhu.Spherical.Cartesian pointing, double pa, double aperture)
         {
-            return GetFootprintCircle(pointing, 1.0);
+            return GetFootprintCircle(pointing, aperture / 2.0);
         }
     }
 }
