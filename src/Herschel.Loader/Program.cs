@@ -712,11 +712,12 @@ FROM Observation o
 LEFT OUTER JOIN ScanMap s ON s.inst = o.inst AND s.obsID = o.obsID
 LEFT OUTER JOIN RasterMap r ON r.inst = o.inst AND r.obsID = o.obsID
 LEFT OUTER JOIN Spectro p ON p.inst = o.inst AND p.obsID = o.obsID
-WHERE o.inst IN (1, 2)            -- PACS or SPIRE
-  AND o.pointingMode IN (8, 16)   -- Scan map
-/*  AND o.calibration = 0           -- not a calibration
-  AND o.obsLevel < 250            -- only processed    */
-  AND o.region IS NULL
+WHERE
+    (o.inst = 1 AND o.pointingMode IN (8, 16) OR
+    o.inst = 2 AND o.pointingMode IN (8, 16, 32))
+    -- AND o.calibration = 0      -- not a calibration
+    -- AND o.failed = 0           -- only processed
+    -- AND o.region IS NULL
 ";
 
             if (args.Length > 2)

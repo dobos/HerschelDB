@@ -39,7 +39,7 @@ RETURN
 			WHERE 
 				((o.inst = 1 AND o.pointingMode = 8 AND BBID = 215131301)		-- PACS scan maps
 				OR (o.inst = 1 AND o.obsID = 1342178069 AND BBID != 1073741824) -- something special
-				OR o.inst = 2 AND o.pointingMode IN (8, 16))					-- SPIRE scan map, turn-around is filtered by default
+				OR o.inst = 2 AND o.pointingMode IN (8, 16, 32))					-- SPIRE scan map, turn-around is filtered by default
 				--AND av_avg BETWEEN s.av * (1 - @avDiffMax) AND s.av * (1 + @avDiffMax)
 				--AND (@avVarMax IS NULL OR av_var < @avVarMax)
  	) 
