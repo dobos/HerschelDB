@@ -80,8 +80,7 @@ namespace Herschel.Loader
                     ps.Dec = double.Parse(parts[1]);
                     ps.Pa = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
                     ps.AV = -1;
-                    ps.SampleTime = Math.Floor(double.Parse(parts[4]) * 1e6);
-                    ps.CorrTime = double.Parse(parts[5]);
+                    ps.SampleTime = long.Parse(parts[3]);
                     break;
                 default:
                     throw new NotImplementedException();
