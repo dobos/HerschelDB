@@ -241,6 +241,19 @@ AS
 		1342248741
 	)
 
+	-- Add missing SPIRE calibration flags
+	UPDATE Observation
+	SET calibration = 1
+	WHERE inst = 2 AND obsID IN
+		(1342189688, 1342189699, 1342189701)
+
+	UPDATE Observation
+	SET sso = 1
+	WHERE inst = 2 AND obsID IN
+	(
+		1342189688		-- 3 Juno
+	)
+
 GO
 
 ---------------------------------------------------------------
