@@ -10,6 +10,7 @@ GO
 
 CREATE PROC [load].[GenerateFootprint_PacsPhoto]
 AS
+	-- PACS chop/nod single pointing
 
 	WITH p AS
 	(
