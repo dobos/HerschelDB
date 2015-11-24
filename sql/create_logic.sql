@@ -16,14 +16,14 @@ RETURN
 	(
 		SELECT DISTINCT inst, obsID
 		FROM ObservationHtm htm
-		WHERE htm.FromEq(@ra, @dec) BETWEEN htmIDStart AND htmIDEnd AND [partial] = 0
+		WHERE htmid.FromEq(@ra, @dec) BETWEEN htmIDStart AND htmIDEnd AND [partial] = 0
 
 		UNION
 
 		SELECT DISTINCT htm.inst, htm.obsID
 		FROM ObservationHtm htm
 		INNER JOIN Observation r ON r.obsID = htm.obsID
-		WHERE htm.FromEq(@ra, @dec) BETWEEN htmIDStart AND htmIDEnd AND [partial] = 1
+		WHERE htmid.FromEq(@ra, @dec) BETWEEN htmIDStart AND htmIDEnd AND [partial] = 1
 		-- TODO: add containment filter
 	)
 	SELECT inst, obsID
@@ -36,13 +36,14 @@ GRANT SELECT ON [dbo].[FindObservationEq] TO [User]
 
 GO
 
+---------------------------------------------------------------
 
-IF OBJECT_ID(N'dbo.FindObservationRegionIntersect') IS NOT NULL
-DROP FUNCTION dbo.FindObservationRegionIntersect
+IF OBJECT_ID(N'dbo.FindRegionIntersectHtm') IS NOT NULL
+DROP FUNCTION dbo.FindRegionIntersectHtm
 
 GO
 
-CREATE FUNCTION [dbo].[FindObservationRegionIntersect]
+CREATE FUNCTION [dbo].[FindRegionIntersectHtm]
 (	
 	@region varbinary(max)
 )
@@ -52,20 +53,20 @@ RETURN
 (
 	WITH cover AS
 	(
-		SELECT * FROM htm.Cover(@region)
+		SELECT * FROM htm.CoverAdvanced(@region, 0, 0.9, 2)
 	),
 	q AS
 	(
-		SELECT DISTINCT inst,obsID
-		FROM ObservationHtm htm WITH(FORCESEEK)
-		INNER JOIN cover ON
+		SELECT htm.*
+		FROM cover
+		INNER LOOP JOIN ObservationHtm htm ON
 			htm.htmIDStart BETWEEN cover.htmIDStart AND cover.htmIDEnd
 
 		UNION
 
-		SELECT DISTINCT inst, obsID
-		FROM ObservationHtm htm WITH(FORCESEEK)
-		INNER JOIN cover ON
+		SELECT htm.*
+		FROM cover
+		INNER LOOP JOIN ObservationHtm htm ON
 			(htm.htmIDStart = cover.htmIDStart OR
 			htm.htmIDStart = cover.htmIDStart & 0xFFFFFFFFFFFFFFFC OR
 			htm.htmIDStart = cover.htmIDStart & 0xFFFFFFFFFFFFFFF0 OR
@@ -88,14 +89,157 @@ RETURN
 			htm.htmIDStart = cover.htmIDStart & 0xFFFFFFC000000000)
 			AND htm.htmIDEnd >= cover.htmIDStart
 	)
-	SELECT o.* --, region.[IntersectAdvanced](o.Region, @region, 1, 256) region
+	SELECT q.*
 	FROM q
-	INNER JOIN Observation o WITH (FORCESEEK)
-		ON o.obsID = q.obsID
+)
+
+GO
+
+GRANT SELECT ON [dbo].[FindRegionIntersectHtm] TO [User]
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID(N'dbo.FindObsIDIntersect') IS NOT NULL
+DROP FUNCTION dbo.FindObsIDIntersect
+
+GO
+
+CREATE FUNCTION [dbo].[FindObsIDIntersect]
+(	
+	@region varbinary(max)
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	SELECT DISTINCT inst, obsID
+	FROM dbo.FindRegionIntersectHtm(@region) htm
+)
+
+GO
+
+GRANT SELECT ON [dbo].[FindObsIDIntersect] TO [User]
+
+GO
+
+---------------------------------------------------------------
+
+
+IF OBJECT_ID(N'dbo.FindObservationRegionIntersect') IS NOT NULL
+DROP FUNCTION dbo.FindObservationRegionIntersect
+
+GO
+
+CREATE FUNCTION [dbo].[FindObservationRegionIntersect]
+(	
+	@region varbinary(max)
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	SELECT o.* --, region.[IntersectAdvanced](o.Region, @region, 1, 256) region
+	FROM dbo.FindObsIDIntersect(@region) q
+	INNER JOIN Observation o
+		ON o.inst = q.inst AND o.obsID = q.obsID
 )
 
 GO
 
 GRANT SELECT ON [dbo].[FindObservationRegionIntersect] TO [User]
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID(N'dbo.FindObsIDContain') IS NOT NULL
+DROP FUNCTION dbo.FindObsIDContain
+
+GO
+
+CREATE FUNCTION [dbo].[FindObsIDContain]
+(	
+	@region varbinary(max)
+)
+RETURNS @ret TABLE 
+(
+	inst tinyint NOT NULL,
+	obsID bigint NOT NULL
+)
+AS
+BEGIN 
+
+	DECLARE @htmTemp TABLE
+	(
+		[inst] [tinyint] NOT NULL,
+		[obsID] [bigint] NOT NULL,
+		[htmIDStart] [bigint] NOT NULL,
+		[htmIDEnd] [bigint] NOT NULL,
+		[fineTimeStart] [bigint] NOT NULL,
+		[fineTimeEnd] [bigint] NOT NULL,
+		[partial] [bit] NOT NULL
+	);
+
+	INSERT @htmTemp
+	SELECT * FROM [dbo].[FindRegionIntersectHtm](@region);
+
+	WITH __intersecting AS
+	(
+		SELECT DISTINCT inst, obsID
+		FROM @htmTemp
+	),
+	__contained AS
+	(
+		SELECT htm.*
+		FROM __intersecting
+		INNER LOOP JOIN ObservationHtm htm
+			ON __intersecting.inst = htm.inst AND __intersecting.obsID = htm.obsID
+
+		EXCEPT
+
+		SELECT *
+		FROM @htmTemp
+	)
+	INSERT @ret
+		(inst, obsID)
+	SELECT DISTINCT inst, obsID
+		FROM __contained
+
+	RETURN;
+
+END;
+
+GO
+
+GRANT SELECT ON [dbo].[FindObsIDContain] TO [User]
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID(N'dbo.FindObservationRegionContain') IS NOT NULL
+DROP FUNCTION dbo.FindObservationRegionContain
+
+GO
+
+CREATE FUNCTION [dbo].[FindObservationRegionContain]
+(	
+	@region varbinary(max)
+)
+RETURNS TABLE
+AS
+RETURN 
+(
+	SELECT o.*
+	FROM dbo.FindObsIDContain(@region) q
+	INNER JOIN Observation o
+		ON o.inst = q.inst AND o.obsID = q.obsID
+)
+
+GO
+
+GRANT SELECT ON [dbo].[FindObservationRegionContain] TO [User]
 
 GO
