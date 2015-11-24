@@ -180,20 +180,19 @@ AS
 	WHERE o.inst = 2 AND o.pointingMode = 2		-- SPIRE raster spectro
 		AND o.repetition != 0;
 
+GO
+
 ---------------------------------------------------------------
 
-IF OBJECT_ID ('load.GenerateFootprint', N'P') IS NOT NULL
-DROP PROC [load].[GenerateFootprint]
+IF OBJECT_ID ('load.GenerateFootprint_HifiSpectro', N'P') IS NOT NULL
+DROP PROC [load].[GenerateFootprint_HifiSpectro]
 
 GO
 
-CREATE PROC [load].[GenerateFootprint]
+CREATE PROC [load].[GenerateFootprint_HifiSpectro]
 AS
 
-
-
-	-- HIFI pointed spectroscopy
-
+-- HIFI pointed spectroscopy
 	WITH p AS
 	(
 		SELECT ROW_NUMBER() OVER (PARTITION BY p.inst, p.obsID ORDER BY p.fineTime) rn, p.*
@@ -207,12 +206,15 @@ AS
 		SELECT * FROM p WHERE rn = 1
 	)
 	UPDATE Observation
-	SET region = dbo.GetDetectorRegion(limits.ra, limits.dec, limits.pa, 0.3 / 60.0, 'SpireSpectro')
+	SET aperture = 0.3 / 60.0,
+		region = dbo.GetDetectorRegion(limits.ra, limits.dec, limits.pa, 0.3 / 60.0, 'SpireSpectro')
 	FROM Observation o
 	INNER JOIN limits ON limits.inst = o.inst AND limits.obsID = o.obsID
 	WHERE o.inst = 8 AND o.pointingMode = 1
+
 GO
 
+---------------------------------------------------------------
 ---------------------------------------------------------------
 
 IF OBJECT_ID ('load.GenerateHtm', N'P') IS NOT NULL
@@ -228,6 +230,8 @@ AS
 
 	DROP INDEX [IX_ObservationHtm_Reverse] ON ObservationHtm;
 
+	DROP INDEX [IX_ObservationHtm_ObsID] ON ObservationHtm;
+
 	TRUNCATE TABLE ObservationHtm;
 
 	DBCC SETCPUWEIGHT(1000); 
@@ -235,7 +239,7 @@ AS
 	INSERT ObservationHtm WITH (TABLOCKX)
 	SELECT inst, obsID, htm.htmIDstart, htm.htmIDEnd, fineTimeStart, fineTimeEnd, htm.partial
 	FROM Observation o
-	CROSS APPLY htm.Cover(region) htm
+	CROSS APPLY htm.CoverAdvanced(region, 0, 0.9, 2) htm
 	WHERE o.region IS NOT NULL		-- for debugging only
 
 	DBCC SETCPUWEIGHT(1); 
@@ -252,6 +256,20 @@ AS
 		[fineTimeEnd],
 		[partial]
 	)
-	WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	ON [PRIMARY];
+
+	CREATE NONCLUSTERED INDEX [IX_ObservationHtm_ObsID] ON [dbo].[ObservationHtm]
+	(
+		[inst] ASC,
+		[obsID] ASC,
+		[htmIDStart] ASC
+	)
+	INCLUDE ( 	
+		[htmIDEnd],
+		[fineTimeStart],
+		[fineTimeEnd],
+		[partial]
+	)
+	ON [PRIMARY];
 
 GO
