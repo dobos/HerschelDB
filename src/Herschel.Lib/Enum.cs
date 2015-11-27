@@ -13,7 +13,9 @@ namespace Herschel.Lib
         Pacs = 1,
         Spire = 2,
         PacsSpireParallel = 4,
-        Hifi = 8
+        Hifi = 8,
+
+        Any = 0x7F,
     }
 
     /// <summary>
@@ -119,6 +121,8 @@ namespace Herschel.Lib
         HifiCalibrationDualBeamSwitchCross = Hifi | 0x00400000,        // DBS cross mode
         HifiCalibrationFrequencySwitch = Hifi | 0x00800000,            // Frequency switch calibration
         HifiCalibrationLoadChop = Hifi | 0x01000000,                   // Load chop calibration
+
+        Any = 0x7FFFFFFF,
     }
 
     [Flags]
@@ -141,6 +145,8 @@ namespace Herschel.Lib
         PacsSpireParallel = 0x20,
 
         Nodding = 0x40,
+
+        Any = 0x7F,
     }
 
     // ----------------------------------------

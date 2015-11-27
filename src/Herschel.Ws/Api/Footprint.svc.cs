@@ -205,7 +205,7 @@ namespace Herschel.Ws.Api
 
             var s = new ObservationSearch()
             {
-                Instrument = obsid.Instrument,
+                InstrumentModeFilters = new [] { new InstrumentModeFilter(obsid.Instrument) },
                 Point = new Jhu.Spherical.Cartesian(ra, dec),
                 FineTimeStart = start,
                 FineTimeEnd = end,

@@ -12,7 +12,7 @@ namespace Herschel.Lib
     public class ObservationSearch
     {
         public ObservationSearchMethod SearchMethod { get; set; }
-        public Instrument Instrument { get; set; }
+        public InstrumentModeFilter[] InstrumentModeFilters { get; set; }
         public long[] ObservationID { get; set; }
         public Cartesian Point { get; set; }
         public double Radius { get; set; }
@@ -76,16 +76,18 @@ FROM [dbo].[Observation] obs
 LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
 LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
 LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
-WHERE (@inst IS NULL OR (obs.inst & @inst) > 0)
-      AND (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
+WHERE (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
       AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
       AND obs.obsID IN ({0})
+      {1}
 ORDER BY obs.inst, obs.ObsID";
 
-            sql = String.Format(sql, String.Join(", ", ObservationID));
+            sql = String.Format(
+                sql,
+                String.Join(", ", ObservationID),
+                InstrumentModeFilter.GetSqlWhereConditions(InstrumentModeFilters));
 
             var cmd = new SqlCommand(sql);
-            cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;
             cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
             cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeEnd) ? (object)DBNull.Value : FineTimeEnd.Value;
 
@@ -143,13 +145,14 @@ INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
 LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
 LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
 LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
-WHERE (@inst IS NULL OR (obs.inst & @inst) > 0)
-      AND (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
+WHERE (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
       AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
+      {0}
 ORDER BY obs.inst, obs.ObsID";
 
+            sql = String.Format(sql, InstrumentModeFilter.GetSqlWhereConditions(InstrumentModeFilters));
+
             var cmd = new SqlCommand(sql);
-            cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;
             cmd.Parameters.Add("@ra", SqlDbType.Float).Value = Point.RA;
             cmd.Parameters.Add("@dec", SqlDbType.Float).Value = Point.Dec;
             cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
@@ -178,13 +181,14 @@ INNER JOIN [dbo].[Observation] obs
 LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
 LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
 LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
-WHERE (@inst IS NULL OR (obs.inst & @inst) > 0)
-      AND (@fineTimeStart IS NULL OR @fineTimeStart <= obs.fineTimeStart)
+WHERE (@fineTimeStart IS NULL OR @fineTimeStart <= obs.fineTimeStart)
       AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= obs.fineTimeEnd)
+      {0}
 ORDER BY obs.inst, obs.ObsID";
 
+            sql = String.Format(sql, InstrumentModeFilter.GetSqlWhereConditions(InstrumentModeFilters));
+
             var cmd = new SqlCommand(sql);
-            cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)Instrument;
             cmd.Parameters.Add("@region", SqlDbType.VarBinary).Value = Region.ToSqlBytes().Value;
             cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
             cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeEnd) ? (object)DBNull.Value : FineTimeEnd.Value;

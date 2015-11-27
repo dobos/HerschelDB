@@ -49,58 +49,7 @@ namespace Herschel.Ws.Observations
         }
 
         private RenderMode renderMode = RenderMode.Normal;
-        private Lib.ObservationSearch searchObject;
-
-        private double ra;
-        private double dec;
-
-        protected Instrument SearchInstrument
-        {
-            get { return (Instrument)ViewState["SearchInstrument"]; }
-            set { ViewState["SearchInstrument"] = value; }
-        }
-
-        protected ObservationSearchMethod SearchMethod
-        {
-            get { return (ObservationSearchMethod)ViewState["SearchMethod"]; }
-            set { ViewState["SearchMethod"] = value; }
-        }
-
-        protected FineTime SearchFineTimeStart
-        {
-            get { return (FineTime)ViewState["SearchFineTimeStart"]; }
-            set { ViewState["SearchFineTimeStart"] = value; }
-        }
-
-        protected FineTime SearchFineTimeEnd
-        {
-            get { return (FineTime)ViewState["SearchFineTimeEnd"]; }
-            set { ViewState["SearchFineTimeEnd"] = value; }
-        }
-
-        protected Cartesian SearchPoint
-        {
-            get { return (Cartesian)ViewState["SearchPoint"]; }
-            set { ViewState["SearchPoint"] = value; }
-        }
-
-        protected double SearchRadius
-        {
-            get { return (double)ViewState["SearchRadius"]; }
-            set { ViewState["SearchRadius"] = value; }
-        }
-
-        protected Jhu.Spherical.Region SearchRegion
-        {
-            get { return (Jhu.Spherical.Region)ViewState["SearchRegion"]; }
-            set { ViewState["SearchRegion"] = value; }
-        }
-
-        protected long[] SearchIdList
-        {
-            get { return (long[])ViewState["SearchIdList"]; }
-            set { ViewState["SearchIdList"] = value; }
-        }
+        private Lib.ObservationSearch searchObject;       
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -128,181 +77,14 @@ namespace Herschel.Ws.Observations
         }
 
         #region Search form
-
-        protected Jhu.Spherical.Region ParseSearchRegion()
-        {
-            return Jhu.Spherical.Region.Parse(region.Text);
-        }
-
-        protected long[] ParseSearchIdList()
-        {
-            var parts = idlist.Text.Split(new char[] { ' ', '\t', '\r', '\n', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
-
-            var ids = new long[parts.Length];
-            for (int i = 0; i < ids.Length; i++)
-            {
-                ids[i] = Int64.Parse(parts[i]);
-            }
-
-            return ids;
-        }
-
-        protected void searchMethod_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            pointTr.Visible = radiusTr.Visible = regionTr.Visible = idlistTr.Visible = false;
-
-            ObservationSearchMethod method;
-            Enum.TryParse<ObservationSearchMethod>(searchMethod.SelectedValue, out method);
-
-            switch (method)
-            {
-                case ObservationSearchMethod.ID:
-                    idlistTr.Visible = true;
-                    break;
-                case ObservationSearchMethod.Point:
-                    pointTr.Visible = true;
-                    break;
-                case ObservationSearchMethod.Cone:
-                    pointTr.Visible = true;
-                    radiusTr.Visible = true;
-                    break;
-                case ObservationSearchMethod.Intersect:
-                    regionTr.Visible = true;
-                    break;
-                case ObservationSearchMethod.Cover:
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        protected void pointFormatValidator_ServerValidate(object source, ServerValidateEventArgs args)
-        {
-            if (point.Visible)
-            {
-                if (Util.Astro.TryParseCoordinates(point.Text, out ra, out dec))
-                {
-                    args.IsValid = true;
-                    return;
-                }
-
-                if (Util.Astro.TryResolveObject(point.Text, out ra, out dec))
-                {
-                    resolvedTr.Visible = true;
-                    point.Text = String.Format(CultureInfo.InvariantCulture, "{0:0.0000000}, {1:0.0000000}", ra, dec);
-                    args.IsValid = true;
-                    return;
-                }
-
-                args.IsValid = false;
-            }
-            else
-            {
-                args.IsValid = true;
-            }
-        }
-
-        protected void regionFormatValidator_ServerValidate(object source, ServerValidateEventArgs args)
-        {
-            try
-            {
-                if (region.Visible)
-                {
-                    ParseSearchRegion();
-                }
-                args.IsValid = true;
-            }
-            catch (Exception)
-            {
-                args.IsValid = false;
-            }
-        }
-
-        protected void idlistFormatValidator_ServerValidate(object source, ServerValidateEventArgs args)
-        {
-            try
-            {
-                if (idlist.Visible)
-                {
-                    ParseSearchIdList();
-                }
-                args.IsValid = true;
-            }
-            catch (Exception)
-            {
-                args.IsValid = false;
-            }
-        }
-
+        
         protected void search_Click(object sender, EventArgs e)
         {
             Validate();
 
             if (IsValid)
             {
-                // Instrument
-                var instrument = Instrument.None;
-
-                foreach (ListItem i in instrumentList.Items)
-                {
-                    if (i.Selected)
-                    {
-                        Lib.Instrument ii;
-
-                        if (Enum.TryParse<Lib.Instrument>(i.Value, out ii))
-                        {
-                            instrument |= ii;
-                        }
-                    }
-                }
-
-                SearchInstrument = instrument;
-
-                // Fine time interval
-                if (fineTimeStart.Text.Trim() != String.Empty)
-                {
-                    SearchFineTimeStart = FineTime.Parse(fineTimeStart.Text);
-                }
-                else
-                {
-                    SearchFineTimeStart = FineTime.Undefined;
-                }
-
-                if (fineTimeEnd.Text.Trim() != String.Empty)
-                {
-                    SearchFineTimeEnd = FineTime.Parse(fineTimeEnd.Text);
-                }
-                else
-                {
-                    SearchFineTimeEnd = FineTime.Undefined;
-                }
-
-                // SearchMethod
-                ObservationSearchMethod method;
-                Enum.TryParse<ObservationSearchMethod>(searchMethod.SelectedValue, out method);
-
-                SearchMethod = method;
-
-                switch (method)
-                {
-                    case ObservationSearchMethod.ID:
-                        SearchIdList = ParseSearchIdList();
-                        break;
-                    case ObservationSearchMethod.Point:
-                        SearchPoint = new Cartesian(ra, dec);
-                        break;
-                    case ObservationSearchMethod.Cone:
-                        SearchPoint = new Cartesian(ra, dec);
-                        SearchRadius = Double.Parse(radius.Text);
-                        break;
-                    case ObservationSearchMethod.Intersect:
-                    case ObservationSearchMethod.Cover:
-                        SearchRegion = ParseSearchRegion();
-                        break;
-                    default:
-                        throw new NotImplementedException();
-                }
-
+                searchForm.SaveForm();
                 // Clear previous selection
                 observationList.SelectedDataKeys.Clear();
             }
@@ -317,34 +99,7 @@ namespace Herschel.Ws.Observations
 
         protected void observationDataSource_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
         {
-            searchObject = new Lib.ObservationSearch();
-
-            searchObject.Instrument = SearchInstrument;
-            searchObject.FineTimeStart = SearchFineTimeStart;
-            searchObject.FineTimeEnd = SearchFineTimeEnd;
-            searchObject.SearchMethod = SearchMethod;
-
-            switch (SearchMethod)
-            {
-                case ObservationSearchMethod.ID:
-                    searchObject.ObservationID = SearchIdList;
-                    break;
-                case ObservationSearchMethod.Point:
-                    searchObject.Point = SearchPoint;
-                    break;
-                case ObservationSearchMethod.Cone:
-                    searchObject.Point = SearchPoint;
-                    searchObject.Radius = SearchRadius;
-                    break;
-                case ObservationSearchMethod.Intersect:
-                case ObservationSearchMethod.Cover:
-                    searchObject.Region = SearchRegion;
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-
-            e.ObjectInstance = searchObject;
+            e.ObjectInstance = searchForm.GetSearchObject();
         }
 
         protected void observationListValidator_ServerValidate(object source, ServerValidateEventArgs args)

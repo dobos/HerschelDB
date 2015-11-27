@@ -57,6 +57,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="DetectorHifi.cs" />
     <Compile Include="DetectorPacsPhotoChopNod.cs" />
+    <Compile Include="InstrumentModeFilter.cs" />
     <Compile Include="SsoSearch.cs" />
     <Compile Include="Sso.cs" />
     <Compile Include="Spectro.cs" />
