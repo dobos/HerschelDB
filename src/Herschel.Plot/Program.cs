@@ -21,14 +21,14 @@ namespace Herschel.Plot
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
-            //PlotRegions("SELECT region.Parse('CIRCLE J2000 10 10 0.91') AS region", true, "htmcover.pdf");
+            //PlotRegions("SELECT region.Parse('CIRCLE J2000 10 10 0.91') AS region", true, false, false, "htmcover.pdf", 3.5f, 3.0f, true);
 
-            PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_full.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_full.pdf", 3f, 2.5f, true);
             //PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_chull.pdf", 3f, 2.5f, true);
             //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, true, "pacs_reduce.pdf", 3f, 2.5f, true);
 
-            PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_legs.pdf", 3f, 2.5f, true);
-            PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM Pointing WHERE inst = 1 AND obsID = 1342225536 --AND finetime % 4 = 0", "pacs_pointing.pdf", 3f, 2.5f);
+            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_legs.pdf", 3f, 2.5f, true);
+            //PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM Pointing WHERE inst = 1 AND obsID = 1342225536 --AND finetime % 4 = 0", "pacs_pointing.pdf", 3f, 2.5f);
 
             //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_full.pdf", 3f, 2.5f, true);
             //PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_chull.pdf", 3f, 2.5f, true);
@@ -40,10 +40,19 @@ namespace Herschel.Plot
 
             //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_legs.pdf");
             //PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM Pointing WHERE inst = 2 AND obsID = 1342186861 --AND finetime % 4 = 0", "spire_pointing.pdf");
+
+            // SPIRE connect leg ends example
+            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 2 AND obsID = 1342183681 AND legID % 2 = 1", false, false, false, "spire_legs.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 2 AND obsID = 1342183681", false, false, false, "spire_leg_ends.pdf", 3f, 2.5f, true);
+
+            PlotPacsRaster("pacs_raster_1.pdf", 1342212598, 3f, 2.5f);
+            PlotPacsRaster("pacs_raster_2.pdf", 1342240160, 3f, 2.5f);
         }
 
         static void PlotRegions(string sql, bool htmcover, bool chull, bool reduce, string filename, float w, float h, bool borders)
         {
+            var plot = InitPlot(w, h, borders);
+
             var csb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["Herschel"].ConnectionString);
 
             using (var cn = new SqlConnection(csb.ConnectionString))
@@ -52,13 +61,18 @@ namespace Herschel.Plot
 
                 using (var cmd = new SqlCommand(sql, cn))
                 {
-                    PlotRegions(cmd, htmcover, chull, reduce, filename, w, h, borders);
+                    AppendRegionsLayer(plot, cmd, htmcover, chull, reduce);
                 }
             }
+
+            FinishPlot(plot, filename);
         }
 
         static void PlotPoints(string sql, string filename, float w, float h)
         {
+            var plot = InitPlot(w, h, true);
+            AppendGridLayer(plot);
+
             var csb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["Herschel"].ConnectionString);
 
             using (var cn = new SqlConnection(csb.ConnectionString))
@@ -67,13 +81,54 @@ namespace Herschel.Plot
 
                 using (var cmd = new SqlCommand(sql, cn))
                 {
-                    PlotPoints(cmd, filename, w, h);
+                    AppendPointsLayer(plot, cmd);
                 }
             }
+
+            FinishPlot(plot, filename);
+        }
+
+        static void PlotPacsRaster(string filename, long obsid, float w, float h)
+        {
+            var plot = InitPlot(w, h, true);
+
+            var csb = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["Herschel"].ConnectionString);
+
+            using (var cn = new SqlConnection(csb.ConnectionString))
+            {
+                cn.Open();
+
+                using (var cmd = new SqlCommand("SELECT region FROM Herschel_3..Observation WHERE inst = 1 AND obsID = " + obsid.ToString(), cn))
+                {
+                    AppendRegionsLayer(plot, cmd, false, false, false);
+                }
+
+                using (var cmd = new SqlCommand("SELECT ra point_ra, dec point_dec FROM Herschel_3.load.PointingCluster WHERE inst = 1 AND obsID = " + obsid.ToString() + " AND isRotated = 0", cn))
+                {
+                    var ds = new SqlQueryDataSource(cmd);
+
+                    var points = new PointsLayer()
+                    {
+                        DataSource = ds,
+                        PointDataField = "point",
+                        Figure = FigureType.Cross,
+                        Size = new SizeF(2f, 2f)
+                    };
+                    points.Outline.Visible = true;
+                    points.Outline.Pens = new Pen[] { Pens.Red };
+                    points.Fill.Visible = false;
+
+                    plot.Layers.Add(points);
+                }
+
+                plot.AutoZoomFactor = 1.2f;
+
+                FinishPlot(plot, filename);
+            }            
         }
 
 
-        static void PlotRegions(SqlCommand cmd, bool htmcover, bool chull, bool reduce, string filename, float w, float h, bool borders)
+        static void AppendRegionsLayer(Jhu.Spherical.Visualizer.Plot plot, SqlCommand cmd, bool htmcover, bool chull, bool reduce)
         {
             var ds = new SqlQueryDataSource(cmd);
 
@@ -135,7 +190,42 @@ namespace Herschel.Plot
 
 
             outlines.Fill.Visible = false;
+                        
+            plot.Layers.Add(regions);
 
+            AppendGridLayer(plot);
+
+            plot.Layers.Add(outlines);
+
+            if (htmcover)
+            {
+                plot.Layers.Add(htminner);
+                plot.Layers.Add(htmpartial);
+            }
+        }
+
+
+
+        static void AppendPointsLayerPoints(Jhu.Spherical.Visualizer.Plot plot, SqlCommand cmd)
+        {
+            var ds = new SqlQueryDataSource(cmd);
+
+            var points = new PointsLayer()
+            {
+                DataSource = ds,
+                PointDataField = "point",
+                Figure = FigureType.Dot,
+                Size = new SizeF(0.3f, 0.3f)
+            };
+            points.Outline.Visible = false;
+            points.Fill.Visible = true;
+            points.Fill.Brushes = new Brush[] { Brushes.Red };
+                        
+            plot.Layers.Add(points);
+        }
+
+        static Jhu.Spherical.Visualizer.Plot InitPlot(float w, float h, bool borders)
+        {
             w = (float)(w * 96);
             h = (float)(h * 96);
 
@@ -163,12 +253,29 @@ namespace Herschel.Plot
                 plot.Margins.Bottom = 1f;
             }
 
+            plot.Layers.Add(new BorderLayer());
+
+            return plot;
+        }
+
+        static void AppendGridLayer(Jhu.Spherical.Visualizer.Plot plot)
+        {
+            var grid = new GridLayer();
+            grid.RaScale.Density = 200f;
+            grid.Line.Pen = Pens.LightGray;
+
+            plot.Layers.Add(grid);
+        }
+
+        static void FinishPlot(Jhu.Spherical.Visualizer.Plot plot, string filename)
+        {
             var font = new Font("Consolas", 7.5f);
 
             var axes = new AxesLayer();
             axes.X1Axis.Title.Text = "right ascension (deg)";
             axes.X1Axis.Title.Font = font;
             axes.X1Axis.Labels.Font = font;
+            axes.X1Axis.Scale.Density = 150f;
             axes.X2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
             axes.X2Axis.Labels.Visible = false;
             axes.Y1Axis.Title.Text = "declination (deg)";
@@ -177,27 +284,6 @@ namespace Herschel.Plot
             axes.Y2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
             axes.Y2Axis.Labels.Visible = false;
 
-            axes.X1Axis.Labels.Visible = borders;
-            axes.Y1Axis.Labels.Visible = borders;
-            axes.X1Axis.Title.Visible = borders;
-            axes.Y1Axis.Title.Visible = borders;
-
-            var grid = new GridLayer();
-            grid.Line.Pen = Pens.LightGray;
-
-            plot.Layers.Add(new BorderLayer());
-            plot.Layers.Add(regions);
-
-            plot.Layers.Add(grid);
-
-            plot.Layers.Add(outlines);
-
-            if (htmcover)
-            {
-                plot.Layers.Add(htminner);
-                plot.Layers.Add(htmpartial);
-            }
-
             plot.Layers.Add(axes);
 
             plot.Projection.InvertX = true;
@@ -205,9 +291,7 @@ namespace Herschel.Plot
             plot.RenderToPdf(filename);
         }
 
-
-
-        static void PlotPoints(SqlCommand cmd, string filename, float w, float h)
+        static void AppendPointsLayer(Jhu.Spherical.Visualizer.Plot plot, SqlCommand cmd)
         {
             var ds = new SqlQueryDataSource(cmd);
 
@@ -222,49 +306,7 @@ namespace Herschel.Plot
             points.Fill.Visible = true;
             points.Fill.Brushes = new Brush[] { Brushes.Red };
 
-            w = (float)(w * 96);
-            h = (float)(h * 96);
-
-            var plot = new Jhu.Spherical.Visualizer.Plot()
-            {
-                AutoRotate = true,
-                AutoZoom = true,
-                AutoScale = true,
-                Width = w,
-                Height = h,
-                ImageSize = new System.Drawing.SizeF(w, h),
-                Projection = new StereographicProjection(),
-            };
-
-            plot.Margins.Left = 48f;
-            plot.Margins.Bottom = 48f;
-
-            var font = new Font("Consolas", 7.5f);
-
-            var axes = new AxesLayer();
-            axes.X1Axis.Title.Text = "right ascension (deg)";
-            axes.X1Axis.Title.Font = font;
-            axes.X1Axis.Labels.Font = font;
-            axes.X2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
-            axes.X2Axis.Labels.Visible = false;
-            axes.Y1Axis.Title.Text = "declination (deg)";
-            axes.Y1Axis.Title.Font = font;
-            axes.Y1Axis.Labels.Font = font;
-            axes.Y2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
-            axes.Y2Axis.Labels.Visible = false;
-
-            var grid = new GridLayer();
-            grid.Line.Pen = Pens.LightGray;
-
-            plot.Layers.Add(new BorderLayer());
-            plot.Layers.Add(grid);
             plot.Layers.Add(points);
-
-            plot.Layers.Add(axes);
-
-            plot.Projection.InvertX = true;
-
-            plot.RenderToPdf(filename);
         }
 
         /*static void Main(string[] args)
