@@ -111,7 +111,10 @@ namespace Herschel.Ws.Observations
 
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (IsPostBack)
+            {
+                SaveForm();
+            }
         }
 
         protected void searchMethod_SelectedIndexChanged(object sender, EventArgs e)
@@ -281,7 +284,7 @@ namespace Herschel.Ws.Observations
             InstrumentModeFilters = filters.ToArray();
         }
 
-        public void SaveForm()
+        protected void SaveForm()
         {
             SaveInstrumentModeFilters();
 

@@ -49,7 +49,6 @@ namespace Herschel.Ws.Observations
         }
 
         private RenderMode renderMode = RenderMode.Normal;
-        private Lib.ObservationSearch searchObject;       
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -82,7 +81,6 @@ namespace Herschel.Ws.Observations
         {
             if (IsValid)
             {
-                searchForm.SaveForm();
                 // Clear previous selection
                 observationList.SelectedDataKeys.Clear();
             }
@@ -124,6 +122,7 @@ namespace Herschel.Ws.Observations
         {
             // Query region of points
             Layer queryLayer = null;
+            var searchObject = searchForm.GetSearchObject();
 
             switch (searchObject.SearchMethod)
             {
