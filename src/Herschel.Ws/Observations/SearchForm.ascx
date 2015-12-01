@@ -51,8 +51,8 @@
             <asp:Label runat="server" ID="searchMethodLabel" Text="Method:" /></td>
         <td class="field" style="width: 520px">
             <asp:RadioButtonList ID="searchMethod" runat="server" AutoPostBack="True" RepeatDirection="Horizontal" OnSelectedIndexChanged="searchMethod_SelectedIndexChanged">
-                <asp:ListItem Value="Cone">Cone search</asp:ListItem>
                 <asp:ListItem Selected="True" Value="Point">Coordinates</asp:ListItem>
+                <asp:ListItem Value="Cone">Cone search</asp:ListItem>
                 <asp:ListItem Value="Intersect">Intersect</asp:ListItem>
                 <asp:ListItem>Contain</asp:ListItem>
                 <asp:ListItem Value="ObsID">OBSID lookup</asp:ListItem>

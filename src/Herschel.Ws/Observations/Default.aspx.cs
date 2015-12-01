@@ -80,8 +80,6 @@ namespace Herschel.Ws.Observations
         
         protected void search_Click(object sender, EventArgs e)
         {
-            Validate();
-
             if (IsValid)
             {
                 searchForm.SaveForm();
