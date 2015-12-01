@@ -10,96 +10,132 @@
 namespace Herschel.Ws.Observations {
     
     
-    public partial class Default {
+    public partial class FootprintPlot {
         
         /// <summary>
-        /// observationSearchPanel control.
+        /// canvas control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel observationSearchPanel;
+        protected global::Jhu.Spherical.Web.Controls.PlotCanvas canvas;
         
         /// <summary>
-        /// searchForm control.
+        /// plotOutline control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::Herschel.Ws.Observations.SearchForm searchForm;
+        protected global::System.Web.UI.WebControls.CheckBox plotOutline;
         
         /// <summary>
-        /// search control.
+        /// plotFill control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton search;
+        protected global::System.Web.UI.WebControls.CheckBox plotFill;
         
         /// <summary>
-        /// observationListUpdatePanel control.
+        /// plotSsos control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.UpdatePanel observationListUpdatePanel;
+        protected global::System.Web.UI.WebControls.CheckBox plotSsos;
         
         /// <summary>
-        /// observationListPanel control.
+        /// plotConvexHull control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel observationListPanel;
+        protected global::System.Web.UI.WebControls.RadioButton plotConvexHull;
         
         /// <summary>
-        /// observationList control.
+        /// plotReduce control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::Herschel.Ws.Observations.ObservationList observationList;
+        protected global::System.Web.UI.WebControls.RadioButton plotReduce;
         
         /// <summary>
-        /// save control.
+        /// plotReduceEpsilon control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton save;
+        protected global::System.Web.UI.WebControls.TextBox plotReduceEpsilon;
         
         /// <summary>
-        /// plot control.
+        /// plotReduceEpsilonFormatValidator control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.LinkButton plot;
+        protected global::System.Web.UI.WebControls.RegularExpressionValidator plotReduceEpsilonFormatValidator;
         
         /// <summary>
-        /// footprintPlotPanel control.
+        /// plotReduceEpsilonRangeValidator control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel footprintPlotPanel;
+        protected global::System.Web.UI.WebControls.RangeValidator plotReduceEpsilonRangeValidator;
         
         /// <summary>
-        /// footprintPlot control.
+        /// plotDegreeStyle control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::Herschel.Ws.Observations.FootprintPlot footprintPlot;
+        protected global::System.Web.UI.WebControls.RadioButtonList plotDegreeStyle;
+        
+        /// <summary>
+        /// plotGrid control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox plotGrid;
+        
+        /// <summary>
+        /// plotQuery control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox plotQuery;
+        
+        /// <summary>
+        /// savePlotPdf control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton savePlotPdf;
+        
+        /// <summary>
+        /// savePlotPdfLink control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HyperLink savePlotPdfLink;
     }
 }

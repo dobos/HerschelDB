@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Herschel.Lib
 {
+    [Serializable]
     public struct ObservationID
     {
         public Instrument Instrument { get; set; }

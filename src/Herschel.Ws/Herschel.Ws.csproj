@@ -98,6 +98,7 @@
     <Content Include="images\logo_footprint.png" />
     <Content Include="Observations\Default.aspx" />
     <Content Include="Observations\ObservationList.ascx" />
+    <Content Include="Observations\FootprintPlot.ascx" />
     <Content Include="Observations\SearchForm.ascx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -186,6 +187,16 @@
     </Compile>
     <Compile Include="Observations\ObservationList.ascx.designer.cs">
       <DependentUpon>ObservationList.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Observations\ObservationWebControl.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Observations\FootprintPlot.ascx.cs">
+      <DependentUpon>FootprintPlot.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Observations\FootprintPlot.ascx.designer.cs">
+      <DependentUpon>FootprintPlot.ascx</DependentUpon>
     </Compile>
     <Compile Include="Observations\SearchForm.ascx.cs">
       <DependentUpon>SearchForm.ascx</DependentUpon>
