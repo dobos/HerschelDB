@@ -97,6 +97,7 @@
     <Content Include="images\logo_footprint.jpg" />
     <Content Include="images\logo_footprint.png" />
     <Content Include="Observations\Default.aspx" />
+    <Content Include="Observations\ObservationList.ascx" />
     <Content Include="Observations\SearchForm.ascx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -179,6 +180,13 @@
     <Compile Include="Observations\Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Observations\ObservationList.ascx.cs">
+      <DependentUpon>ObservationList.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Observations\ObservationList.ascx.designer.cs">
+      <DependentUpon>ObservationList.ascx</DependentUpon>
+    </Compile>
     <Compile Include="Observations\SearchForm.ascx.cs">
       <DependentUpon>SearchForm.ascx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -194,6 +202,7 @@
     <Compile Include="Util\JQuery.cs" />
     <Compile Include="Util\QueryString.cs" />
     <Compile Include="Util\Url.cs" />
+    <Compile Include="Util\WebControls.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Masters\Herschel.Master" />

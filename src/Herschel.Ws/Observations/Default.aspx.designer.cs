@@ -58,22 +58,13 @@ namespace Herschel.Ws.Observations {
         protected global::System.Web.UI.WebControls.Panel observationListPanel;
         
         /// <summary>
-        /// observationDataSource control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.ObjectDataSource observationDataSource;
-        
-        /// <summary>
         /// observationList control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::Herschel.Ws.Controls.MultiSelectGridView observationList;
+        protected global::Herschel.Ws.Observations.ObservationList observationList;
         
         /// <summary>
         /// save control.

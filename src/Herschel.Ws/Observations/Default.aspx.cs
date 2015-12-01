@@ -57,11 +57,6 @@ namespace Herschel.Ws.Observations
 
         protected void Page_PreRender(object sender, EventArgs e)
         {
-            if (observationList.Visible)
-            {
-                observationList.DataBind();
-            }
-
             if (observationPlotPanel.Visible)
             {
                 GeneratePlot();
@@ -92,16 +87,6 @@ namespace Herschel.Ws.Observations
 
         #endregion
         #region Search list
-
-        protected void observationDataSource_ObjectCreating(object sender, ObjectDataSourceEventArgs e)
-        {
-            e.ObjectInstance = searchForm.GetSearchObject();
-        }
-
-        protected void observationListValidator_ServerValidate(object source, ServerValidateEventArgs args)
-        {
-            args.IsValid = observationList.SelectedDataKeys.Count > 0;
-        }
 
         protected void plot_Click(object sender, EventArgs e)
         {

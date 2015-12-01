@@ -1,7 +1,7 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/App_Masters/Herschel.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Herschel.Ws.Observations.Default" %>
 
 <%@ Register Src="~/Observations/SearchForm.ascx" TagPrefix="hws" TagName="SearchForm" %>
-
+<%@ Register Src="~/Observations/ObservationList.ascx" TagPrefix="hws" TagName="ObservationList" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
 </asp:Content>
@@ -28,7 +28,6 @@
             </asp:Panel>
         </ContentTemplate>
     </asp:UpdatePanel>
-    <%--<asp:ListItem Value="Cover" Enabled="False">Cover</asp:ListItem>--%>
     <asp:UpdateProgress runat="server" DisplayAfter="3000">
         <ProgressTemplate>
             <div class="progress">
@@ -43,25 +42,7 @@
                 <table class="block">
                     <tr>
                         <td class="block_left">
-                            <asp:ObjectDataSource runat="server" ID="observationDataSource" DataObjectTypeName="Herschel.Lib.Observation"
-                                OnObjectCreating="observationDataSource_ObjectCreating" TypeName="Herschel.Lib.ObservationSearch"
-                                SelectMethod="Find" />
-                            <hwc:MultiSelectGridView runat="server" ID="observationList" DataSourceID="observationDataSource"
-                                AutoGenerateColumns="false" DataKeyNames="Instrument,ObsID"
-                                Width="100%">
-                                <Columns>
-                                    <hwc:SelectionField ItemStyle-HorizontalAlign="Center" />
-                                    <asp:BoundField HeaderText="instrument" DataField="Instrument" />
-                                    <asp:BoundField HeaderText="obs ID" DataField="ObsID" />
-                                    <asp:BoundField HeaderText="fine time start" DataField="FineTimeStart" />
-                                    <asp:BoundField HeaderText="fine time end" DataField="FineTimeEnd" />
-                                    <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="ScanMap.AV" />
-                                    <asp:BoundField HeaderText="area" DataField="Region.Area" DataFormatString="{0:0.00000}" />
-                                </Columns>
-                                <EmptyDataTemplate>
-                                    No observations match the query.
-                                </EmptyDataTemplate>
-                            </hwc:MultiSelectGridView>
+                            <hws:ObservationList runat="server" id="observationList" SearchFormID="searchForm" />
                         </td>
                         <td class="block_buttons">
                             <p class="buttons">
@@ -71,8 +52,6 @@
                         </td>
                     </tr>
                 </table>
-                <asp:CustomValidator runat="server" ID="observationListValidator" ValidationGroup="observationList" OnServerValidate="observationListValidator_ServerValidate"
-                    Display="Dynamic" Text="No observations selected." />
             </asp:Panel>
         </ContentTemplate>
     </asp:UpdatePanel>
