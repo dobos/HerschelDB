@@ -9,24 +9,7 @@ namespace Herschel.Lib
     [Serializable]
     public class InstrumentModeFilter
     {
-        public Instrument Instrument { get; set; }
-
-        public PointingMode PointingMode { get; set; }
-
-        public InstrumentMode InstrumentMode { get; set; }
-
-        public InstrumentModeFilter()
-        {
-            Instrument = Lib.Instrument.Any;
-            PointingMode = Lib.PointingMode.Any;
-            InstrumentMode = Lib.InstrumentMode.Any;
-        }
-
-        public InstrumentModeFilter(Instrument instrument)
-            :this()
-        {
-            Instrument = instrument;
-        }
+        #region Static properties
 
         public static InstrumentModeFilter HifiSinglePoint
         {
@@ -37,6 +20,32 @@ namespace Herschel.Lib
                     Instrument = Instrument.Hifi,
                     PointingMode = PointingMode.Pointed,
                     InstrumentMode = InstrumentMode.HifiSingleBand
+                };
+            }
+        }
+
+        public static InstrumentModeFilter HifiMapping
+        {
+            get
+            {
+                return new InstrumentModeFilter()
+                {
+                    Instrument = Instrument.Hifi,
+                    PointingMode = PointingMode.Mapping,
+                    InstrumentMode = InstrumentMode.HifiSingleBand
+                };
+            }
+        }
+
+        public static InstrumentModeFilter HifiSpectralScan
+        {
+            get
+            {
+                return new InstrumentModeFilter()
+                {
+                    Instrument = Instrument.Hifi,
+                    PointingMode = PointingMode.Any,
+                    InstrumentMode = InstrumentMode.HifiSpectralScan,
                 };
             }
         }
@@ -78,6 +87,66 @@ namespace Herschel.Lib
                     InstrumentMode = InstrumentMode.PacsSpectroLine
                 };
             }
+        }
+
+        public static InstrumentModeFilter SpirePhotometry
+        {
+            get
+            {
+                return new InstrumentModeFilter()
+                {
+                    Instrument = Instrument.Spire,
+                    PointingMode = PointingMode.Any,
+                    InstrumentMode = InstrumentMode.SpirePhoto
+                };
+            }
+        }
+
+        public static InstrumentModeFilter SpireSpectroscopy
+        {
+            get
+            {
+                return new InstrumentModeFilter()
+                {
+                    Instrument = Instrument.Spire,
+                    PointingMode = PointingMode.Any,
+                    InstrumentMode = InstrumentMode.SpireSpectro,
+                };
+            }
+        }
+
+        public static InstrumentModeFilter ParallelPhotometry
+        {
+            get
+            {
+                return new InstrumentModeFilter()
+                {
+                    Instrument = Instrument.PacsSpireParallel,
+                    PointingMode = PointingMode.Any,
+                    InstrumentMode = InstrumentMode.Any,
+                };
+            }
+        }
+
+        #endregion
+
+        public Instrument Instrument { get; set; }
+
+        public PointingMode PointingMode { get; set; }
+
+        public InstrumentMode InstrumentMode { get; set; }
+
+        public InstrumentModeFilter()
+        {
+            Instrument = Lib.Instrument.Any;
+            PointingMode = Lib.PointingMode.Any;
+            InstrumentMode = Lib.InstrumentMode.Any;
+        }
+
+        public InstrumentModeFilter(Instrument instrument)
+            :this()
+        {
+            Instrument = instrument;
         }
 
         public string GetSqlWhereCondition()

@@ -103,33 +103,6 @@ namespace Herschel.Ws.Observations {
         protected global::System.Web.UI.WebControls.CheckBox parallelPhotometry;
         
         /// <summary>
-        /// fineTimeLabel control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label fineTimeLabel;
-        
-        /// <summary>
-        /// fineTimeStart control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox fineTimeStart;
-        
-        /// <summary>
-        /// fineTimeEnd control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox fineTimeEnd;
-        
-        /// <summary>
         /// filtersLabel control.
         /// </summary>
         /// <remarks>
@@ -139,31 +112,31 @@ namespace Herschel.Ws.Observations {
         protected global::System.Web.UI.WebControls.Label filtersLabel;
         
         /// <summary>
-        /// CheckBox1 control.
+        /// sso control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox CheckBox1;
+        protected global::System.Web.UI.WebControls.CheckBox sso;
         
         /// <summary>
-        /// CheckBox2 control.
+        /// calibration control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox CheckBox2;
+        protected global::System.Web.UI.WebControls.CheckBox calibration;
         
         /// <summary>
-        /// CheckBox3 control.
+        /// failed control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox CheckBox3;
+        protected global::System.Web.UI.WebControls.CheckBox failed;
         
         /// <summary>
         /// searchMethodLabel control.
@@ -272,6 +245,33 @@ namespace Herschel.Ws.Observations {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox region;
+        
+        /// <summary>
+        /// fineTimeLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label fineTimeLabel;
+        
+        /// <summary>
+        /// timeStart control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox timeStart;
+        
+        /// <summary>
+        /// timeEnd control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox timeEnd;
         
         /// <summary>
         /// idlistTr control.

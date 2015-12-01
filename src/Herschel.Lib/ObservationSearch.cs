@@ -13,6 +13,9 @@ namespace Herschel.Lib
     {
         public ObservationSearchMethod SearchMethod { get; set; }
         public InstrumentModeFilter[] InstrumentModeFilters { get; set; }
+        public bool? Calibration { get; set; }
+        public bool? Failed { get; set; }
+        public bool? Sso { get; set; }
         public long[] ObservationID { get; set; }
         public Cartesian Point { get; set; }
         public double Radius { get; set; }
@@ -38,6 +41,29 @@ namespace Herschel.Lib
             }
         }
 
+        private string GetFilterWhereConditions()
+        {
+            string sql = @"
+((@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
+ AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
+ AND (calibration = @calibration OR @calibration IS NULL)
+ AND (failed = @failed OR @failed IS NULL)
+ AND (sso = @sso OR @sso IS NULL))
+";
+
+            return sql;
+        }
+
+        private void AppendFilterParameters(SqlCommand cmd)
+        {
+            cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTimeStart.IsUndefined ? (object)DBNull.Value : FineTimeStart.Value;
+            cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTimeEnd.IsUndefined ? (object)DBNull.Value : FineTimeEnd.Value;
+            cmd.Parameters.Add("@calibration", SqlDbType.Bit).Value = Calibration.HasValue ? (object)Calibration.Value : DBNull.Value;
+            cmd.Parameters.Add("@failed", SqlDbType.Bit).Value = Failed.HasValue ? (object)Failed.Value : DBNull.Value;
+            cmd.Parameters.Add("@sso", SqlDbType.Bit).Value = Sso.HasValue ? (object)Sso.Value : DBNull.Value;
+
+        }
+
         public Observation Get(ObservationID obsId)
         {
             var sql =
@@ -52,6 +78,7 @@ WHERE (@inst IS NULL OR (obs.inst & @inst) > 0)
 ORDER BY obs.inst, obs.ObsID";
 
             var cmd = new SqlCommand(sql);
+
             cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = obsId.Instrument == Lib.Instrument.None ? (object)DBNull.Value : (byte)obsId.Instrument;
             cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = obsId.ID;
 
@@ -76,20 +103,19 @@ FROM [dbo].[Observation] obs
 LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
 LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
 LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
-WHERE (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
-      AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
-      AND obs.obsID IN ({0})
-      {1}
+WHERE {0}
+      AND obs.obsID IN ({1})
+      {2}
 ORDER BY obs.inst, obs.ObsID";
 
             sql = String.Format(
                 sql,
+                GetFilterWhereConditions(),
                 String.Join(", ", ObservationID),
                 InstrumentModeFilter.GetSqlWhereConditions(InstrumentModeFilters));
 
             var cmd = new SqlCommand(sql);
-            cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
-            cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeEnd) ? (object)DBNull.Value : FineTimeEnd.Value;
+            AppendFilterParameters(cmd);
 
             return DbHelper.ExecuteCommandReader<Observation>(cmd);
         }
@@ -145,18 +171,19 @@ INNER JOIN [dbo].[Observation] obs WITH (FORCESEEK)
 LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
 LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
 LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
-WHERE (@fineTimeStart IS NULL OR @fineTimeStart <= fineTimeStart)
-      AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= fineTimeEnd)
-      {0}
+WHERE {0}
+      {1}
 ORDER BY obs.inst, obs.ObsID";
 
-            sql = String.Format(sql, InstrumentModeFilter.GetSqlWhereConditions(InstrumentModeFilters));
+            sql = String.Format(
+                sql, 
+                GetFilterWhereConditions(),
+                InstrumentModeFilter.GetSqlWhereConditions(InstrumentModeFilters));
 
             var cmd = new SqlCommand(sql);
+            AppendFilterParameters(cmd);
             cmd.Parameters.Add("@ra", SqlDbType.Float).Value = Point.RA;
             cmd.Parameters.Add("@dec", SqlDbType.Float).Value = Point.Dec;
-            cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
-            cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeEnd) ? (object)DBNull.Value : FineTimeEnd.Value;
 
             return DbHelper.ExecuteCommandReader<Observation>(cmd);
         }
@@ -181,17 +208,18 @@ INNER JOIN [dbo].[Observation] obs
 LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
 LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
 LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
-WHERE (@fineTimeStart IS NULL OR @fineTimeStart <= obs.fineTimeStart)
-      AND (@fineTimeEnd IS NULL OR @fineTimeEnd >= obs.fineTimeEnd)
-      {0}
+WHERE {0}
+      {1}
 ORDER BY obs.inst, obs.ObsID";
 
-            sql = String.Format(sql, InstrumentModeFilter.GetSqlWhereConditions(InstrumentModeFilters));
+            sql = String.Format(
+                sql, 
+                GetFilterWhereConditions(),
+                InstrumentModeFilter.GetSqlWhereConditions(InstrumentModeFilters));
 
             var cmd = new SqlCommand(sql);
+            AppendFilterParameters(cmd);
             cmd.Parameters.Add("@region", SqlDbType.VarBinary).Value = Region.ToSqlBytes().Value;
-            cmd.Parameters.Add("@fineTimeStart", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeStart) ? (object)DBNull.Value : FineTimeStart.Value;
-            cmd.Parameters.Add("@fineTimeEnd", SqlDbType.Float).Value = FineTime.IsUndefined(FineTimeEnd) ? (object)DBNull.Value : FineTimeEnd.Value;
 
             return DbHelper.ExecuteCommandReader<Observation>(cmd);
         }

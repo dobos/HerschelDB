@@ -33,28 +33,10 @@ namespace Herschel.Ws.Observations
             set { ViewState["SearchMethod"] = value; }
         }
 
-        protected FineTime FineTimeStart
-        {
-            get { return (FineTime)ViewState["FineTimeStart"]; }
-            set { ViewState["FineTimeStart"] = value; }
-        }
-
-        protected FineTime FineTimeEnd
-        {
-            get { return (FineTime)ViewState["FineTimeEnd"]; }
-            set { ViewState["FineTimeEnd"] = value; }
-        }
-
         protected Cartesian Point
         {
             get { return (Cartesian)ViewState["Point"]; }
             set { ViewState["Point"] = value; }
-        }
-
-        protected double Radius
-        {
-            get { return (double)ViewState["Radius"]; }
-            set { ViewState["Radius"] = value; }
         }
 
         protected Jhu.Spherical.Region Region
@@ -63,10 +45,65 @@ namespace Herschel.Ws.Observations
             set { ViewState["Region"] = value; }
         }
 
+        protected double Radius
+        {
+            get
+            {
+                double r;
+
+                if (double.TryParse(radius.Text, out r))
+                {
+                    return r * 60;      // arc min
+                }
+                else if (Util.Astro.TryParseDms(radius.Text, out r))
+                {
+                    return r;
+                }
+                else
+                {
+                    throw new FormatException();
+                }
+            }
+        }
+
         protected long[] IDList
         {
             get { return (long[])ViewState["IDList"]; }
             set { ViewState["IDList"] = value; }
+        }
+
+        protected FineTime FineTimeStart
+        {
+            get
+            {
+                if (String.IsNullOrWhiteSpace(timeStart.Text))
+                {
+                    return FineTime.Undefined;
+                }
+                else
+                {
+                    FineTime ft;
+                    FineTime.TryParse(timeStart.Text, out ft);
+                    return ft;
+                }
+            }
+        }
+
+        protected FineTime FineTimeEnd
+        {
+            get
+            {
+                if (String.IsNullOrWhiteSpace(timeEnd.Text))
+                {
+                    return FineTime.Undefined;
+                }
+                else
+                {
+                    FineTime ft;
+                    FineTime.TryParse(timeEnd.Text, out ft);
+                    return ft;
+                }
+            }
         }
 
         #endregion
@@ -195,6 +232,16 @@ namespace Herschel.Ws.Observations
                 filters.Add(InstrumentModeFilter.HifiSinglePoint);
             }
 
+            if (hifiMapping.Checked)
+            {
+                filters.Add(InstrumentModeFilter.HifiMapping);
+            }
+
+            if (hifiSpectralScan.Checked)
+            {
+                filters.Add(InstrumentModeFilter.HifiSpectralScan);
+            }
+
             // PACS
 
             if (pacsPhotometry.Checked)
@@ -214,7 +261,22 @@ namespace Herschel.Ws.Observations
 
             // SPIRE
 
+            if (spirePhotometry.Checked)
+            {
+                filters.Add(InstrumentModeFilter.SpirePhotometry);
+            }
+
+            if (spireSpectroscopy.Checked)
+            {
+                filters.Add(InstrumentModeFilter.SpireSpectroscopy);
+            }
+
             // Parallel
+
+            if (parallelPhotometry.Checked)
+            {
+                filters.Add(InstrumentModeFilter.ParallelPhotometry);
+            }
 
             InstrumentModeFilters = filters.ToArray();
         }
@@ -222,25 +284,6 @@ namespace Herschel.Ws.Observations
         public void SaveForm()
         {
             SaveInstrumentModeFilters();
-
-            // Fine time interval
-            if (fineTimeStart.Text.Trim() != String.Empty)
-            {
-                FineTimeStart = FineTime.Parse(fineTimeStart.Text);
-            }
-            else
-            {
-                FineTimeStart = FineTime.Undefined;
-            }
-
-            if (fineTimeEnd.Text.Trim() != String.Empty)
-            {
-                FineTimeEnd = FineTime.Parse(fineTimeEnd.Text);
-            }
-            else
-            {
-                FineTimeEnd = FineTime.Undefined;
-            }
 
             // SearchMethod
             ObservationSearchMethod method;
@@ -258,7 +301,6 @@ namespace Herschel.Ws.Observations
                     break;
                 case ObservationSearchMethod.Cone:
                     Point = new Cartesian(ra, dec);
-                    Radius = Double.Parse(radius.Text);
                     break;
                 case ObservationSearchMethod.Intersect:
                 case ObservationSearchMethod.Cover:
@@ -274,6 +316,9 @@ namespace Herschel.Ws.Observations
             var searchObject = new Lib.ObservationSearch();
 
             searchObject.InstrumentModeFilters = InstrumentModeFilters;
+            searchObject.Sso = !sso.Checked ? (bool?)false : null;
+            searchObject.Calibration = !calibration.Checked ? (bool?)false : null;
+            searchObject.Failed = !failed.Checked ? (bool?)false : null;
             searchObject.FineTimeStart = FineTimeStart;
             searchObject.FineTimeEnd = FineTimeEnd;
             searchObject.SearchMethod = SearchMethod;

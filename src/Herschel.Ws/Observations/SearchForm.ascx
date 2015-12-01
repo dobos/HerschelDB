@@ -6,8 +6,8 @@
         <td class="label">
             <asp:Label ID="obsModeLabel" runat="server" Text="Observation modes:" />
         </td>
-        <td class="field" style="width: 520px">
-            <table cellpadding="0">
+        <td class="field" style="width: 700px">
+            <table style="border-spacing: 2px; border-collapse: separate">
                 <tr>
                     <td>HIFI</td>
                     <td>PACS</td>
@@ -15,21 +15,21 @@
                     <td>PACS/SPIRE parallel</td>
                 </tr>
                 <tr>
-                    <td>
+                    <td style="width: 170px; padding-bottom:16px;">
                         <asp:CheckBox runat="server" Text="Single Point" ID="hifiSinglePoint" Checked="true" /><br />
                         <asp:CheckBox runat="server" Text="Mapping" ID="hifiMapping" Checked="true" /><br />
                         <asp:CheckBox runat="server" Text="Spectral Scan" ID="hifiSpectralScan" Checked="true" />
                     </td>
-                    <td>
-                        <asp:CheckBox runat="server" Text="Photometry" ID="pacsPhotometry" Checked="true" />
-                        <asp:CheckBox runat="server" Text="Range Spectroscopy" ID="pacsRangeSpec" Checked="true" />
+                    <td style="width: 170px">
+                        <asp:CheckBox runat="server" Text="Photometry" ID="pacsPhotometry" Checked="true" /><br />
+                        <asp:CheckBox runat="server" Text="Range Spectroscopy" ID="pacsRangeSpec" Checked="true" /><br />
                         <asp:CheckBox runat="server" Text="Line Spectroscopy" ID="pacsLineSpec" Checked="true" />
                     </td>
-                    <td>
-                        <asp:CheckBox runat="server" Text="Photometry" ID="spirePhotometry" Checked="true" />
+                    <td style="width: 170px">
+                        <asp:CheckBox runat="server" Text="Photometry" ID="spirePhotometry" Checked="true" /><br />
                         <asp:CheckBox runat="server" Text="Spectroscopy" ID="spireSpectroscopy" Checked="true" />
                     </td>
-                    <td>
+                    <td style="width: 170px">
                         <asp:CheckBox runat="server" Text="Photometry" ID="parallelPhotometry" Checked="true" />
                     </td>
                 </tr>
@@ -38,21 +38,12 @@
     </tr>
     <tr>
         <td class="label">
-            <asp:Label runat="server" ID="fineTimeLabel" Text="Fine Time:" /></td>
-        <td class="field" style="width: 520px">
-            <asp:TextBox runat="server" ID="fineTimeStart" />
-            -
-                                            <asp:TextBox runat="server" ID="fineTimeEnd" />
-        </td>
-    </tr>
-    <tr>
-        <td class="label">
-            <asp:Label ID="filtersLabel" runat="server" Text="Filters:"></asp:Label>
+            <asp:Label ID="filtersLabel" runat="server" Text="Also include:"></asp:Label>
         </td>
         <td class="field" style="width: 520px">
-            <asp:CheckBox ID="CheckBox1" runat="server" Text="Calibration" />
-            &nbsp;<asp:CheckBox ID="CheckBox2" runat="server" Text="Failed" />
-            &nbsp;<asp:CheckBox ID="CheckBox3" runat="server" Text="Solar System Object" />
+            <asp:CheckBox ID="sso" runat="server" Text="Solar System Object" />&nbsp;
+            <asp:CheckBox ID="calibration" runat="server" Text="Calibration" />&nbsp;
+            <asp:CheckBox ID="failed" runat="server" Text="Failed" />
         </td>
     </tr>
     <tr>
@@ -60,7 +51,6 @@
             <asp:Label runat="server" ID="searchMethodLabel" Text="Method:" /></td>
         <td class="field" style="width: 520px">
             <asp:RadioButtonList ID="searchMethod" runat="server" AutoPostBack="True" RepeatDirection="Horizontal" OnSelectedIndexChanged="searchMethod_SelectedIndexChanged">
-                <%--<asp:ListItem Value="Cover" Enabled="False">Cover</asp:ListItem>--%>
                 <asp:ListItem Value="Cone">Cone search</asp:ListItem>
                 <asp:ListItem Selected="True" Value="Point">Coordinates</asp:ListItem>
                 <asp:ListItem Value="Intersect">Intersect</asp:ListItem>
@@ -85,14 +75,23 @@
             <asp:Label ID="radiusLabel" runat="server" Text="Radius:" /></td>
         <td class="field" style="width: 520px">
             <asp:TextBox ID="radius" runat="server" Text="10" />
-            arc sec
+            arc min
         </td>
     </tr>
     <tr runat="server" id="regionTr" visible="false">
         <td class="label">
-            <asp:Label ID="regionLabel" runat="server" Text="Region Description:" /></td>
-        <td class="field" style="width: 520px">
+            <asp:Label ID="regionLabel" runat="server" Text="Region description:" /></td>
+        <td class="field" style="width: 520px; padding-bottom: 16px">
             <asp:TextBox ID="region" runat="server" TextMode="MultiLine">CIRCLE J2000 207.25 -28.4 20</asp:TextBox>
+        </td>
+    </tr>
+    <tr>
+        <td class="label">
+            <asp:Label runat="server" ID="fineTimeLabel" Text="Time limits:" /></td>
+        <td class="field" style="width: 520px">
+            <asp:TextBox runat="server" ID="timeStart" />
+            -
+            <asp:TextBox runat="server" ID="timeEnd" />
         </td>
     </tr>
     <tr runat="server" id="idlistTr" visible="false">
