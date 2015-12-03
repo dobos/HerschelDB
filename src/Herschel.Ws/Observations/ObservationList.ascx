@@ -7,12 +7,17 @@
     Width="100%">
     <Columns>
         <hwc:SelectionField ItemStyle-HorizontalAlign="Center" />
-        <asp:BoundField HeaderText="instrument" DataField="Instrument" />
-        <asp:BoundField HeaderText="obs ID" DataField="ObsID" />
-        <asp:BoundField HeaderText="fine time start" DataField="FineTimeStart" />
+        <asp:BoundField HeaderText="obs ID" DataField="ObsID" ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" />
+        <asp:BoundField HeaderText="instrument" DataField="Instrument" ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" />
+        <asp:BoundField HeaderText="type" DataField="Type" ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" />
+        <asp:BoundField HeaderText="band" DataField="Band" ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Center" />
+        <%--<asp:BoundField HeaderText="fine time start" DataField="FineTimeStart" />
         <asp:BoundField HeaderText="fine time end" DataField="FineTimeEnd" />
-        <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="ScanMap.AV" />
-        <asp:BoundField HeaderText="area" DataField="Region.Area" DataFormatString="{0:0.00000}" />
+        <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="ScanMap.AV" />--%>
+        <asp:BoundField HeaderText="area" DataField="Region.Area" DataFormatString="{0:0.00000} deg<sup>2</sup>" HtmlEncode="false" ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Right" />
+        <asp:CheckBoxField HeaderText="calib" DataField="Calibration" ItemStyle-HorizontalAlign="Center"/>
+        <asp:CheckBoxField HeaderText="failed" DataField="Failed" ItemStyle-HorizontalAlign="Center"/>
+        <asp:CheckBoxField HeaderText="sso" DataField="Sso" ItemStyle-HorizontalAlign="Center"/>
     </Columns>
     <EmptyDataTemplate>
         No observations match the query.
