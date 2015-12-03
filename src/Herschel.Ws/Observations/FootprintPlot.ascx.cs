@@ -211,7 +211,13 @@ namespace Herschel.Ws.Observations
                 r2.DataSource = regionds;
                 r2.RegionDataField = "Region";
                 r2.Fill.Visible = false;
-                r2.Outline.Pens = new[] { Pens.Black };
+
+                var pen = new Pen(Brushes.Black, 1)
+                {
+                    LineJoin = System.Drawing.Drawing2D.LineJoin.Bevel
+                };
+
+                r2.Outline.Pens = new[] { pen };
                 canvas.Plot.Layers.Add(r2);
 
                 if (plotReduce.Checked)
