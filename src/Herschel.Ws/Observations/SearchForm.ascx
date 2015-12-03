@@ -64,11 +64,8 @@
             <asp:Label ID="pointLabel" runat="server" Text="Coordinates:" /></td>
         <td class="field" style="width: 520px">
             <asp:TextBox ID="point" runat="server" Text="207.25, -28.4" />
+            <span runat="server" id="resolved" visible="false">Using coordinates from <a href="http://simbad.u-strasbg.fr/simbad/">Simbad</a>.</span>
         </td>
-    </tr>
-    <tr runat="server" id="resolvedTr" visible="false">
-        <td></td>
-        <td>Using coordinates from <a href="http://simbad.u-strasbg.fr/simbad/">Simbad</a>.</td>
     </tr>
     <tr runat="server" id="radiusTr" visible="false">
         <td class="label">

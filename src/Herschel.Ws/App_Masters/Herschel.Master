@@ -15,7 +15,7 @@
     <div id="layout_container">
         <div id="layout_content">
             <form id="form1" runat="server">
-                <asp:ScriptManager runat="server" EnablePartialRendering="false" />
+                <asp:ScriptManager runat="server" EnablePartialRendering="true" />
                 <div class="layout_topline"></div>
                 <div class="layout top">
                     <asp:Image runat="server" AlternateText="Herschel Footprint Tools" ImageUrl="~/images/logo_footprint.png" />

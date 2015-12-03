@@ -13,12 +13,6 @@ namespace Herschel.Ws.Observations
 {
     public partial class SearchForm : System.Web.UI.UserControl
     {
-        #region Private members
-
-        private double ra;
-        private double dec;
-
-        #endregion
         #region Properties
 
         protected InstrumentModeFilter[] InstrumentModeFilters
@@ -111,10 +105,6 @@ namespace Herschel.Ws.Observations
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (IsPostBack)
-            {
-                SaveForm();
-            }
         }
 
         protected void searchMethod_SelectedIndexChanged(object sender, EventArgs e)
@@ -148,6 +138,8 @@ namespace Herschel.Ws.Observations
 
         protected void pointFormatValidator_ServerValidate(object source, ServerValidateEventArgs args)
         {
+            double ra, dec;
+
             if (point.Visible)
             {
                 if (Util.Astro.TryParseCoordinates(point.Text, out ra, out dec))
@@ -158,7 +150,7 @@ namespace Herschel.Ws.Observations
 
                 if (Util.Astro.TryResolveObject(point.Text, out ra, out dec))
                 {
-                    resolvedTr.Visible = true;
+                    resolved.Visible = true;
                     point.Text = String.Format(CultureInfo.InvariantCulture, "{0:0.0000000}, {1:0.0000000}", ra, dec);
                     args.IsValid = true;
                     return;
@@ -292,6 +284,10 @@ namespace Herschel.Ws.Observations
             ObservationSearchMethod method;
             Enum.TryParse<ObservationSearchMethod>(searchMethod.SelectedValue, out method);
 
+            // Coordinates
+            double ra, dec;
+            Util.Astro.TryParseCoordinates(point.Text, out ra, out dec);
+
             SearchMethod = method;
 
             switch (method)
@@ -316,6 +312,8 @@ namespace Herschel.Ws.Observations
 
         public Lib.ObservationSearch GetSearchObject()
         {
+            SaveForm();
+
             var searchObject = new Lib.ObservationSearch();
 
             searchObject.InstrumentModeFilters = InstrumentModeFilters;
