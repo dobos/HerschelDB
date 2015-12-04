@@ -247,33 +247,6 @@ namespace Herschel.Ws.Observations {
         protected global::System.Web.UI.WebControls.TextBox region;
         
         /// <summary>
-        /// fineTimeLabel control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label fineTimeLabel;
-        
-        /// <summary>
-        /// timeStart control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox timeStart;
-        
-        /// <summary>
-        /// timeEnd control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox timeEnd;
-        
-        /// <summary>
         /// idlistTr control.
         /// </summary>
         /// <remarks>
@@ -299,6 +272,33 @@ namespace Herschel.Ws.Observations {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox idlist;
+        
+        /// <summary>
+        /// fineTimeLabel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label fineTimeLabel;
+        
+        /// <summary>
+        /// timeStart control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox timeStart;
+        
+        /// <summary>
+        /// timeEnd control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox timeEnd;
         
         /// <summary>
         /// pointFormatValidator control.

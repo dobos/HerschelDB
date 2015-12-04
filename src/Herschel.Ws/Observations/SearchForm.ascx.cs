@@ -27,16 +27,16 @@ namespace Herschel.Ws.Observations
             set { ViewState["SearchMethod"] = value; }
         }
 
-        protected Cartesian Point
-        {
-            get { return (Cartesian)ViewState["Point"]; }
-            set { ViewState["Point"] = value; }
-        }
-
         protected Jhu.Spherical.Region Region
         {
             get { return (Jhu.Spherical.Region)ViewState["Region"]; }
             set { ViewState["Region"] = value; }
+        }
+
+        protected Cartesian Point
+        {
+            get { return (Cartesian)ViewState["Point"]; }
+            set { ViewState["Point"] = value; }
         }
 
         protected double Radius
@@ -47,11 +47,11 @@ namespace Herschel.Ws.Observations
 
                 if (double.TryParse(radius.Text, out r))
                 {
-                    return r * 60;      // arc min
+                    return r;
                 }
                 else if (Util.Astro.TryParseDms(radius.Text, out r))
                 {
-                    return r;
+                    return r * 60;       // arc min
                 }
                 else
                 {
@@ -127,9 +127,8 @@ namespace Herschel.Ws.Observations
                     radiusTr.Visible = true;
                     break;
                 case ObservationSearchMethod.Intersect:
-                    regionTr.Visible = true;
-                    break;
                 case ObservationSearchMethod.Cover:
+                    regionTr.Visible = true;
                     break;
                 default:
                     throw new NotImplementedException();

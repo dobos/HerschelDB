@@ -82,6 +82,14 @@
             <asp:TextBox ID="region" runat="server" TextMode="MultiLine">CIRCLE J2000 207.25 -28.4 20</asp:TextBox>
         </td>
     </tr>
+    <tr runat="server" id="idlistTr" visible="false">
+        <td class="label">
+            <asp:Label ID="idlistLabel" runat="server" Text="ObsID list:" /></td>
+        <td class="field" style="width: 520px">
+            <asp:TextBox ID="idlist" runat="server" TextMode="MultiLine">1342185581
+1342185582</asp:TextBox>
+        </td>
+    </tr>
     <tr>
         <td class="label">
             <asp:Label runat="server" ID="fineTimeLabel" Text="Time limits:" /></td>
@@ -89,14 +97,6 @@
             <asp:TextBox runat="server" ID="timeStart" />
             -
             <asp:TextBox runat="server" ID="timeEnd" />
-        </td>
-    </tr>
-    <tr runat="server" id="idlistTr" visible="false">
-        <td class="label">
-            <asp:Label ID="idlistLabel" runat="server" Text="ObsID list:" /></td>
-        <td class="field" style="width: 520px">
-            <asp:TextBox ID="idlist" runat="server" TextMode="MultiLine">1342185581
-1342185582</asp:TextBox>
         </td>
     </tr>
 </table>

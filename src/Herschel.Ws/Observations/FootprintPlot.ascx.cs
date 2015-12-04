@@ -126,7 +126,7 @@ namespace Herschel.Ws.Observations
                 case ObservationSearchMethod.Intersect:
                 case ObservationSearchMethod.Cover:
                     var qr = new RegionsLayer();
-                    qr.DataSource = new ObjectListDataSource(new Jhu.Spherical.Region[] { searchObject.Region });
+                    qr.DataSource = new ObjectListDataSource(new Jhu.Spherical.Region[] { searchObject.GetSearchRegion() });
                     qr.Fill.Visible = false;
                     qr.Outline.Pens = new[] { Pens.Red };
                     queryLayer = qr;
