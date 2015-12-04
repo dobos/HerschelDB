@@ -127,7 +127,7 @@ namespace Herschel.Ws.Observations
                     radiusTr.Visible = true;
                     break;
                 case ObservationSearchMethod.Intersect:
-                case ObservationSearchMethod.Cover:
+                case ObservationSearchMethod.Contain:
                     regionTr.Visible = true;
                     break;
                 default:
@@ -301,7 +301,7 @@ namespace Herschel.Ws.Observations
                     Point = new Cartesian(ra, dec);
                     break;
                 case ObservationSearchMethod.Intersect:
-                case ObservationSearchMethod.Cover:
+                case ObservationSearchMethod.Contain:
                     Region = ParseSearchRegion();
                     break;
                 default:
@@ -336,7 +336,7 @@ namespace Herschel.Ws.Observations
                     searchObject.Radius = Radius;
                     break;
                 case ObservationSearchMethod.Intersect:
-                case ObservationSearchMethod.Cover:
+                case ObservationSearchMethod.Contain:
                     searchObject.Region = Region;
                     break;
                 default:

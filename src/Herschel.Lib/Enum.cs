@@ -170,6 +170,6 @@ namespace Herschel.Lib
         Point,
         Cone,
         Intersect,
-        Cover
+        Contain
     }
 }

@@ -54,7 +54,7 @@
                 <asp:ListItem Selected="True" Value="Point">Coordinates</asp:ListItem>
                 <asp:ListItem Value="Cone">Cone search</asp:ListItem>
                 <asp:ListItem Value="Intersect">Intersect</asp:ListItem>
-                <asp:ListItem>Contain</asp:ListItem>
+                <asp:ListItem Value="Contain">Contain</asp:ListItem>
                 <asp:ListItem Value="ObsID">OBSID lookup</asp:ListItem>
             </asp:RadioButtonList>
         </td>

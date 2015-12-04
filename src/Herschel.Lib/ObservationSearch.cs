@@ -102,7 +102,8 @@ namespace Herschel.Lib
                     return FindRegionCone();
                 case ObservationSearchMethod.Intersect:
                     return FindRegionIntersect();
-                case ObservationSearchMethod.Cover:
+                case ObservationSearchMethod.Contain:
+                    return FindRegionContain();
                 default:
                     throw new NotImplementedException();
             }
@@ -259,7 +260,7 @@ ORDER BY obs.inst, obs.ObsID";
         {
             switch (searchMethod)
             {
-                case ObservationSearchMethod.Cover:
+                case ObservationSearchMethod.Contain:
                 case ObservationSearchMethod.Intersect:
                     return region;
                 case ObservationSearchMethod.Cone:
@@ -283,6 +284,33 @@ ORDER BY obs.inst, obs.ObsID";
 @"
 SELECT obs.*, s.*, r.*, p.*
 FROM [dbo].[FindObservationRegionIntersect](@region) ids
+INNER JOIN [dbo].[Observation] obs
+    ON obs.inst = ids.inst AND obs.obsID = ids.obsID
+LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
+LEFT OUTER JOIN RasterMap r ON r.inst = obs.inst AND r.obsID = obs.obsID
+LEFT OUTER JOIN Spectro p ON p.inst = obs.inst AND p.obsID = obs.obsID
+WHERE {0}
+      {1}
+ORDER BY obs.inst, obs.ObsID";
+
+            sql = String.Format(
+                sql,
+                GetFilterWhereConditions(),
+                InstrumentModeFilter.GetSqlWhereConditions(instrumentModeFilters));
+
+            var cmd = new SqlCommand(sql);
+            AppendFilterParameters(cmd);
+            cmd.Parameters.Add("@region", SqlDbType.VarBinary).Value = GetSearchRegion().ToSqlBytes().Value;
+
+            return DbHelper.ExecuteCommandReader<Observation>(cmd);
+        }
+
+        private IEnumerable<Observation> FindRegionContain()
+        {
+            var sql =
+@"
+SELECT obs.*, s.*, r.*, p.*
+FROM [dbo].[FindObservationRegionContain](@region) ids
 INNER JOIN [dbo].[Observation] obs
     ON obs.inst = ids.inst AND obs.obsID = ids.obsID
 LEFT OUTER JOIN ScanMap s ON s.inst = obs.inst AND s.obsID = obs.obsID
