@@ -23,6 +23,6 @@ OUTDIR="$HERSCHEL_TEMP/pointing"
 
 #HIFI
 
-../bin/hload.exe prepare pointing hifi 1 "$INDIR/hifi/point/myTable_*.txt" "$OUTDIR/hifi_pointing_{0}.dat" 16
-../bin/hload.exe prepare pointing hifi 2 "$INDIR/hifi/scan/myTable_*.txt" "$OUTDIR/hifi_scan_{0}.dat" 16
-../bin/hload.exe prepare pointing hifi 4 "$INDIR/hifi/map/myTable_*.txt" "$OUTDIR/hifi_map_{0}.dat" 16
+#../bin/hload.exe prepare pointing hifi 1 "$INDIR/hifi/point/myTable_*.txt" "$OUTDIR/hifi_pointing_{0}.dat" 16
+#../bin/hload.exe prepare pointing hifi 2 "$INDIR/hifi/scan/myTable_*.txt" "$OUTDIR/hifi_scan_{0}.dat" 16
+#../bin/hload.exe prepare pointing hifi 4 "$INDIR/hifi/map/myTable_*.txt" "$OUTDIR/hifi_map_{0}.dat" 16
