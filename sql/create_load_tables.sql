@@ -411,6 +411,55 @@ GO
 
 ---------------------------------------------------------------
 
+IF OBJECT_ID (N'load.HifiAngle', N'U') IS NOT NULL
+DROP TABLE [load].[HifiAngle]
+
+GO
+
+CREATE TABLE [load].[HifiAngle]
+(
+	[obsID] [bigint] NOT NULL,
+	[proposer] varchar(250) NOT NULL,
+	[aor] varchar(250) NOT NULL,
+	[flyAngle] float NOT NULL
+) ON [LOAD]
+
+CREATE CLUSTERED INDEX PK_HifiAngle ON [load].[HifiAngle]
+(
+	[obsID]
+)
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID (N'load.HifiPointing', N'U') IS NOT NULL
+DROP TABLE [load].[HifiPointing]
+
+GO
+
+CREATE TABLE [load].[HifiPointing]
+(
+	[obsID] [bigint] NOT NULL,
+	[band] char(5) NOT NULL,
+	[pol] char(1) NOT NULL,
+	[ra] [float] NOT NULL,
+	[dec] [float] NOT NULL,
+	[fineTimeStart] [bigint] NOT NULL,
+	[fineTimeEnd] [bigint] NOT NULL,
+	[width] [float] NOT NULL,
+	[height] [float] NOT NULL
+) ON [LOAD]
+
+CREATE CLUSTERED INDEX PK_HifiPointing ON [load].[HifiPointing]
+(
+	[obsID]
+)
+
+GO
+
+---------------------------------------------------------------
+
 IF OBJECT_ID (N'load.RawPointing', N'U') IS NOT NULL
 DROP TABLE [load].[RawPointing]
 

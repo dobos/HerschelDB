@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="DetectorHifi.cs" />
+    <Compile Include="DetectorHifiMap.cs" />
     <Compile Include="DetectorPacsPhotoChopNod.cs" />
     <Compile Include="InstrumentModeFilter.cs" />
     <Compile Include="SsoSearch.cs" />

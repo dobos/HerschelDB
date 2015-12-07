@@ -38,5 +38,18 @@ namespace Herschel.Lib.Test
             var a = r.Area;
         }
 
+        [TestMethod]
+        public void TestGetFootprintHifiMap()
+        {
+            var d = new DetectorHifiMap()
+            {
+                Width = 0.032 * 60,
+                Height = 0.0213333 * 60
+            };
+
+            var r = d.GetFootprint(new Cartesian(168.799587287364, -61.2738498090187), 145, 0.0);
+            var a = r.Area;
+        }
+
     }
 }

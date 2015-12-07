@@ -183,34 +183,73 @@ AS
 GO
 
 ---------------------------------------------------------------
+---------------------------------------------------------------
 
-IF OBJECT_ID ('load.GenerateFootprint_HifiSpectro', N'P') IS NOT NULL
-DROP PROC [load].[GenerateFootprint_HifiSpectro]
+IF OBJECT_ID ('load.GenerateFootprint_HifiPointed', N'P') IS NOT NULL
+DROP PROC [load].[GenerateFootprint_HifiPointed]
 
 GO
 
-CREATE PROC [load].[GenerateFootprint_HifiSpectro]
+CREATE PROC [load].[GenerateFootprint_HifiPointed]
 AS
 
--- HIFI pointed spectroscopy
-	WITH p AS
+	-- HIFI pointed spectroscopy with slight offset in V and H polarizations
+	WITH aper AS
 	(
-		SELECT ROW_NUMBER() OVER (PARTITION BY p.inst, p.obsID ORDER BY p.fineTime) rn, p.*
-		FROM load.Pointing p
-		INNER JOIN Observation o
-			ON o.inst = p.inst AND o.obsID = p.obsID
-		WHERE o.inst = 8 AND o.pointingMode = 1
+		SELECT *,
+			CASE 
+				WHEN p.band = '1' AND p.pol = 'H' THEN 43.1
+				WHEN p.band = '1' AND p.pol = 'V' THEN 43.5
+				WHEN p.band = '2' AND p.pol = 'H' THEN 32.9
+				WHEN p.band = '2' AND p.pol = 'V' THEN 32.8
+				WHEN p.band = '3' AND p.pol = 'H' THEN 26.3
+				WHEN p.band = '3' AND p.pol = 'V' THEN 25.8
+				WHEN p.band = '4' AND p.pol = 'H' THEN 21.9
+				WHEN p.band = '4' AND p.pol = 'V' THEN 21.7
+				WHEN p.band = '5' AND p.pol = 'H' THEN 19.6
+				WHEN p.band = '5' AND p.pol = 'V' THEN 19.4
+				WHEN p.band = '6' AND p.pol = 'H' THEN 14.9
+				WHEN p.band = '6' AND p.pol = 'V' THEN 14.7
+				WHEN p.band = '7' AND p.pol = 'H' THEN 11.1
+				WHEN p.band = '7' AND p.pol = 'V' THEN 11.1
+				WHEN p.pol = '-' THEN -1
+			END aperture
+		FROM load.HifiPointing p
 	),
-	limits AS
+	r AS
 	(
-		SELECT * FROM p WHERE rn = 1
+		SELECT
+			obsID, 
+			region.UnionEvery(dbo.GetDetectorRegion(aper.ra, aper.dec, -1, aper.aperture / 60.0, 'Hifi')) AS region
+		FROM aper
+		GROUP BY obsID
 	)
 	UPDATE Observation
-	SET aperture = 0.3 / 60.0,
-		region = dbo.GetDetectorRegion(limits.ra, limits.dec, limits.pa, 0.3 / 60.0, 'SpireSpectro')
+	SET aperture = aper.aperture / 60.0,
+		region = r.region
 	FROM Observation o
-	INNER JOIN limits ON limits.inst = o.inst AND limits.obsID = o.obsID
+	INNER JOIN r ON r.obsID = o.obsID
+	INNER JOIN aper ON aper.obsID = o.obsID
 	WHERE o.inst = 8 AND o.pointingMode = 1
+
+GO
+
+---------------------------------------------------------------
+
+IF OBJECT_ID ('load.GenerateFootprint_HifiMap', N'P') IS NOT NULL
+DROP PROC [load].[GenerateFootprint_HifiMap]
+
+GO
+
+CREATE PROC [load].[GenerateFootprint_HifiMap]
+AS
+
+-- HIFI maps
+	UPDATE Observation
+	SET region = dbo.GetMapRegion(m.ra, m.dec, m.pa, m.width, m.height)
+	FROM Observation o
+	INNER JOIN ScanMap m ON m.inst = o.inst AND m.obsID = o.obsID
+	WHERE o.inst = 8 AND o.pointingMode = 4
 
 GO
 

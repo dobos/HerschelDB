@@ -278,7 +278,6 @@ AS
 		ISNULL(pa, -1) AS pa
 	FROM load.Observation
 	WHERE inst IN (1, 2, 4)	AND obsType = 1	AND pointingmode IN (8, 16, 32)	
-	   OR inst IN (8) AND obsType = 2 AND pointingmode IN (4)
 
 
 	-- Update AV for spire scan maps
@@ -309,23 +308,18 @@ AS
 
 	-- HIFI
 
-	WITH limits AS
-	(
-		SELECT inst, obsID, MAX(ra) AS ra, MAX(dec) AS dec, 
-		       MAX(width) AS width, MAX(height) AS height, MAX(pa) AS pa
-		FROM load.Pointing
-		GROUP BY inst, obsID
-	)
-	UPDATE ScanMap
-	SET ra = limits.ra,
-	    dec = limits.dec,
-		height = limits.height,
-		width = limits.width,
-		pa = limits.pa					-- TODO: verify
-	FROM ScanMap
-	INNER JOIN limits ON limits.inst = ScanMap.inst AND limits.obsID = ScanMap.obsID
-	WHERE ScanMap.inst = 8
-	
+	INSERT [ScanMap] WITH (TABLOCKX)
+	SELECT inst, o.obsID, 
+		ISNULL(mapScanSpeed, -1) AS av,
+		ISNULL(p.ra, -1) AS ra,
+		ISNULL(p.dec, -1) AS dec,
+		ISNULL(ABS(p.height) * 60, -1) AS height,
+		ISNULL(ABS(p.width) * 60, -1) AS width,
+		ISNULL(a.flyAngle, -1) AS pa
+	FROM load.Observation o
+	INNER JOIN load.HifiPointing p ON p.obsID = o.obsID
+	INNER JOIN load.HifiAngle a ON a.obsID = o.obsID
+	WHERE inst IN (8) AND obsType = 2 AND pointingmode IN (4);
 
 
 	-- Parallel scan maps from PACS and SPIRE

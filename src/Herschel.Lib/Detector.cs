@@ -45,12 +45,25 @@ namespace Herschel.Lib
 
         public abstract Region GetFootprint(Cartesian pointing, double pa, double aperture);
 
-        protected Region GetFootprintRectangle(Cartesian[] corners, Cartesian pointing, double pa)
+        public static Region GetFootprintRectangle(Cartesian[] corners, Cartesian pointing, double pa)
         {
+            Region r;
+            Convex c;
+
             corners = GetCorners(corners, pointing, pa);
 
-            var r = new Region();
-            r.Add(new Convex(new List<Cartesian>(corners), PointOrder.CCW));
+            r = new Region();
+
+            try
+            {
+                c = new Convex(new List<Cartesian>(corners), PointOrder.CCW);
+            }
+            catch (Exception)
+            {
+                c = new Convex(new List<Cartesian>(corners), PointOrder.CW);
+            }
+
+            r.Add(c);
             r.Simplify();
 
             return r;
@@ -78,7 +91,7 @@ namespace Herschel.Lib
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
-        public Cartesian[] GetCorners(Cartesian[] corners, Cartesian pointing, double pa)
+        public static Cartesian[] GetCorners(Cartesian[] corners, Cartesian pointing, double pa)
         {
             // Rotate around x (PA)
             double ang = (180 - pa) * Constants.Degree2Radian;

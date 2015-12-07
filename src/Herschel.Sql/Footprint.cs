@@ -154,4 +154,28 @@ public partial class UserDefinedFunctions
 
         return points;
     }
+
+    [SqlFunction(Name = "GetMapRegion", IsPrecise = false, IsDeterministic = true)]
+    public static SqlBytes GetMapRegion(SqlDouble ra, SqlDouble dec, SqlDouble pa, SqlDouble width, SqlDouble height)
+    {
+        var d = new DetectorHifiMap()
+        {
+            Width = width.Value,
+            Height = height.Value
+        };
+
+        Region r;
+
+        try
+        {
+            r = d.GetFootprint(new Cartesian(ra.Value, dec.Value), pa.Value, 0.0);
+        }
+        catch (Exception ex)
+        {
+            r = new Region();
+            r.SetErrorMessage(ex);
+        }
+
+        return r.ToSqlBytes();
+    }
 }
