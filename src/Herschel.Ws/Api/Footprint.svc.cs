@@ -83,13 +83,15 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/Outline/Points")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/Outline/Points?res={resolution}")]
         [Description("Returns the arc endpoints of the outline of the footprint of an observation.")]
         string GetObservationOutlinePoints(
             [Description("An instrument identifier.")]
             string inst,
             [Description("Observation ID.")]
-            string obsID);
+            string obsID,
+            [Description("Resolution in arc sec to interpolate small circle arcs")]
+            double resolution);
 
         [OperationContract]
         [DynamicResponseFormat]
@@ -105,13 +107,15 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/Outline/Reduced/Points?limit={limit}")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/Outline/Reduced/Points?res={resolution}&limit={limit}")]
         [Description("Returns the arc endpoints of the reduced outline of the footprint of an observation.")]
         string GetObservationOutlineReducedPoints(
             [Description("An instrument identifier.")]
             string inst,
             [Description("Observation ID.")]
             string obsID,
+            [Description("Resolution in arc sec to interpolate small circle arcs")]
+            double resolution,
             [Description("Limit of the reduction algorithm, arc sec.")]
             double limit);
 
@@ -137,13 +141,15 @@ namespace Herschel.Ws.Api
 
         [OperationContract]
         [DynamicResponseFormat]
-        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/ConvexHull/Outline/Points")]
+        [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/ConvexHull/Outline/Points?res={resolution}")]
         [Description("Returns the arc endpoints of the outline of the convex hull of the footprint of an observation.")]
         string GetObservationConvexHullOutlinePoints(
             [Description("An instrument identifier.")]
             string inst,
             [Description("Observation ID.")]
-            string obsID);
+            string obsID,
+            [Description("Resolution in arc sec to interpolate small circle arcs")]
+            double resolution);
     }
 
     public class Footprint : ISearch
@@ -169,7 +175,7 @@ namespace Herschel.Ws.Api
             throw new WebFaultException<string>("Observation not found", HttpStatusCode.NotFound);
         }
 
-        private string FormatOutlinePoints(Outline outline)
+        private string FormatOutlinePoints(Outline outline, double resolution)
         {
             var sb = new StringBuilder();
 
@@ -178,10 +184,25 @@ namespace Herschel.Ws.Api
                 int q = 0;
                 foreach (var arc in loop.ArcList)
                 {
+                    // Starting point
                     if (q == 0)
                     {
                         sb.AppendFormat(CultureInfo.InvariantCulture, "{0:R} {1:R}", arc.Point1.RA, arc.Point1.Dec);
                         sb.AppendLine();
+                    }
+
+                    // If a small circle arc, interpolate
+                    if (arc.Circle.Cos0 != 0)
+                    {
+                        var n = (int)Math.Max(6, arc.Length / (resolution / 3600.0 / 180.0 * Math.PI));
+                        var a = arc.Length / n;
+
+                        for (int i = 1; i < n - 1; i++)
+                        {
+                            var p = arc.GetPoint(i * a);
+                            sb.AppendFormat(CultureInfo.InvariantCulture, "{0:R} {1:R}", p.RA, p.Dec);
+                            sb.AppendLine();
+                        }
                     }
 
                     sb.AppendFormat(CultureInfo.InvariantCulture, "{0:R} {1:R}", arc.Point2.RA, arc.Point2.Dec);
@@ -205,7 +226,7 @@ namespace Herschel.Ws.Api
 
             var s = new ObservationSearch()
             {
-                InstrumentModeFilters = new [] { new InstrumentModeFilter(obsid.Instrument) },
+                InstrumentModeFilters = new[] { new InstrumentModeFilter(obsid.Instrument) },
                 Point = new Jhu.Spherical.Cartesian(ra, dec),
                 FineTimeStart = start,
                 FineTimeEnd = end,
@@ -238,10 +259,10 @@ namespace Herschel.Ws.Api
             return obs.Region.Outline.ToString();
         }
 
-        public string GetObservationOutlinePoints(string instrument, string obsID)
+        public string GetObservationOutlinePoints(string instrument, string obsID, double resolution)
         {
             var obs = GetObservation(ObservationID.Parse(instrument, obsID));
-            return FormatOutlinePoints(obs.Region.Outline);
+            return FormatOutlinePoints(obs.Region.Outline, resolution);
         }
 
         public string GetObservationOutlineReduced(string instrument, string obsID, double limit)
@@ -251,11 +272,11 @@ namespace Herschel.Ws.Api
             return obs.Region.Outline.ToString();
         }
 
-        public string GetObservationOutlineReducedPoints(string instrument, string obsID, double limit)
+        public string GetObservationOutlineReducedPoints(string instrument, string obsID, double resolution, double limit)
         {
             var obs = GetObservation(ObservationID.Parse(instrument, obsID));
             obs.Region.Outline.Reduce(limit / 648000.0 * Math.PI);
-            return FormatOutlinePoints(obs.Region.Outline);
+            return FormatOutlinePoints(obs.Region.Outline, resolution);
         }
 
         public string GetObservationConvexHull(string instrument, string obsID)
@@ -274,14 +295,14 @@ namespace Herschel.Ws.Api
             return chull.Outline.ToString();
         }
 
-        public string GetObservationConvexHullOutlinePoints(string instrument, string obsID)
+        public string GetObservationConvexHullOutlinePoints(string instrument, string obsID, double resolution)
         {
             var obs = GetObservation(ObservationID.Parse(instrument, obsID));
 
             var chull = obs.Region.Outline.GetConvexHull();
             chull.Simplify();
 
-            return FormatOutlinePoints(chull.Outline);
+            return FormatOutlinePoints(chull.Outline, resolution);
         }
 
         #endregion
