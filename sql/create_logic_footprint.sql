@@ -194,42 +194,68 @@ CREATE PROC [load].[GenerateFootprint_HifiPointed]
 AS
 
 	-- HIFI pointed spectroscopy with slight offset in V and H polarizations
-	WITH aper AS
+	WITH H AS
 	(
 		SELECT *,
 			CASE 
 				WHEN p.band = '1' AND p.pol = 'H' THEN 43.1
-				WHEN p.band = '1' AND p.pol = 'V' THEN 43.5
 				WHEN p.band = '2' AND p.pol = 'H' THEN 32.9
-				WHEN p.band = '2' AND p.pol = 'V' THEN 32.8
 				WHEN p.band = '3' AND p.pol = 'H' THEN 26.3
-				WHEN p.band = '3' AND p.pol = 'V' THEN 25.8
 				WHEN p.band = '4' AND p.pol = 'H' THEN 21.9
-				WHEN p.band = '4' AND p.pol = 'V' THEN 21.7
 				WHEN p.band = '5' AND p.pol = 'H' THEN 19.6
-				WHEN p.band = '5' AND p.pol = 'V' THEN 19.4
 				WHEN p.band = '6' AND p.pol = 'H' THEN 14.9
-				WHEN p.band = '6' AND p.pol = 'V' THEN 14.7
 				WHEN p.band = '7' AND p.pol = 'H' THEN 11.1
+				WHEN p.pol = '-' THEN -1
+			END aperture
+		FROM load.HifiPointing p
+		WHERE p.pol = 'H'
+	),
+	V AS
+	(
+			SELECT *,
+			CASE 
+				WHEN p.band = '1' AND p.pol = 'V' THEN 43.5
+				WHEN p.band = '2' AND p.pol = 'V' THEN 32.8
+				WHEN p.band = '3' AND p.pol = 'V' THEN 25.8
+				WHEN p.band = '4' AND p.pol = 'V' THEN 21.7
+				WHEN p.band = '5' AND p.pol = 'V' THEN 19.4
+				WHEN p.band = '6' AND p.pol = 'V' THEN 14.7
 				WHEN p.band = '7' AND p.pol = 'V' THEN 11.1
 				WHEN p.pol = '-' THEN -1
 			END aperture
 		FROM load.HifiPointing p
+		WHERE p.pol = 'V'
 	),
 	r AS
 	(
 		SELECT
-			obsID, 
-			region.UnionEvery(dbo.GetDetectorRegion(aper.ra, aper.dec, -1, aper.aperture / 60.0, 'Hifi')) AS region
-		FROM aper
-		GROUP BY obsID
+			H.obsID,
+			(H.aperture + V.aperture) / 2.0 AS aperture,
+			
+			-- ideal solution
+			region.[Union](
+					dbo.GetDetectorRegion(H.ra, H.dec, -1, H.aperture / 60.0, 'Hifi'),
+					dbo.GetDetectorRegion(V.ra, V.dec, -1, V.aperture / 60.0, 'Hifi')) AS region
+
+			-- a possible fix
+			/*CASE WHEN point.GetAngleEq(H.ra, H.dec, V.ra, V.dec) > 0.01 THEN
+				region.[Union](
+					dbo.GetDetectorRegion(H.ra, H.dec, -1, H.aperture / 60.0, 'Hifi'),
+					dbo.GetDetectorRegion(V.ra, V.dec, -1, V.aperture / 60.0, 'Hifi'))
+				 ELSE
+				    dbo.GetDetectorRegion(H.ra, H.dec, -1, H.aperture / 60.0, 'Hifi')
+			END AS region*/
+
+			-- quick solution
+			--dbo.GetDetectorRegion((H.ra + V.ra) / 2.0, (H.dec + V.dec) / 2.0, -1, (H.aperture + V.aperture) / 2 / 60.0, 'Hifi') AS region
+
+		FROM H INNER JOIN V ON H.obsID = v.obsID
 	)
 	UPDATE Observation
-	SET aperture = aper.aperture / 60.0,
+	SET aperture = r.aperture / 60.0,
 		region = r.region
 	FROM Observation o
 	INNER JOIN r ON r.obsID = o.obsID
-	INNER JOIN aper ON aper.obsID = o.obsID
 	WHERE o.inst = 8 AND o.pointingMode = 1
 
 GO
