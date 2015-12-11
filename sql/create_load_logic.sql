@@ -168,6 +168,137 @@ GO
 
 ---------------------------------------------------------------
 
+IF OBJECT_ID ('load.UpdateObservationParams', N'P') IS NOT NULL
+DROP PROC [load].[UpdateObservationParams]
+
+GO
+
+CREATE PROC [load].[UpdateObservationParams]
+AS
+
+	-- PACS scan map
+
+	WITH p AS
+	(
+		SELECT inst, obsID, 
+			AVG(pa) AS pa, MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
+		FROM load.Pointing
+		GROUP BY inst, obsID
+	)
+	UPDATE Observation
+	SET ra = -999,
+		dec = -999,
+		pa = p.pa, 
+		aperture = -999, 
+		fineTimeStart = p.fineTimeStart, 
+		fineTimeEnd = p.fineTimeEnd
+	FROM Observation o
+	INNER JOIN p ON p.inst = o.inst AND p.obsID = o.obsID
+	WHERE o.inst = 1 AND o.obsType = 1 AND o.pointingMode = 8;
+
+	-- PACS chop-nod
+
+	WITH p AS
+	(
+		SELECT inst, obsID, 
+			point.AvgEq(ra, dec).RA ra, point.AvgEq(ra, dec).Dec dec, AVG(pa) pa,
+			MIN(fineTimeStart) AS fineTimeStart, MAX(fineTimeEnd) AS fineTimeEnd
+		FROM load.PointingCluster
+		WHERE isRotated = 1
+		GROUP BY inst, obsID
+	)
+	UPDATE Observation
+	SET ra = p.ra,
+		dec = p.dec,
+		pa = p.pa, 
+		aperture = -999, 
+		fineTimeStart = p.fineTimeStart, 
+		fineTimeEnd = p.fineTimeEnd
+	FROM Observation o
+	INNER JOIN p ON p.inst = o.inst AND p.obsID = o.obsID
+	WHERE o.inst = 1 AND o.obsType = 1 AND o.pointingMode = 65;
+
+	-- PACS spectro
+
+	WITH p AS
+	(
+		SELECT inst, obsID, 
+			MIN(fineTimeStart) AS fineTimeStart, MAX(fineTimeEnd) AS fineTimeEnd
+		FROM load.PointingCluster
+		WHERE isRotated = 1
+		GROUP BY inst, obsID
+	)
+	UPDATE Observation
+	SET fineTimeStart = p.fineTimeStart, 
+		fineTimeEnd = p.fineTimeEnd
+	FROM Observation o
+	INNER JOIN p ON p.inst = o.inst AND p.obsID = o.obsID
+	WHERE o.inst = 1 AND o.obsType = 2;
+
+	-- SPIRE scan map (small and large)
+
+	WITH p AS
+	(
+		SELECT inst, obsID, 
+			AVG(pa) AS pa, MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
+		FROM load.Pointing
+		GROUP BY inst, obsID
+	)
+	UPDATE Observation
+	SET aperture = -999, 
+		fineTimeStart = p.fineTimeStart, 
+		fineTimeEnd = p.fineTimeEnd
+	FROM Observation o
+	INNER JOIN p ON p.inst = o.inst AND p.obsID = o.obsID
+	WHERE o.inst = 2 AND o.obsType = 1 AND o.pointingMode IN (8, 16);
+
+	-- SPIRE parallel (copy from PACS)
+
+	UPDATE o
+	SET ra = -999,
+		dec = -999,
+		pa = pacs.pa,
+		aperture = -999,
+		fineTimeStart = pacs.fineTimeStart,
+		fineTimeEnd = pacs.fineTimeEnd,
+		repetition = -999
+	FROM Observation o
+	INNER JOIN Observation pacs ON pacs.inst = 1 AND pacs.obsID = o.obsID
+	WHERE o.inst = 2 AND o.obsType = 1 AND o.pointingMode = 32;
+
+	-- SPIRE spectro raster
+
+	WITH p AS
+	(
+		SELECT inst, obsID, 
+			AVG(pa) AS pa, MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
+		FROM load.Pointing
+		GROUP BY inst, obsID
+	)
+	UPDATE Observation
+	SET aperture = 2.6, 
+		fineTimeStart = p.fineTimeStart, 
+		fineTimeEnd = p.fineTimeEnd
+	FROM Observation o
+	INNER JOIN p ON p.inst = o.inst AND p.obsID = o.obsID
+	WHERE o.inst = 2 AND o.obsType = 2 AND o.pointingMode = 2;
+
+	-- Parallel scan maps (copy from PACS)
+
+	UPDATE o
+	SET ra = -999,
+		dec = -999,
+		pa = pacs.pa,
+		aperture = -999,
+		fineTimeStart = pacs.fineTimeStart,
+		fineTimeEnd = pacs.fineTimeEnd,
+		repetition = -999
+	FROM Observation o
+	INNER JOIN Observation pacs ON pacs.inst = 1 AND pacs.obsID = o.obsID
+	WHERE o.inst = 4 AND o.obsType = 1 AND o.pointingMode = 32;
+
+---------------------------------------------------------------
+
 IF OBJECT_ID ('load.UpdateObservationsFlags', N'P') IS NOT NULL
 DROP PROC [load].[UpdateObservationsFlags]
 
