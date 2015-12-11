@@ -230,8 +230,8 @@ namespace Herschel.Loader
             var sql = @"
 SELECT *
 FROM Observation o
-WHERE (inst = 1 AND obsType = 2 AND pointingMode IN (1, 2, 4))
-   OR (inst = 1 AND obsType = 1 AND pointingMode = 0x0000000000000041)";
+WHERE ((inst = 1 AND obsType = 2 AND pointingMode IN (1, 2, 4))
+   OR (inst = 1 AND obsType = 1 AND pointingMode = 0x0000000000000041))";
 
 
 
