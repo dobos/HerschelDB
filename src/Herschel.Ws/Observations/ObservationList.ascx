@@ -14,7 +14,7 @@
         <%--<asp:BoundField HeaderText="fine time start" DataField="FineTimeStart" />
         <asp:BoundField HeaderText="fine time end" DataField="FineTimeEnd" />
         <asp:BoundField HeaderText="angular velocity" DataFormatString="{0:0}" DataField="ScanMap.AV" />--%>
-        <asp:BoundField HeaderText="area" DataField="Region.Area" DataFormatString="{0:0.00000} deg<sup>2</sup>" HtmlEncode="false" ItemStyle-Width="100px" ItemStyle-HorizontalAlign="Right" />
+        <asp:BoundField HeaderText="area" DataField="Region.Area" DataFormatString="{0:0.0000000} deg<sup>2</sup>" HtmlEncode="false" ItemStyle-Width="120px" ItemStyle-HorizontalAlign="Right" />
         <asp:CheckBoxField HeaderText="calib" DataField="Calibration" ItemStyle-HorizontalAlign="Center"/>
         <asp:CheckBoxField HeaderText="failed" DataField="Failed" ItemStyle-HorizontalAlign="Center"/>
         <asp:CheckBoxField HeaderText="sso" DataField="Sso" ItemStyle-HorizontalAlign="Center"/>

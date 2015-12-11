@@ -47,7 +47,8 @@ AS
 	INNER JOIN load.PointingCluster p
 		ON p.inst = o.inst AND p.obsID = o.obsID
 	WHERE o.inst = 1 AND obsType = 2 AND pointingMode = 1 
-		  AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+		  AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021);
+	-- 671
 
 	-- unchopped raster spectroscopy
 	-- inst = 1, obsType = 2, pointingMode = 4
@@ -63,7 +64,8 @@ AS
 	FROM Observation o
 	INNER JOIN r ON r.inst = o.inst AND r.obsID = o.obsID
 	WHERE o.inst = 1 AND o.obsType = 2 AND o.pointingMode IN (2, 4)
-	    AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
+	    AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021);
+	-- 753
 
 	-- chopped single point spectroscopy
 	UPDATE Observation
@@ -74,7 +76,7 @@ AS
 		ON p.inst = o.inst AND p.obsID = o.obsID
 	WHERE o.inst = 1 AND obsType = 2 AND pointingMode = 1 
 		  AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
-		  AND p.clusterID = 0 AND p.isRotated = 1
+		  AND p.clusterID = 0 AND p.isRotated = 1;
 
 	-- 3964
 
@@ -93,7 +95,7 @@ AS
 	FROM Observation o
 	INNER JOIN r ON r.inst = o.inst AND r.obsID = o.obsID
 	WHERE o.inst = 1 AND o.obsType = 2 AND o.pointingMode IN (2, 4)
-	    AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
+	    AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021);
 
 	-- 313
 
@@ -234,8 +236,8 @@ AS
 			
 			-- ideal solution
 			region.[Union](
-					dbo.GetDetectorRegion(H.ra, H.dec, -1, H.aperture / 60.0, 'Hifi'),
-					dbo.GetDetectorRegion(V.ra, V.dec, -1, V.aperture / 60.0, 'Hifi')) AS region
+					dbo.GetDetectorRegion(H.ra, H.dec, -1, H.aperture / 60.0 / 2.0, 'Hifi'),
+					dbo.GetDetectorRegion(V.ra, V.dec, -1, V.aperture / 60.0 / 2.0, 'Hifi')) AS region
 
 			-- a possible fix
 			/*CASE WHEN point.GetAngleEq(H.ra, H.dec, V.ra, V.dec) > 0.01 THEN

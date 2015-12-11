@@ -34,7 +34,7 @@ INSERT [load].[RawPointing_ID] WITH (TABLOCKX)
 	 [aperture], [width], [height],
 	 [isAPosition], [isBPosition], [isOffPosition], [isOnTarget], [rasterLineNum], [rasterColumnNum], [rasterAngle])
 SELECT * FROM [load].[RawPointing]
--- 12:02
+-- 16:03
 
 GO
 
@@ -58,7 +58,7 @@ ON [load].[Pointing]
 		fineTime
 ) WITH (SORT_IN_TEMPDB = ON)
 ON [load]
--- 41:53
+-- 16:04
 
 GO
 
@@ -86,7 +86,7 @@ FROM load.Pointing
 GROUP BY inst,  obsID, obsType, fineTime
 HAVING COUNT(*) > 1
 -- 9804
--- 2:00
+-- 4:49
 
 GO
 
