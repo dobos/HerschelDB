@@ -71,6 +71,9 @@ namespace Herschel.Lib
         public int Repetition { get; set; }
 
         [DataMember]
+        public string Proposer { get; set; }
+
+        [DataMember]
         public string AOR { get; set; }
 
         [DataMember]
@@ -115,6 +118,7 @@ namespace Herschel.Lib
             FineTimeEnd = -1;
             Repetition = -1;
 
+            Proposer = null;
             AOR = null;
             AOT = null;
 
@@ -153,6 +157,7 @@ namespace Herschel.Lib
             FineTimeEnd = reader.GetInt64(o++);
             Repetition = reader.GetInt32(o++);
 
+            Proposer = reader.GetString(o++);
             AOR = reader.GetString(o++);
             AOT = reader.GetString(o++);
 

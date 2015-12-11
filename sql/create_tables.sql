@@ -24,6 +24,7 @@ CREATE TABLE [Observation]
 	[fineTimeStart] bigint NOT NULL,	--/ <column unit="10e-6 s">Start time of observation (turnarounds removed)</column>
 	[fineTimeEnd] bigint NOT NULL,		--/ <column unit="10e-6 s">End time of observation (turnarounds removed)</column>
 	[repetition] int NOT NULL,			--/ <column>Number of repetitions of the observation</column>
+	[proposer] varchar(250) NOT NULL,	--/ <column>Proposer</column>
 	[aor] varchar(512) NOT NULL,		--/ <column>Astronomical observation request</column>
 	[aot] varchar(50) NOT NULL,			--/ <column>Astronomical observation template</column>
 	[region] varbinary(max) NULL,		--/ <column>Footprint of the observation in binary format</column>

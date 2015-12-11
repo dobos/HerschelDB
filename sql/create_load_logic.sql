@@ -10,7 +10,7 @@ AS
 	TRUNCATE TABLE Observation
 
 	INSERT Observation WITH (TABLOCKX)
-	SELECT inst, obsID, 
+	SELECT o.inst, o.obsID, 
 		obsType, 
 		obsLevel,
 		instMode,
@@ -26,9 +26,14 @@ AS
 		-9999 AS aperture,
 		-9999 AS fineTimeStart,
 		-9999 AS fineTimeEnd,		-- fine times will be updated from pointing
-		repetition, AOR_Label, AOT,
+		repetition, 
+		ISNULL(p.proposer, ''),
+		AOR_Label, 
+		AOT,
 		NULL AS region								-- region will be computed later
-	FROM load.Observation
+	FROM load.Observation o
+	LEFT OUTER JOIN load.ObsProposer p
+		ON p.inst = o.inst AND p.obsID = o.obsID
 
 	-- Verify valid observations with missing pointings
 	-- Should return 0
@@ -170,6 +175,16 @@ GO
 
 CREATE PROC [load].[UpdateObservationsFlags]
 AS
+
+	-- Update calibration flag based on proposer
+
+	UPDATE Observation
+	SET calibration = 1
+	FROM Observation o
+	INNER JOIN load.ObsProposer p
+		ON o.inst = p.inst AND o.obsID = p.obsID
+	WHERE LEFT(p.proposer, 5) = 'calib'
+
 	-- Update failed flags
 
 	UPDATE Observation
@@ -253,6 +268,12 @@ AS
 	(
 		1342189688		-- 3 Juno
 	)
+
+	-- Missing HIFI flags
+	UPDATE Observation
+	SET failed = 1
+	WHERE inst = 8 AND obsID IN
+		(1342251551)
 
 GO
 

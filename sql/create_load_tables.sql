@@ -390,6 +390,27 @@ GO
 
 ---------------------------------------------------------------
 
+IF OBJECT_ID (N'load.ObsProposer', N'U') IS NOT NULL
+DROP TABLE [load].[ObsProposer]
+
+GO
+
+CREATE TABLE [load].[ObsProposer]
+(
+	[inst] [tinyint] NOT NULL,
+	[obsID] [bigint] NOT NULL,
+	[proposer] varchar(250) NOT NULL
+) ON [LOAD]
+
+CREATE CLUSTERED INDEX PK_ObsProposer ON [load].[ObsProposer]
+(
+	[inst], [obsID]
+)
+
+GO
+
+---------------------------------------------------------------
+
 IF OBJECT_ID (N'load.ObsSSO', N'U') IS NOT NULL
 DROP TABLE [load].[ObsSSO]
 
