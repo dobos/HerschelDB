@@ -45,8 +45,14 @@ namespace Herschel.Plot
             //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 2 AND obsID = 1342183681 AND legID % 2 = 1", false, false, false, "spire_legs.pdf", 3f, 2.5f, true);
             //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 2 AND obsID = 1342183681", false, false, false, "spire_leg_ends.pdf", 3f, 2.5f, true);
 
-            PlotPacsRaster("pacs_raster_1.pdf", 1342212598, 3f, 2.5f);
-            PlotPacsRaster("pacs_raster_2.pdf", 1342240160, 3f, 2.5f);
+            /*PlotPacsRaster("pacs_raster_1.pdf", 1342212598, 3f, 2.5f);
+            PlotPacsRaster("pacs_raster_2.pdf", 1342240160, 3f, 2.5f);*/
+
+            // PACS spectro raster
+            PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342191352", false, false, false, "pacs_spectro_map.pdf", 1.5f, 2.0f, false);
+            PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342250523", false, false, false, "spire_spectro_map.pdf", 1.5f, 2.0f, false);
+            PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID = 1342191700", false, false, false, "hifi_pointed.pdf", 1.5f, 2.0f, false);
+            PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID = 1342251563", false, false, false, "hifi_map.pdf", 1.5f, 2.0f, false);
         }
 
         static void PlotRegions(string sql, bool htmcover, bool chull, bool reduce, string filename, float w, float h, bool borders)
