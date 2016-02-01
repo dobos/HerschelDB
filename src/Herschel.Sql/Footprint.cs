@@ -178,4 +178,28 @@ public partial class UserDefinedFunctions
 
         return r.ToSqlBytes();
     }
+
+    [SqlFunction(Name = "GetRoundedMapRegion", IsPrecise = false, IsDeterministic = true)]
+    public static SqlBytes GetRoundedMapRegion(SqlDouble ra, SqlDouble dec, SqlDouble pa, SqlDouble width, SqlDouble height, SqlDouble aperture)
+    {
+        var d = new DetectorHifiMap()
+        {
+            Width = width.Value,
+            Height = height.Value
+        };
+
+        Region r;
+
+        try
+        {
+            r = d.GetFootprint(new Cartesian(ra.Value, dec.Value), pa.Value, aperture.Value);
+        }
+        catch (Exception ex)
+        {
+            r = new Region();
+            r.SetErrorMessage(ex);
+        }
+
+        return r.ToSqlBytes();
+    }
 }
