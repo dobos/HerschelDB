@@ -460,19 +460,25 @@ AS
 
 	-- HIFI
 
+	-- Use WCF header (wrong!)
 	INSERT [ScanMap] WITH (TABLOCKX)
 	SELECT inst, o.obsID, 
 		ISNULL(mapScanSpeed, -1) AS av,
 		ISNULL(p.ra, -1) AS ra,
 		ISNULL(p.dec, -1) AS dec,
-		ISNULL(ABS(p.height) * 60, -1) AS height,
-		ISNULL(ABS(p.width) * 60, -1) AS width,
+		CASE 
+			WHEN o.mapWidth != 0 OR o.mapHeight != 0 THEN o.mapHeight	-- HIPE header
+			ELSE ISNULL(ABS(p.height) * 60, -1)							-- WCF header
+		END AS height,
+		CASE 
+			WHEN o.mapWidth != 0 OR o.mapHeight != 0 THEN o.mapWidth	-- HIPE header
+			ELSE ISNULL(ABS(p.width) * 60, -1)							-- WCF header
+		END AS width,
 		ISNULL(a.flyAngle, -1) AS pa
 	FROM load.Observation o
 	INNER JOIN load.HifiPointing p ON p.obsID = o.obsID
 	INNER JOIN load.HifiAngle a ON a.obsID = o.obsID
 	WHERE inst IN (8) AND obsType = 2 AND pointingmode IN (4);
-
 
 	-- Parallel scan maps from PACS and SPIRE
 	WITH pacs AS

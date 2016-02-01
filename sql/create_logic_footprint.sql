@@ -187,6 +187,56 @@ GO
 ---------------------------------------------------------------
 ---------------------------------------------------------------
 
+IF OBJECT_ID ('load.GetHifiAperture') IS NOT NULL
+DROP FUNCTION [load].[GetHifiAperture]
+
+GO
+
+CREATE FUNCTION [load].[GetHifiAperture]
+(
+	@band varchar(2),
+	@pol varchar(2)
+)
+RETURNS [float]
+AS 
+BEGIN
+	
+	RETURN 	
+		CASE 
+			WHEN @band = '1' AND @pol = 'H' THEN 43.1
+			WHEN @band = '2' AND @pol = 'H' THEN 32.9
+			WHEN @band = '3' AND @pol = 'H' THEN 26.3
+			WHEN @band = '4' AND @pol = 'H' THEN 21.9
+			WHEN @band = '5' AND @pol = 'H' THEN 19.6
+			WHEN @band = '6' AND @pol = 'H' THEN 14.9
+			WHEN @band = '7' AND @pol = 'H' THEN 11.1
+
+			WHEN @band = '1' AND @pol = 'V' THEN 43.5
+			WHEN @band = '2' AND @pol = 'V' THEN 32.8
+			WHEN @band = '3' AND @pol = 'V' THEN 25.8
+			WHEN @band = '4' AND @pol = 'V' THEN 21.7
+			WHEN @band = '5' AND @pol = 'V' THEN 19.4
+			WHEN @band = '6' AND @pol = 'V' THEN 14.7
+			WHEN @band = '7' AND @pol = 'V' THEN 11.1
+
+			WHEN @band = '1' AND @pol = '' THEN 43.5
+			WHEN @band = '2' AND @pol = '' THEN 32.9
+			WHEN @band = '3' AND @pol = '' THEN 23.6
+			WHEN @band = '4' AND @pol = '' THEN 21.9
+			WHEN @band = '5' AND @pol = '' THEN 19.6
+			WHEN @band = '6' AND @pol = '' THEN 14.9
+			WHEN @band = '7' AND @pol = '' THEN 11.1
+			ELSE NULL
+		END
+	
+END
+GO
+
+
+
+---------------------------------------------------------------
+
+
 IF OBJECT_ID ('load.GenerateFootprint_HifiPointed', N'P') IS NOT NULL
 DROP PROC [load].[GenerateFootprint_HifiPointed]
 
@@ -273,11 +323,36 @@ CREATE PROC [load].[GenerateFootprint_HifiMap]
 AS
 
 -- HIFI maps
+	
+	-- Rectangular corners
 	UPDATE Observation
-	SET region = dbo.GetMapRegion(m.ra, m.dec, m.pa, m.width, m.height)
+	SET region = dbo.GetMapRegion(
+		m.ra, 
+		m.dec, 
+		90 + m.pa, 
+		m.width + load.GetHifiAperture(LEFT(o.band, 1), '') / 60.0, 
+		m.height + load.GetHifiAperture(LEFT(o.band, 1), '') / 60.0)
 	FROM Observation o
 	INNER JOIN ScanMap m ON m.inst = o.inst AND m.obsID = o.obsID
 	WHERE o.inst = 8 AND o.pointingMode = 4
+	AND o.band != 'none'
+
+	-- Rounded corners - BUGGY!
+	/*
+	UPDATE Observation
+	SET region = dbo.GetRoundedMapRegion(m.ra, m.dec, m.pa, m.width, m.height,
+	    CASE 
+			WHEN o.band = '1a' OR o.band = '1b' THEN 43.5
+			WHEN o.band = '2a' OR o.band = '2b' THEN 32.9
+			WHEN o.band = '3a' OR o.band = '3b' THEN 26.3
+			WHEN o.band = '4a' OR o.band = '4b' THEN 21.9
+			WHEN o.band = '5a' OR o.band = '5b' THEN 19.6
+			WHEN o.band = '6a' OR o.band = '6b' THEN 14.9
+			WHEN o.band = '7a' OR o.band = '7b' THEN 11.1
+		END)
+	FROM Observation o
+	INNER JOIN ScanMap m ON m.inst = o.inst AND m.obsID = o.obsID
+	WHERE o.inst = 8 AND o.pointingMode = 4*/
 
 GO
 
