@@ -16,6 +16,21 @@ using Jhu.Spherical;
 
 namespace Herschel.Ws.Api
 {
+    public class Point
+    {
+        public double Ra { get; set; }
+        public double Dec { get; set; }
+
+        public static implicit operator Point(Cartesian c)
+        {
+            return new Point()
+            {
+                Ra = c.RA,
+                Dec = c.Dec
+            };
+        }
+    }
+
     [ServiceContract]
     [Description("This service queries the observation database and returns the footprints in various formats.")]
     public interface ISearch
@@ -85,7 +100,7 @@ namespace Herschel.Ws.Api
         [DynamicResponseFormat]
         [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/Outline/Points?res={resolution}")]
         [Description("Returns the arc endpoints of the outline of the footprint of an observation.")]
-        string GetObservationOutlinePoints(
+        IEnumerable<Point> GetObservationOutlinePoints(
             [Description("An instrument identifier.")]
             string inst,
             [Description("Observation ID.")]
@@ -109,7 +124,7 @@ namespace Herschel.Ws.Api
         [DynamicResponseFormat]
         [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/Outline/Reduced/Points?res={resolution}&limit={limit}")]
         [Description("Returns the arc endpoints of the reduced outline of the footprint of an observation.")]
-        string GetObservationOutlineReducedPoints(
+        IEnumerable<Point> GetObservationOutlineReducedPoints(
             [Description("An instrument identifier.")]
             string inst,
             [Description("Observation ID.")]
@@ -143,7 +158,7 @@ namespace Herschel.Ws.Api
         [DynamicResponseFormat]
         [WebGet(UriTemplate = "Observations/{inst}/{obsID}/Footprint/ConvexHull/Outline/Points?res={resolution}")]
         [Description("Returns the arc endpoints of the outline of the convex hull of the footprint of an observation.")]
-        string GetObservationConvexHullOutlinePoints(
+        IEnumerable<Point> GetObservationConvexHullOutlinePoints(
             [Description("An instrument identifier.")]
             string inst,
             [Description("Observation ID.")]
@@ -175,6 +190,50 @@ namespace Herschel.Ws.Api
             throw new WebFaultException<string>("Observation not found", HttpStatusCode.NotFound);
         }
 
+        private IEnumerable<Point> InterpolateOutlinePoints(Outline outline, double resolution)
+        {
+            if (resolution == 0)
+            {
+                resolution = 0.1;
+            }
+
+            resolution = resolution / 3600.0 / 180.0 * Math.PI;
+
+            var res = new List<Point>();
+
+            foreach (var loop in outline.LoopList)
+            {
+                int q = 0;
+                foreach (var arc in loop.ArcList)
+                {
+                    // Starting point
+                    if (q == 0)
+                    {
+                        res.Add(arc.Point1);
+                    }
+
+                    // If a small circle arc, interpolate
+                    if (arc.Circle.Cos0 != 0)
+                    {
+                        var n = (int)Math.Min(1000, Math.Max(6, arc.Length / resolution));
+                        var a = arc.Angle / n;
+
+                        for (int i = 1; i < n - 1; i++)
+                        {
+                            var p = arc.GetPoint(i * a);
+                            res.Add(p);
+                        }
+                    }
+
+                    res.Add(arc.Point2);
+                    q++;
+                }
+            }
+
+            return res;
+        }
+
+        /*
         private string FormatOutlinePoints(Outline outline, double resolution)
         {
             var sb = new StringBuilder();
@@ -213,9 +272,8 @@ namespace Herschel.Ws.Api
 
                 sb.AppendLine();
             }
-
-            return sb.ToString();
         }
+        */
 
         #endregion
         #region Interface implementation
@@ -259,10 +317,10 @@ namespace Herschel.Ws.Api
             return obs.Region.Outline.ToString();
         }
 
-        public string GetObservationOutlinePoints(string instrument, string obsID, double resolution)
+        public IEnumerable<Point> GetObservationOutlinePoints(string instrument, string obsID, double resolution)
         {
             var obs = GetObservation(ObservationID.Parse(instrument, obsID));
-            return FormatOutlinePoints(obs.Region.Outline, resolution);
+            return InterpolateOutlinePoints(obs.Region.Outline, resolution);
         }
 
         public string GetObservationOutlineReduced(string instrument, string obsID, double limit)
@@ -272,11 +330,11 @@ namespace Herschel.Ws.Api
             return obs.Region.Outline.ToString();
         }
 
-        public string GetObservationOutlineReducedPoints(string instrument, string obsID, double resolution, double limit)
+        public IEnumerable<Point> GetObservationOutlineReducedPoints(string instrument, string obsID, double resolution, double limit)
         {
             var obs = GetObservation(ObservationID.Parse(instrument, obsID));
             obs.Region.Outline.Reduce(limit / 648000.0 * Math.PI);
-            return FormatOutlinePoints(obs.Region.Outline, resolution);
+            return InterpolateOutlinePoints(obs.Region.Outline, resolution);
         }
 
         public string GetObservationConvexHull(string instrument, string obsID)
@@ -295,14 +353,14 @@ namespace Herschel.Ws.Api
             return chull.Outline.ToString();
         }
 
-        public string GetObservationConvexHullOutlinePoints(string instrument, string obsID, double resolution)
+        public IEnumerable<Point> GetObservationConvexHullOutlinePoints(string instrument, string obsID, double resolution)
         {
             var obs = GetObservation(ObservationID.Parse(instrument, obsID));
 
             var chull = obs.Region.Outline.GetConvexHull();
             chull.Simplify();
 
-            return FormatOutlinePoints(chull.Outline, resolution);
+            return InterpolateOutlinePoints(chull.Outline, resolution);
         }
 
         #endregion
