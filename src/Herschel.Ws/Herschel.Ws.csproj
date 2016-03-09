@@ -116,6 +116,7 @@
     <Compile Include="Api\Help.aspx.designer.cs">
       <DependentUpon>Help.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Api\IFootprint.cs" />
     <Compile Include="Api\TextResponseMessageBodyWriter.cs" />
     <Compile Include="Api\TextResponseMessageFormatter.cs" />
     <Compile Include="App_Masters\Herschel.Master.cs">
