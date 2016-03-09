@@ -49,10 +49,31 @@ namespace Herschel.Plot
             PlotPacsRaster("pacs_raster_2.pdf", 1342240160, 3f, 2.5f);*/
 
             // PACS spectro raster
-            PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342191352", false, false, false, "pacs_spectro_map.pdf", 1.5f, 2.0f, false);
-            PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342250523", false, false, false, "spire_spectro_map.pdf", 1.5f, 2.0f, false);
-            PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID = 1342191700", false, false, false, "hifi_pointed.pdf", 1.5f, 2.0f, false);
-            PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID = 1342251563", false, false, false, "hifi_map.pdf", 1.5f, 2.0f, false);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342191352", false, false, false, "pacs_spectro_map.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342250523", false, false, false, "spire_spectro_map.pdf", 3f, 2.5f, true);
+            
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID = 1342191700", false, false, false, "hifi_pointed.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID = 1342251563", false, false, false, "hifi_map.pdf", 3f, 2.5f, true);
+
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID IN (1342201114, 1342262551)", false, false, false, "hifi_both.pdf", 3f, 2.5f, true);
+
+            //PlotRegions("SELECT region FROM Observation WHERE inst IN (1, 2, 8) AND obsID IN (1342225752, 1342204025, 1342253169)", false, false, false, "spectro_pointed_all.pdf", 3f, 2.5f, true);
+
+
+            // Small plots for BIDS proceedings
+
+            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 1 AND obsID = 1342225536", false, false, false, "bids_pacs_legs.pdf", 2.3f, 2f, true);
+            //PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM load.Pointing WHERE inst = 1 AND obsID = 1342225536 --AND finetime % 4 = 0", "bids_pacs_pointing.pdf", 2.3f, 2f);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, false, "bids_pacs_full.pdf", 2.3f, 2f, true);
+
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "bids_spire_full.pdf", 2.3f, 2.0f, true);
+            //PlotRegions("SELECT region.ConvexHull(region) AS region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "bids_spire_chull.pdf", 2.3f, 2.0f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, true, "bids_spire_reduce.pdf", 2.3f, 2.0f, true);
+
+            //PlotRegions("SELECT region FROM Observation WHERE inst IN (1, 2, 8) AND obsID IN (1342225752, 1342204025, 1342253169)", false, false, false, "bids_spectro_pointed_all.pdf", 3.3f, 3f, true);
+
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", true, false, false, "bids_spire_htm.pdf", 3.3f, 3f, true);
+            PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342250523", false, false, false, "bids_spire_spectro_map.pdf", 3.3f, 3f, true);
         }
 
         static void PlotRegions(string sql, bool htmcover, bool chull, bool reduce, string filename, float w, float h, bool borders)
@@ -69,9 +90,9 @@ namespace Herschel.Plot
                 {
                     AppendRegionsLayer(plot, cmd, htmcover, chull, reduce);
                 }
-            }
 
-            FinishPlot(plot, filename);
+                FinishPlot(plot, filename);
+            }
         }
 
         static void PlotPoints(string sql, string filename, float w, float h)
@@ -89,9 +110,9 @@ namespace Herschel.Plot
                 {
                     AppendPointsLayer(plot, cmd);
                 }
-            }
 
-            FinishPlot(plot, filename);
+                FinishPlot(plot, filename);
+            }
         }
 
         static void PlotPacsRaster(string filename, long obsid, float w, float h)
@@ -130,7 +151,7 @@ namespace Herschel.Plot
                 plot.AutoZoomFactor = 1.2f;
 
                 FinishPlot(plot, filename);
-            }            
+            }
         }
 
 
@@ -153,6 +174,8 @@ namespace Herschel.Plot
                 RegionDataField = "region",
             };
             outlines.Outline.Pens = new Pen[] { Pens.Red };
+            //outlines.Outline.Pens = new Pen[] { Pens.Red, Pens.Green, Pens.Blue };
+            outlines.Outline.PaletteSelection = PaletteSelection.Rotate;
             outlines.Reduce = reduce;
 
 
@@ -170,7 +193,7 @@ namespace Herschel.Plot
                 DataSource = ds,
                 RegionDataField = "region",
                 MinDepth = 3,
-                MaxDepth = 15,
+                MaxDepth = 12,
             };
             htminner.Markup = Jhu.Spherical.Htm.Markup.Inner;
             htminner.Outline.Pens = new Pen[] { htminnerpen };
@@ -188,7 +211,7 @@ namespace Herschel.Plot
                 DataSource = ds,
                 RegionDataField = "region",
                 MinDepth = 3,
-                MaxDepth = 15,
+                MaxDepth = 12,
             };
             htmpartial.Markup = Jhu.Spherical.Htm.Markup.Partial;
             htmpartial.Outline.Pens = new Pen[] { htmpartialpen };
@@ -196,7 +219,7 @@ namespace Herschel.Plot
 
 
             outlines.Fill.Visible = false;
-                        
+
             plot.Layers.Add(regions);
 
             AppendGridLayer(plot);
@@ -226,7 +249,7 @@ namespace Herschel.Plot
             points.Outline.Visible = false;
             points.Fill.Visible = true;
             points.Fill.Brushes = new Brush[] { Brushes.Red };
-                        
+
             plot.Layers.Add(points);
         }
 
@@ -244,12 +267,15 @@ namespace Herschel.Plot
                 Height = h,
                 ImageSize = new System.Drawing.SizeF(w, h),
                 Projection = new StereographicProjection(),
+                Resolution = 1.0f
             };
 
             if (borders)
             {
-                plot.Margins.Left = 48f;
-                plot.Margins.Bottom = 48f;
+                plot.Margins.Left = 32f;
+                plot.Margins.Bottom = 32f;
+                plot.Margins.Right = 10f;
+                plot.Margins.Top = 1f;
             }
             else
             {
@@ -275,16 +301,18 @@ namespace Herschel.Plot
 
         static void FinishPlot(Jhu.Spherical.Visualizer.Plot plot, string filename)
         {
-            var font = new Font("Consolas", 7.5f);
+            var font = new Font("Consolas", 6f);
 
             var axes = new AxesLayer();
-            axes.X1Axis.Title.Text = "right ascension (deg)";
+            axes.X1Axis.Title.Text = "right ascension";
             axes.X1Axis.Title.Font = font;
             axes.X1Axis.Labels.Font = font;
             axes.X1Axis.Scale.Density = 150f;
+            axes.X1Axis.Scale.DegreeFormat.DegreeWrapAroundStyle = DegreeWrapAroundStyle.ZeroTo360;
             axes.X2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
             axes.X2Axis.Labels.Visible = false;
-            axes.Y1Axis.Title.Text = "declination (deg)";
+            axes.X2Axis.Scale.DegreeFormat.DegreeWrapAroundStyle = DegreeWrapAroundStyle.ZeroTo360;
+            axes.Y1Axis.Title.Text = "declination";
             axes.Y1Axis.Title.Font = font;
             axes.Y1Axis.Labels.Font = font;
             axes.Y2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;

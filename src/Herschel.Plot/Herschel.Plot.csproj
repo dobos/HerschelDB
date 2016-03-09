@@ -32,16 +32,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Jhu.Spherical, Version=1.1.5631.43062, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Jhu.Spherical, Version=1.1.5878.23139, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Spherical\bin\Debug\Jhu.Spherical.dll</HintPath>
+      <HintPath>..\..\lib\Jhu.Spherical.dll</HintPath>
     </Reference>
-    <Reference Include="Jhu.Spherical.Htm, Version=1.1.5631.43062, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Jhu.Spherical.Htm, Version=1.1.5878.23139, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Spherical\bin\Debug\Jhu.Spherical.Htm.dll</HintPath>
+      <HintPath>..\..\lib\Jhu.Spherical.Htm.dll</HintPath>
     </Reference>
-    <Reference Include="Jhu.Spherical.Visualizer">
-      <HintPath>..\..\..\Spherical\bin\Debug\Jhu.Spherical.Visualizer.dll</HintPath>
+    <Reference Include="Jhu.Spherical.Visualizer, Version=1.1.5878.23190, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Jhu.Spherical.Visualizer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
