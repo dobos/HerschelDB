@@ -232,49 +232,7 @@ namespace Herschel.Ws.Api
 
             return res;
         }
-
-        /*
-        private string FormatOutlinePoints(Outline outline, double resolution)
-        {
-            var sb = new StringBuilder();
-
-            foreach (var loop in outline.LoopList)
-            {
-                int q = 0;
-                foreach (var arc in loop.ArcList)
-                {
-                    // Starting point
-                    if (q == 0)
-                    {
-                        sb.AppendFormat(CultureInfo.InvariantCulture, "{0:R} {1:R}", arc.Point1.RA, arc.Point1.Dec);
-                        sb.AppendLine();
-                    }
-
-                    // If a small circle arc, interpolate
-                    if (arc.Circle.Cos0 != 0)
-                    {
-                        var n = (int)Math.Max(6, arc.Length / (resolution / 3600.0 / 180.0 * Math.PI));
-                        var a = arc.Length / n;
-
-                        for (int i = 1; i < n - 1; i++)
-                        {
-                            var p = arc.GetPoint(i * a);
-                            sb.AppendFormat(CultureInfo.InvariantCulture, "{0:R} {1:R}", p.RA, p.Dec);
-                            sb.AppendLine();
-                        }
-                    }
-
-                    sb.AppendFormat(CultureInfo.InvariantCulture, "{0:R} {1:R}", arc.Point2.RA, arc.Point2.Dec);
-                    sb.AppendLine();
-
-                    q++;
-                }
-
-                sb.AppendLine();
-            }
-        }
-        */
-
+        
         #endregion
         #region Interface implementation
 
