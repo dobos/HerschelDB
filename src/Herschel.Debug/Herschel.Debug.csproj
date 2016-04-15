@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DBDD5017-65B7-4E56-ADA9-9C54AA143190}</ProjectGuid>
+    <ProjectGuid>{FC768BD3-3F84-42D1-90CD-DC8AEADB0226}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Herschel.Sql.Plot</RootNamespace>
-    <AssemblyName>hplot</AssemblyName>
+    <RootNamespace>Herschel.Debug</RootNamespace>
+    <AssemblyName>Herschel.Debug</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -35,7 +35,6 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,28 +49,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Spherical\src\Jhu.Spherical.Htm\Jhu.Spherical.Htm.csproj">
-      <Project>{8c128e59-14e3-4e84-824e-af5fb58c5d58}</Project>
-      <Name>Jhu.Spherical.Htm</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Spherical\src\Jhu.Spherical.Visualizer\Jhu.Spherical.Visualizer.csproj">
-      <Project>{1dcd8ac1-dcdd-4941-9e3f-d9ef60a078f9}</Project>
-      <Name>Jhu.Spherical.Visualizer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Spherical\src\Jhu.Spherical\Jhu.Spherical.csproj">
       <Project>{93efa6ad-0c3f-4c7f-b1f7-d697d0ba49f7}</Project>
       <Name>Jhu.Spherical</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Herschel.Lib\Herschel.Lib.csproj">
-      <Project>{36b1f087-77ca-4ef2-8653-c9c7499d1126}</Project>
-      <Name>Herschel.Lib</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) $(SolutionDir)$(OutDir)
-copy $(TargetPath).config $(SolutionDir)$(OutDir)</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

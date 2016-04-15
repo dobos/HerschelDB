@@ -21,18 +21,18 @@ namespace Herschel.Plot
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
-            //PlotRegions("SELECT region.Parse('CIRCLE J2000 10 10 0.91') AS region", true, false, false, "htmcover.pdf", 3.5f, 3.0f, true);
+            //PlotRegions("SELECT region.Parse('CIRCLE J2000 10 10 0.91') AS region", true, false, false, "htmcover.emf", 6f, 5f, true);
 
-            //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_full.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_full.emf", 6f, 5f, true);
             //PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_chull.pdf", 3f, 2.5f, true);
             //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342225536", false, false, true, "pacs_reduce.pdf", 3f, 2.5f, true);
 
-            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_legs.pdf", 3f, 2.5f, true);
-            //PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM Pointing WHERE inst = 1 AND obsID = 1342225536 --AND finetime % 4 = 0", "pacs_pointing.pdf", 3f, 2.5f);
+            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 1 AND obsID = 1342225536", false, false, false, "pacs_legs.emf", 6f, 5f, true);
+            //PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM load.Pointing WHERE inst = 1 AND obsID = 1342225536 --AND finetime % 4 = 0", "pacs_pointing.emf", 6f, 5f);
 
-            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_full.pdf", 3f, 2.5f, true);
-            //PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_chull.pdf", 3f, 2.5f, true);
-            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, true, "spire_reduce.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_full.emf", 6f, 5f, true);
+            //PlotRegions("SELECT region.ConvexHull(region) AS region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_chull.emf", 6f, 5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, true, "spire_reduce.emf", 6f, 5f, true);
 
             //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_full_small.pdf", 1.5f, 2.0f, false);
             //PlotRegions("SELECT region.GetConvexHull(region) AS region FROM Observation WHERE inst = 2 AND obsID = 1342186861", false, false, false, "spire_chull_small.pdf", 1.5f, 2.0f, false);
@@ -42,22 +42,29 @@ namespace Herschel.Plot
             //PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM Pointing WHERE inst = 2 AND obsID = 1342186861 --AND finetime % 4 = 0", "spire_pointing.pdf");
 
             // SPIRE connect leg ends example
-            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 2 AND obsID = 1342183681 AND legID % 2 = 1", false, false, false, "spire_legs.pdf", 3f, 2.5f, true);
-            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 2 AND obsID = 1342183681", false, false, false, "spire_leg_ends.pdf", 3f, 2.5f, true);
+
+
+            //PlotPoints("SELECT ra AS point_ra, dec AS point_dec FROM load.Pointing WHERE inst = 2 AND obsID = 1342183681 --AND finetime % 4 = 0", "spire_pointing_2.emf", 6f, 5f);
+            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 2 AND obsID = 1342183681 AND legID % 2 = 1", false, false, false, "spire_legs_2.emf", 6f, 5f, true);
+            //PlotRegions("SELECT region FROM load.LegRegion WHERE inst = 2 AND obsID = 1342183681", false, false, false, "spire_leg_ends_2.emf", 6f, 5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342183681", false, false, false, "spire_full_2.emf", 6f, 5f, true);
+
+
 
             /*PlotPacsRaster("pacs_raster_1.pdf", 1342212598, 3f, 2.5f);
             PlotPacsRaster("pacs_raster_2.pdf", 1342240160, 3f, 2.5f);*/
 
             // PACS spectro raster
-            //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342191352", false, false, false, "pacs_spectro_map.pdf", 3f, 2.5f, true);
-            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342250523", false, false, false, "spire_spectro_map.pdf", 3f, 2.5f, true);
-            
+            PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342212598", false, false, false, "pacs_spectro_raster.emf", 6f, 5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 1 AND obsID = 1342191352", false, false, false, "pacs_spectro_map.emf", 6f, 5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342250523", false, false, false, "spire_spectro_map.emf", 6f, 5f, true);
+
             //PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID = 1342191700", false, false, false, "hifi_pointed.pdf", 3f, 2.5f, true);
             //PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID = 1342251563", false, false, false, "hifi_map.pdf", 3f, 2.5f, true);
 
-            //PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID IN (1342201114, 1342262551)", false, false, false, "hifi_both.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 8 AND obsID IN (1342201114, 1342262551)", false, false, false, "hifi_both.emf", 6f, 5f, true);
 
-            //PlotRegions("SELECT region FROM Observation WHERE inst IN (1, 2, 8) AND obsID IN (1342225752, 1342204025, 1342253169)", false, false, false, "spectro_pointed_all.pdf", 3f, 2.5f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst IN (1, 2, 8) AND obsID IN (1342225752, 1342204025, 1342253169)", false, false, false, "spectro_pointed_all.emf", 6f, 5f, true);
 
 
             // Small plots for BIDS proceedings
@@ -73,7 +80,7 @@ namespace Herschel.Plot
             //PlotRegions("SELECT region FROM Observation WHERE inst IN (1, 2, 8) AND obsID IN (1342225752, 1342204025, 1342253169)", false, false, false, "bids_spectro_pointed_all.pdf", 3.3f, 3f, true);
 
             //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342186861", true, false, false, "bids_spire_htm.pdf", 3.3f, 3f, true);
-            PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342250523", false, false, false, "bids_spire_spectro_map.pdf", 3.3f, 3f, true);
+            //PlotRegions("SELECT region FROM Observation WHERE inst = 2 AND obsID = 1342250523", false, false, false, "bids_spire_spectro_map.pdf", 3.3f, 3f, true);
         }
 
         static void PlotRegions(string sql, bool htmcover, bool chull, bool reduce, string filename, float w, float h, bool borders)
@@ -168,12 +175,19 @@ namespace Herschel.Plot
             regions.Fill.Brushes = new Brush[] { Brushes.LightYellow };
             regions.Reduce = reduce;
 
+            var outlinepen = new Pen(Brushes.Red, 2.0f)
+            {
+                StartCap = LineCap.Flat,
+                EndCap = LineCap.Flat,
+                LineJoin = System.Drawing.Drawing2D.LineJoin.Bevel
+            };
+
             var outlines = new RegionsLayer()
             {
                 DataSource = ds,
                 RegionDataField = "region",
             };
-            outlines.Outline.Pens = new Pen[] { Pens.Red };
+            outlines.Outline.Pens = new Pen[] { outlinepen };
             //outlines.Outline.Pens = new Pen[] { Pens.Red, Pens.Green, Pens.Blue };
             outlines.Outline.PaletteSelection = PaletteSelection.Rotate;
             outlines.Reduce = reduce;
@@ -181,7 +195,7 @@ namespace Herschel.Plot
 
             outlines.ReduceEpsilon = regions.ReduceEpsilon = 50.0 / 3600 * Constant.Degree2Radian;
 
-            var htminnerpen = new Pen(Brushes.Black, 1.0f)
+            var htminnerpen = new Pen(Brushes.Black, 2.0f)
             {
                 StartCap = LineCap.Flat,
                 EndCap = LineCap.Flat,
@@ -193,13 +207,13 @@ namespace Herschel.Plot
                 DataSource = ds,
                 RegionDataField = "region",
                 MinDepth = 3,
-                MaxDepth = 12,
+                MaxDepth = 16,
             };
             htminner.Markup = Jhu.Spherical.Htm.Markup.Inner;
             htminner.Outline.Pens = new Pen[] { htminnerpen };
             htminner.Fill.Visible = false;
 
-            var htmpartialpen = new Pen(Brushes.Blue, 1.0f)
+            var htmpartialpen = new Pen(Brushes.Blue, 2.0f)
             {
                 StartCap = LineCap.Flat,
                 EndCap = LineCap.Flat,
@@ -211,7 +225,7 @@ namespace Herschel.Plot
                 DataSource = ds,
                 RegionDataField = "region",
                 MinDepth = 3,
-                MaxDepth = 12,
+                MaxDepth = 16,
             };
             htmpartial.Markup = Jhu.Spherical.Htm.Markup.Partial;
             htmpartial.Outline.Pens = new Pen[] { htmpartialpen };
@@ -285,7 +299,10 @@ namespace Herschel.Plot
                 plot.Margins.Bottom = 1f;
             }
 
-            plot.Layers.Add(new BorderLayer());
+            var b = new BorderLayer();
+            b.Line.Pen = new Pen(Brushes.Black, 2.0f);
+
+            plot.Layers.Add(b);
 
             return plot;
         }
@@ -294,6 +311,7 @@ namespace Herschel.Plot
         {
             var grid = new GridLayer();
             grid.RaScale.Density = 200f;
+            grid.DecScale.Density = 200f;
             grid.Line.Pen = Pens.LightGray;
 
             plot.Layers.Add(grid);
@@ -301,13 +319,13 @@ namespace Herschel.Plot
 
         static void FinishPlot(Jhu.Spherical.Visualizer.Plot plot, string filename)
         {
-            var font = new Font("Consolas", 6f);
+            var font = new Font("Consolas", 14f);
 
             var axes = new AxesLayer();
             axes.X1Axis.Title.Text = "right ascension";
             axes.X1Axis.Title.Font = font;
             axes.X1Axis.Labels.Font = font;
-            axes.X1Axis.Scale.Density = 150f;
+            axes.X1Axis.Scale.Density = 200f;
             axes.X1Axis.Scale.DegreeFormat.DegreeWrapAroundStyle = DegreeWrapAroundStyle.ZeroTo360;
             axes.X2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
             axes.X2Axis.Labels.Visible = false;
@@ -315,14 +333,31 @@ namespace Herschel.Plot
             axes.Y1Axis.Title.Text = "declination";
             axes.Y1Axis.Title.Font = font;
             axes.Y1Axis.Labels.Font = font;
+            axes.Y1Axis.Scale.Density = 200f;
             axes.Y2Axis.Scale.DegreeFormat.DegreeStyle = DegreeStyle.Decimal;
             axes.Y2Axis.Labels.Visible = false;
+            axes.X1Axis.Line.Pen = axes.X2Axis.Line.Pen = axes.Y1Axis.Line.Pen = axes.Y2Axis.Line.Pen = new Pen(Brushes.Black, 2.0f);
 
             plot.Layers.Add(axes);
 
             plot.Projection.InvertX = true;
 
-            plot.RenderToPdf(filename);
+            if (filename.EndsWith(".pdf"))
+            {
+                plot.RenderToPdf(filename);
+            }
+            else if (filename.EndsWith(".eps"))
+            {
+                plot.RenderToEps(filename);
+            }
+            else if (filename.EndsWith(".emf"))
+            {
+                plot.RenderToEmf(filename);
+            }
+            else
+            {
+                plot.RenderToBitmap(filename, System.Drawing.Imaging.ImageFormat.Png);
+            }
         }
 
         static void AppendPointsLayer(Jhu.Spherical.Visualizer.Plot plot, SqlCommand cmd)
@@ -334,7 +369,7 @@ namespace Herschel.Plot
                 DataSource = ds,
                 PointDataField = "point",
                 Figure = FigureType.Dot,
-                Size = new SizeF(0.3f, 0.3f)
+                Size = new SizeF(1.2f, 1.2f)
             };
             points.Outline.Visible = false;
             points.Fill.Visible = true;

@@ -50,11 +50,18 @@ namespace Herschel.Ws.Api
 
             var res = new List<Point>();
 
-            foreach (var loop in outline.LoopList)
+            for (int l = 0; l < outline.LoopList.Count; l++)
             {
+                var loop = outline.LoopList[l];
+                var arcs = new List<Arc>(loop.ArcList);
+
                 int q = 0;
-                foreach (var arc in loop.ArcList)
+
+                for (int a = 0; a < arcs.Count; a++)
                 {
+                    Point p;
+                    var arc = arcs[a];
+
                     // Starting point
                     if (q == 0)
                     {
@@ -65,24 +72,27 @@ namespace Herschel.Ws.Api
                     if (arc.Circle.Cos0 != 0)
                     {
                         var n = (int)Math.Min(1000, Math.Max(6, arc.Length / resolution)) - 1;
-                        var a = arc.Angle / n;
+                        var ang = arc.Angle / n;
 
                         for (int i = 1; i < n; i++)
                         {
-                            var p = arc.GetPoint(i * a);
+                            p = (Point)arc.GetPoint(i * ang);
+                            p.LoopID = l;
                             res.Add(p);
                         }
                     }
 
                     // Endpoint
-                    res.Add(arc.Point2);
+                    p = (Point)arc.Point2;
+                    p.LoopID = l;
+                    res.Add(p);
                     q++;
                 }
             }
 
             return res;
         }
-        
+
         #endregion
         #region Interface implementation
 

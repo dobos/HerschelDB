@@ -17,7 +17,7 @@
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetLanguage>CS</TargetLanguage>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SqlServerVerification>False</SqlServerVerification>
@@ -66,12 +66,6 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Jhu.Spherical">
-      <HintPath>..\..\lib\Jhu.Spherical.dll</HintPath>
-    </Reference>
-    <Reference Include="Jhu.Spherical.Htm">
-      <HintPath>..\..\lib\Jhu.Spherical.Htm.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Footprint.cs" />
@@ -81,6 +75,20 @@
     <None Include="HerschelSql.publish.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Spherical\src\Jhu.Spherical\Jhu.Spherical.csproj">
+      <Name>Jhu.Spherical</Name>
+      <Project>{93efa6ad-0c3f-4c7f-b1f7-d697d0ba49f7}</Project>
+      <Private>True</Private>
+      <IsModelAware>True</IsModelAware>
+      <GenerateSqlClrDdl>True</GenerateSqlClrDdl>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Spherical\src\Jhu.Spherical.Htm\Jhu.Spherical.Htm.csproj">
+      <Name>Jhu.Spherical.Htm</Name>
+      <Project>{8c128e59-14e3-4e84-824e-af5fb58c5d58}</Project>
+      <Private>True</Private>
+      <IsModelAware>True</IsModelAware>
+      <GenerateSqlClrDdl>True</GenerateSqlClrDdl>
+    </ProjectReference>
     <ProjectReference Include="..\Herschel.Lib\Herschel.Lib.csproj">
       <Name>Herschel.Lib</Name>
       <Project>{36b1f087-77ca-4ef2-8653-c9c7499d1126}</Project>
@@ -90,7 +98,7 @@
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>$(SolutionDir)lib\Jhu.Spherical.ScriptGenerator.exe $(TargetPath)
+    <PostBuildEvent>"$(SolutionDir)$(OutDir)Jhu.Spherical.ScriptGenerator.exe" "$(TargetPath)"
 copy $(TargetDir)$(TargetName).Drop.sql $(SolutionDir)$(OutputPath)
 copy $(TargetDir)$(TargetName).Create.sql $(SolutionDir)$(OutputPath)
 

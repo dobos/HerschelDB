@@ -18,6 +18,7 @@ namespace Herschel.Ws.Api
 {
     public class Point
     {
+        public int LoopID { get; set; }
         public double Ra { get; set; }
         public double Dec { get; set; }
 
