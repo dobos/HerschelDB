@@ -113,7 +113,18 @@ namespace Herschel.Ws.Api
 
         public IEnumerable<Observation> FindObservationIntersect(string inst, string region, long start, long end)
         {
-            return null;
+            var obsid = ObservationID.Parse(inst, "0");
+
+            var s = new ObservationSearch()
+            {
+                SearchMethod = ObservationSearchMethod.Intersect,
+                InstrumentModeFilters = new[] { new InstrumentModeFilter(obsid.Instrument) },
+                Region = Jhu.Spherical.Region.Parse(region),
+                FineTimeStart = start,
+                FineTimeEnd = end
+            };
+
+            return s.Find();
         }
 
         public Observation GetObservation(string instrument, string obsID)

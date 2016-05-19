@@ -39,8 +39,7 @@ namespace Herschel.Ws.Api
         [OperationContract]
         [DynamicResponseFormat]
         [Description("Finds observations by J2000 equatorial coordinates.")]
-        [WebGet(BodyStyle = WebMessageBodyStyle.Wrapped,
-            UriTemplate = "Observations?findby=eq&inst={inst}&ra={ra}&dec={dec}&start={start}&end={end}")]
+        [WebGet(UriTemplate = "Observations?findby=eq&inst={inst}&ra={ra}&dec={dec}&start={start}&end={end}")]
         IEnumerable<Observation> FindObservationEq(
             [Description("A comma separated list of instrument identifiers.")]
             string inst,
