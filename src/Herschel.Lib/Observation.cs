@@ -16,67 +16,81 @@ namespace Herschel.Lib
         [IgnoreDataMember]
         public bool Selected { get; set; }
 
-        [DataMember]
+        [IgnoreDataMember]
         public Instrument Instrument { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "inst")]
+        public string Instrument_ForXml
+        {
+            get { return Instrument.ToString(); }
+            set { Instrument = (Instrument)Enum.Parse(typeof(Instrument), value); }
+        }
+
+        [DataMember(Name = "obsID")]
         public Int64 ObsID { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "type")]
         public ObservationType Type { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "obsLevel")]
         public ObservationLevel Level { get; set; }
 
-        [DataMember]
+        [IgnoreDataMember]
         public InstrumentMode InstrumentMode { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "instMode")]
+        public string InstrumentMode_ForXml
+        {
+            get { return InstrumentMode.ToString(); }
+            set { InstrumentMode = (InstrumentMode)Enum.Parse(typeof(InstrumentMode), value); }
+        }
+
+        [DataMember(Name = "pointingMode")]
         public PointingMode PointingMode { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "band")]
         public string Band { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "object")]
         public string @Object { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "calib")]
         public bool Calibration { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "failed")]
         public bool Failed { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "sso")]
         public bool Sso { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "ra")]
         public double RA { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "dec")]
         public double Dec { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "pa")]
         public double PA { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "aper")]
         public double Aperture { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "start")]
         public FineTime FineTimeStart { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "end")]
         public FineTime FineTimeEnd { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "repetitions")]
         public int Repetition { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "proposer")]
         public string Proposer { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "aor")]
         public string AOR { get; set; }
 
-        [DataMember]
+        [DataMember(Name = "aot")]
         public string AOT { get; set; }
 
         [IgnoreDataMember]
