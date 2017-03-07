@@ -1,6 +1,6 @@
 # Download all SPIRE pointed spectro observation pointing files and store in pointing/spire/spectro/myTable_[obsid].txt
 
-table = asciiTableReader(file="spire_spectro_pointed.list", tableType="SPACES")
+table = asciiTableReader(file="list/spire_spectro_pointed.txt", tableType="SPACES")
 col = table.getColumn(0).data
 
 for i in range(len(col)):

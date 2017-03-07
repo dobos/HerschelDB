@@ -1,6 +1,6 @@
 # Download all PACS photo pointing files and store int pointing/pacs/photo/MyTable_[obsid].txt
 
-table = asciiTableReader(file="pacs_photo.list", tableType="CSV")
+table = asciiTableReader(file="list/pacs_photo.txt", tableType="CSV")
 col = table.getColumn(0).data
 
 for i in range(len(col)):

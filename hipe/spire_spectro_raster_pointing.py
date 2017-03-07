@@ -1,6 +1,6 @@
 # Download all SPIRE raster spectro observation pointing files and store in pointing/spire/spectro/myTable_[obsid].txt
 
-table = asciiTableReader(file="spire_spectro_raster.list", tableType="CSV")
+table = asciiTableReader(file="list/spire_spectro_raster.txt", tableType="CSV")
 col = table.getColumn(0).data
 
 

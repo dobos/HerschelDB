@@ -1,4 +1,4 @@
-table = asciiTableReader(file="spire_photo.list", tableType="SPACES")
+table = asciiTableReader(file="list/spire_photo.txt", tableType="SPACES")
 col = table.getColumn(0).data
 
 for j in range(len(col)):
@@ -36,7 +36,7 @@ for j in range(len(col)):
 	tds.addColumn("PA",  Column(paTotal))
 	tds.addColumn("sampleTime",  Column(timeTotal))
 	tds.addColumn("corrTime",  Column(corrtimeTotal))
-	asciiTableWriter(table=tds, file='myTable_'+str(obsid)+'.txt', formatter=CsvFormatter(delimiter=' '))
+	asciiTableWriter(table=tds, file='pointing/spire/photo/myTable_'+str(obsid)+'.txt', formatter=CsvFormatter(delimiter=' '))
 	print j, len(col), obsid
 	del(obs,tds,raTotal, decTotal, angVelTotal,  corrtimeTotal, paTotal, timeTotal)
 	del(ra, dec, angVel, corrTimeArr, pa, pa2, psp, timeArr)

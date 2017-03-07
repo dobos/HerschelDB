@@ -1,6 +1,6 @@
 # Download PACS line spectro pointings and stores in pointing/pacs/spectro_line/MyTable_[obsid].txt
 
-table = asciiTableReader(file="pacs_spectro_line.list", tableType="CSV")
+table = asciiTableReader(file="list/pacs_spectro_line.txt", tableType="CSV")
 col = table.getColumn(0).data
 
 for i in range(len(col)):

@@ -12,7 +12,7 @@ obsTotal=String1d()
 nu_0 = [480., 640., 800., 960., 1120., 1410., 1910.]
 HPBW_nu0 = [43.3,32.85,26.05,21.8,19.5,14.8,11.1]
 
-table = asciiTableReader(file="hifi.list", tableType="SPACES")
+table = asciiTableReader(file="list/hifi.txt", tableType="SPACES")
 col = table.getColumn(0).data
 
 for j in range(1, len(col)):
