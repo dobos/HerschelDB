@@ -1,0 +1,9 @@
+mkdir -p obs
+mkdir -p pointing/hifi
+mkdir -p pointing/pacs/parallel
+mkdir -p pointing/pacs/photo
+mkdir -p pointing/pacs/spectro_line
+mkdir -p pointing/pacs/spectro_range
+mkdir -p pointing/spire/parallel
+mkdir -p pointing/spire/photo
+mkdir -p pointing/spire/spectro_line
