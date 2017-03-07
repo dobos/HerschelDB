@@ -1,5 +1,6 @@
+# Download all PACS photo headers and store in obs/pacs_photo.txt
 
-table = asciiTableReader(file="U:\Header\PACS_photo\pacs.photo", tableType="SPACES")
+table = asciiTableReader(file="pacs_photo.list", tableType="SPACES")
 col = table.getColumn(0).data
 obsid=Long1d()
 blueT=String1d()
@@ -74,4 +75,4 @@ tds.addColumn("obsState", Column(obsST))
 tds.addColumn("Object", Column(objectT))
 tds.addColumn("ScanSpeed", Column(mssT))
 formatter = CsvFormatter(delimiter=' ')
-asciiTableWriter(table=tds, file='pacs_photo.header', formatter=formatter)
+asciiTableWriter(table=tds, file='obs/pacs_photo.txt', formatter=formatter)

@@ -1,3 +1,6 @@
+# Download HIFI extended headers that stores beam positions for H/V and
+# store in pointing/hifi/hifi.txt
+
 raTotal1, raTotal2, decTotal1, decTotal2 = Double1d(), Double1d(), Double1d(), Double1d()
 bandTotal, ctype1Total, ctype2Total, ctype3Total, cunit1Total, cunit2Total, cunit3Total  = String1d(), String1d(), String1d(), String1d(), String1d(), String1d(), String1d()
 PMTotal, CMTotal = String1d(), String1d()
@@ -9,7 +12,7 @@ obsTotal=String1d()
 nu_0 = [480., 640., 800., 960., 1120., 1410., 1910.]
 HPBW_nu0 = [43.3,32.85,26.05,21.8,19.5,14.8,11.1]
 
-table = asciiTableReader(file="hifi_list.dat", tableType="SPACES")
+table = asciiTableReader(file="hifi.list", tableType="SPACES")
 col = table.getColumn(0).data
 
 for j in range(1, len(col)):
@@ -131,4 +134,4 @@ tds.addColumn("cunit1",  Column(cunit1Total))
 tds.addColumn("cunit2",  Column(cunit2Total))
 tds.addColumn("cunit3",  Column(cunit3Total))
 tds.addColumn("crota2",  Column(crota2Total))
-asciiTableWriter(table=tds, file='HIFI_parameters.txt', formatter=CsvFormatter(delimiter=' '))
+asciiTableWriter(table=tds, file='pointing/hifi/hifi.txt', formatter=CsvFormatter(delimiter=' '))

@@ -1,4 +1,6 @@
-table = asciiTableReader(file="pacs_photo.txt", tableType="CSV")
+# Download all PACS photo pointing files and store int pointing/pacs/photo/MyTable_[obsid].txt
+
+table = asciiTableReader(file="pacs_photo.list", tableType="CSV")
 col = table.getColumn(0).data
 
 for i in range(len(col)):
@@ -10,6 +12,6 @@ for i in range(len(col)):
 	frames = photAddInstantPointing(frames, pp, calTree=calTree, orbitEphem=orbitEphem, copy=1)
 	pointing = frames.refs[0].product["Status"]
 	formatter = CsvFormatter(delimiter=' ')
-	asciiTableWriter(table=pointing, file='myTable_'+str(col[i])+'.txt', formatter=formatter)
+	asciiTableWriter(table=pointing, file='pointing/pacs/photo/myTable_'+str(col[i])+'.txt', formatter=formatter)
 	del(obs,pp,calTree,orbitEphem,frames, pointing)
 	System.gc()

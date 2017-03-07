@@ -1,4 +1,4 @@
-table = asciiTableReader(file="spire_photo.txt", tableType="SPACES")
+table = asciiTableReader(file="spire_photo.list", tableType="SPACES")
 col = table.getColumn(0).data
 
 for j in range(len(col)):
