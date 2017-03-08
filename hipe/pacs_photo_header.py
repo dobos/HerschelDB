@@ -1,6 +1,6 @@
 # Download all PACS photo headers and store in obs/pacs_photo.txt
 
-table = asciiTableReader(file= CWD + "list/pacs_photo.txt", tableType="SPACES")
+table = asciiTableReader(file= CWD + LIST + "pacs_photo.txt", tableType="SPACES")
 col = table.getColumn(0).data
 obsid=Long1d()
 blueT=String1d()
