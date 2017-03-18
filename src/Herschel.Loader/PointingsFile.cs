@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Data;
 using System.Data.SqlClient;
+using ICSharpCode.SharpZipLib.GZip;
 using Herschel.Lib;
 
 namespace Herschel.Loader
@@ -13,6 +14,7 @@ namespace Herschel.Loader
     abstract class PointingsFile
     {
         private PointingObservationType observationType;
+        private Dictionary<string, int> columns;
 
         public PointingObservationType ObservationType
         {
@@ -20,6 +22,11 @@ namespace Herschel.Loader
             set { observationType = value; }
         }
 
+        protected Dictionary<string, int> Columns
+        {
+            get { return columns; }
+        }
+        
         protected abstract bool Parse(string[] parts, out RawPointing pointing);
 
         protected void Write(RawPointing p, TextWriter writer)
@@ -51,25 +58,46 @@ namespace Herschel.Loader
 
             writer.WriteLine();
         }
-        
+
         protected IEnumerable<RawPointing> ReadPointingsFile(string filename)
         {
-            // Open file
-            using (var infile = new StreamReader(filename))
+            GZipInputStream zipstream = null;
+
+            using (var infile = new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
-                // Skip four lines
-                for (int i = 0; i < 4; i++)
+
+                // If file is zipped, wrap in unzipstream
+                if (filename.EndsWith(".gz"))
                 {
-                    infile.ReadLine();
+                    zipstream = new GZipInputStream(infile);
                 }
 
-                string line;
-                while ((line = infile.ReadLine()) != null)
+                using (var reader = new StreamReader((Stream)zipstream ?? infile))
                 {
-                    RawPointing p;
-                    if (Parse(line.Split(' '), out p))
+                    string line;
+
+                    // Load column headers
+                    line = reader.ReadLine();
+                    columns = new Dictionary<string, int>();
+                    var parts = line.Split(' ');
+                    for (int i = 0; i < parts.Length; i++)
                     {
-                        yield return p;
+                        columns.Add(parts[i], i);
+                    }
+
+                    // Skip three lines
+                    for (int i = 0; i < 3; i++)
+                    {
+                        reader.ReadLine();
+                    }
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        RawPointing p;
+                        if (Parse(line.Split(' '), out p))
+                        {
+                            yield return p;
+                        }
                     }
                 }
             }

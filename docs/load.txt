@@ -1,4 +1,15 @@
-1. prepare observation
+1. Build
+
+Update connection strings in app.config and web.config files to point to the current db. Rebuild the project.
+Copy directories to target server: bin, load. Update load/settings.sh to point to source files.
+
+2. Prepare observation
+
+	$ mkdir obs
+	$ cd load
+	$ ./prepare_obs.sh
+
+
 2. load observation
 3. prepare quality
 4. load quality
