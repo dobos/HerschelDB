@@ -11,20 +11,14 @@ using Herschel.Lib;
 
 namespace Herschel.Loader
 {
-    abstract class PointingsFile
+    abstract class PointingsFile : InputFile
     {
         private PointingObservationType observationType;
-        private Dictionary<string, int> columns;
 
         public PointingObservationType ObservationType
         {
             get { return observationType; }
             set { observationType = value; }
-        }
-
-        protected Dictionary<string, int> Columns
-        {
-            get { return columns; }
         }
         
         protected abstract bool Parse(string[] parts, out RawPointing pointing);
@@ -78,12 +72,7 @@ namespace Herschel.Loader
 
                     // Load column headers
                     line = reader.ReadLine();
-                    columns = new Dictionary<string, int>();
-                    var parts = line.Split(' ');
-                    for (int i = 0; i < parts.Length; i++)
-                    {
-                        columns.Add(parts[i], i);
-                    }
+                    ParseColumns(line);
 
                     // Skip three lines
                     for (int i = 0; i < 3; i++)

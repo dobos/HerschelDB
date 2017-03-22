@@ -7,6 +7,8 @@ GROUP BY inst, obsType, pointingMode
 ORDER BY 1, 2, 3
 
 /*
+V1:
+
 inst	obsType	pointingMode	(No column name)
 1	1	8	17303		missing: ra, dec, pa, aperture, fineTimeStart, fineTimeEnd, repetition(parallel)
 1	1	65	37			missing: ra, dec, pa, aperture, fineTimeStart, fineTimeEnd
@@ -20,6 +22,20 @@ inst	obsType	pointingMode	(No column name)
 4	1	32	757			missing: ra, dec, pa, aperture, fineTimeStart, fineTimeEnd, repetition
 8	2	1	7733		OK
 8	2	4	782			OK
+
+V2:
+
+inst	obsType	pointingMode	(No column name)
+1	1	8	17578
+1	1	65	67
+1	2	1	4154
+1	2	4	1026
+2	1	8	849
+2	1	16	5074
+2	1	65	1
+2	2	1	1239
+2	2	2	16
+4	1	32	784
 */
 
 

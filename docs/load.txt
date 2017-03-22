@@ -1,31 +1,100 @@
-1. Build
+## 1. Build
 
 Update connection strings in app.config and web.config files to point to the current db. Rebuild the project.
 Copy directories to target server: bin, load. Update load/settings.sh to point to source files.
 
-2. Prepare observation
+## 2. Create database
+
+	* Run create_db.sql
+	* Add assembly System.Runtime.Serialization and its dependencies
+	* Install spherical library: bin/Debug/Jhu.Spherical.Sql.Create.sql
+	* Deploy Herschel CLR Assembly: bin/Debug/HerschelSql.Create.sql
+
+## 3. Initialize database schema and logic
+
+Run SQL scripts in order
+
+	* create_load_tables.sql
+	* create_load_logic.sql
+	* create_tables.sql
+	* create_logic.sql
+
+## 4. Prepare and load observation
 
 	$ mkdir obs
-	$ cd load
-	$ ./prepare_obs.sh
+	$ load/prepare_obs.sh
+	$ load/load_obs.sh
 
+## 5. Prepare and load quality and SSO flag files
 
-2. load observation
-3. prepare quality
-4. load quality
-5. prepare SSO
-6. load SSO
-7. prepare pointing
-8. load pointing
-9. remove pointing duplicates
-10. merge pointing	
-11. merge observation
-12. detect legs
-13. generate leg footprints
-14. generate scan maps
-15. generate parallel maps
-16. generate htm
+	***
 
-...
+## 6. Merge observation
 
-   cleanup
+Execute stored procedures in the following order
+
+TODO: add this to merge_observation.sql
+
+	* load.MergeObservations
+	* load.MergeObservationsParallel
+	* load.MergeScanMaps
+	* load.MergeRasterMaps
+	* load.MergeSpectro
+	* load.MergeSso
+
+## 7. Prepare and load pointing files
+
+	$ load/prepare_pointing.sh
+	$ load/prepare_pointing_hifi.sh
+	$ load/load_pointing.sh
+
+## 8. Merge pointings
+
+Execute SQL scripts in order
+
+	* remove_pointing_duplicates.sql
+
+Compute pointing clusters for PACS observations to figure out raster patterns etc.
+
+	$ bin/hload.exe cluster pointing
+
+	* load.UpdateObservationsPointings
+	* load.UpdateObservationParams
+	* load.UpdateObservationsFlags
+
+## 9. Detect legs
+
+	* create_logic_scanmap.sql
+
+Execute stored procedures in order
+
+	* [load].[DetectLegs]				should finish in ~ 6 mins
+	* [load].[VerifyLegs]				should return no rows
+	* [load].[GenerateLegFootprints]	should finish in ~ 2 mins
+
+## 10. Generate scan maps
+
+Run footprint creation program
+
+	$ ./bin/hload.exe generate scanmap
+
+Execute stored procedures in order
+
+	* [load].[UpdateParallelFootprints]
+	* [load].[VerifyScanMaps]			should return no rows
+
+## 11. Generate HIFI footprint
+
+	***
+
+## 12. Generate spatial index
+
+Execute stored procedure
+
+	* [load].[GenerateHtm]				takes ~ 20 mins
+
+## 13. Clean up load tables
+
+Execute stored procedure
+
+   * [load].[CleanUp]

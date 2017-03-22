@@ -7,8 +7,16 @@ GROUP BY CAST(pointingMode AS binary(8))
 
 /*
 pointingMode	count
+
+V1:
+
 0x0000000000000001	5067		-- pointed
 0x0000000000000004	1089		-- mapping (raster)
+
+V2:
+
+0x0000000000000004	1089
+0x0000000000000001	5068
 */
 
 ------------------------------------------------------
@@ -22,8 +30,15 @@ WHERE inst = 1 AND obsType = 2
 GROUP BY CAST(pointingMode AS binary(8))
 
 /*
+V1:
+
 0x0000000000000001	4033		-- pointed
 0x0000000000000004	1012		-- mapping (raster)
+
+V2:
+
+0x0000000000000004	1026
+0x0000000000000001	4154
 */
 
 -- any observation with footprint
@@ -35,9 +50,15 @@ WHERE inst = 1 AND obsType = 2
 GROUP BY CAST(pointingMode AS binary(8))
 
 /*
+V1:
+
 pointingMode	count
 0x0000000000000001	5067		-- pointed
 0x0000000000000004	1069		-- mapping (raster)
+
+V2:
+
+nada
 */
 
 -- valid observations with footprint
@@ -50,8 +71,14 @@ WHERE inst = 1 AND obsType = 2
 GROUP BY CAST(pointingMode AS binary(8))
 
 /*
+V1:
+
 0x0000000000000001	4033
 0x0000000000000004	1011
+
+V2:
+
+---
 */
 
 -- missing valid observations
@@ -63,7 +90,13 @@ WHERE inst = 1 AND obsType = 2
       AND calibration = 0 AND failed = 0
 
 /*
+V1:
+
 1	1342192147	0x0000000000000004	0	0	20	0
+
+V2:
+
+5180
 */
 
 --===================================================================
@@ -77,30 +110,55 @@ WHERE inst = 1 AND obsType = 2 AND pointingMode = 1
 GROUP BY CAST(instMode AS binary(8))
 
 /*
-(No column name)	(No column name)
+V1:
+
 0x0000000000140021	2456			-- range + chopper
 0x0000000000040021	685				-- range
 0x0000000000180021	1550			-- line + chopper
 0x0000000000080021	376				-- line
+
+V2:
+
+0x0000000000140021	2473
+0x0000000000040021	669
+0x0000000000180021	1576
+0x0000000000080021	350
 */
 
 -- uncopped single pointing
 SELECT *
 FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode = 1
-	--AND calibration = 0 AND failed = 0
+	-- AND calibration = 0 AND failed = 0
 	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
 
--- 1061 (702)
+/*
+V1:
+
+1061 (702)
+
+V2:
+
+1019 (728)
+
+*/
 
 SELECT *
 FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode = 1
-	AND calibration = 0 AND failed = 0
+	--AND calibration = 0 AND failed = 0
 	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
     AND obsID NOT IN (SELECT obsID FROM load.PointingCluster)
 
+/*
+V1:
+
 -- 0 (77)
+
+V2:
+
+-- 348 (334)
+*/
 
 -- More than one pointing:
 
@@ -120,19 +178,37 @@ HAVING COUNT(*) > 1
 SELECT *
 FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode IN (2, 4)
-	AND calibration = 0 AND failed = 0
+	--AND calibration = 0 AND failed = 0
 	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
 
+/*
+V1:
+
 -- 742 (772)
+
+V2:
+
+-- 756 (771)
+
+*/
 
 SELECT *
 FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode IN (2, 4)
-	AND calibration = 0 AND failed = 0
+	--AND calibration = 0 AND failed = 0
 	AND (instMode = 0x0000000000040021 OR instMode = 0x0000000000080021)
 	AND obsID NOT IN (SELECT obsID FROM load.PointingCluster)
 
+/*
+V1:
+
 -- 6 (21)
+
+V2:
+
+-- 8 (15)
+
+*/
 
 /*
 obsID
@@ -151,10 +227,20 @@ obsID
 SELECT *
 FROM Observation
 WHERE inst = 1 AND obsType = 2 AND pointingMode = 1
-	AND calibration = 0 AND failed = 0
+	--AND calibration = 0 AND failed = 0
 	AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
 
+/*
+
+V1:
+
 -- 3331 (4006)
+
+V2:
+
+-- 3425 (4049)
+
+*/
 
 -- with more than one point
 
@@ -191,7 +277,15 @@ WHERE inst = 1 AND obsType = 2 AND pointingMode IN (2, 4)
 	AND calibration = 0 AND failed = 0
 	AND (instMode = 0x0000000000140021 OR instMode = 0x0000000000180021)
 
+/*
+
+V1:
+
 -- 270 (317)
+
+V2:
+
+-- 270 
 
 SELECT *
 FROM Observation o

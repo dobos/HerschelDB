@@ -380,7 +380,7 @@ AS
 
 	INSERT ObservationHtm WITH (TABLOCKX)
 	SELECT inst, obsID, htm.htmIDstart, htm.htmIDEnd, fineTimeStart, fineTimeEnd, htm.partial
-	FROM Observation o
+	FROM dbo.Observation o
 	CROSS APPLY htm.CoverAdvanced(region, 0, 0.9, 2) htm
 	WHERE o.region IS NOT NULL		-- for debugging only
 

@@ -22,65 +22,28 @@ namespace Herschel.Loader
 
             switch (ObservationType)
             {
-                case PointingObservationType.SpirePhoto:
                 case PointingObservationType.SpirePhotoSmallMap:
                 case PointingObservationType.SpirePhotoLargeMap:
-                    if (parts[5] != "FAILED")
-                    {
-                        ps.ObsID = ObservationID;
-                        ps.Ra = double.Parse(parts[0]);
-                        ps.Dec = double.Parse(parts[1]);
-                        ps.AV = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
-                        ps.Pa = String.IsNullOrWhiteSpace(parts[3]) ? 0.0 : double.Parse(parts[3]);
-                        ps.SampleTime = Math.Floor(double.Parse(parts[4]) * 1e6);
-                        ps.CorrTime = double.Parse(parts[5]);
-                    }
-                    else
-                    {
-                        // These are read from photo failed folder
-                        ps.ObsID = ObservationID;
-                        ps.Ra = double.Parse(parts[0]);
-                        ps.Dec = double.Parse(parts[1]);
-                        ps.AV = -1;
-                        ps.Pa = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
-                        ps.SampleTime = Math.Floor(double.Parse(parts[3]));
-                        ps.CorrTime = -1;
-                    }
+                case PointingObservationType.SpirePhoto:
+                    ps.ObsID = ObservationID;
+                    ps.Ra = double.Parse(parts[Columns["RA"]]);
+                    ps.Dec = double.Parse(parts[Columns["DEC"]]);
+                    ps.AV = String.IsNullOrWhiteSpace(parts[Columns["angVel"]]) ? 0.0 : double.Parse(parts[Columns["angVel"]]);
+                    ps.Pa = String.IsNullOrWhiteSpace(parts[Columns["PA"]]) ? 0.0 : double.Parse(parts[Columns["PA"]]);
+                    ps.SampleTime = Math.Floor(double.Parse(parts[Columns["sampleTime"]]) * 1e6);
+                    ps.CorrTime = double.Parse(parts[Columns["corrTime"]]);
                     break;
+                case PointingObservationType.SpireSpectro:
                 case PointingObservationType.SpireSpectro1:
                 case PointingObservationType.SpireSpectro7:
-                    ps.ObsID = ObservationID;
-                    ps.Ra = double.Parse(parts[0]);
-                    ps.Dec = double.Parse(parts[1]);
-                    ps.Pa = double.Parse(parts[2]);
-                    ps.SampleTime = long.Parse(parts[3]);
-                    break;
                 case PointingObservationType.SpireSpectro64:
-                    if (parts.Length == 5)
-                    {
-                        ps.ObsID = ObservationID;
-                        ps.Ra = double.Parse(parts[0]);
-                        ps.Dec = double.Parse(parts[1]);
-                        ps.AV = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
-                        ps.Pa = String.IsNullOrWhiteSpace(parts[3]) ? 0.0 : double.Parse(parts[3]);
-                        ps.SampleTime = (long)double.Parse(parts[4]);
-                    }
-                    else if (parts.Length == 4)
-                    {
-                        ps.ObsID = ObservationID;
-                        ps.Ra = double.Parse(parts[0]);
-                        ps.Dec = double.Parse(parts[1]);
-                        ps.Pa = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
-                        ps.SampleTime = (long)double.Parse(parts[3]);
-                    }
-                    break;
                 case PointingObservationType.SpireSpectroRaster:
                     ps.ObsID = ObservationID;
-                    ps.Ra = double.Parse(parts[0]);
-                    ps.Dec = double.Parse(parts[1]);
-                    ps.Pa = String.IsNullOrWhiteSpace(parts[2]) ? 0.0 : double.Parse(parts[2]);
+                    ps.Ra = double.Parse(parts[Columns["RA"]]);
+                    ps.Dec = double.Parse(parts[Columns["DEC"]]);
                     ps.AV = -1;
-                    ps.SampleTime = long.Parse(parts[3]);
+                    ps.Pa = String.IsNullOrWhiteSpace(parts[Columns["PA"]]) ? 0.0 : double.Parse(parts[Columns["PA"]]);
+                    ps.SampleTime = long.Parse(parts[Columns["Time"]]);
                     break;
                 default:
                     throw new NotImplementedException();

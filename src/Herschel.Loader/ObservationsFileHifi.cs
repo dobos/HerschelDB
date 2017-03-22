@@ -12,37 +12,37 @@ namespace Herschel.Loader
     {
         protected override bool Parse(string[] parts, out Observation observation)
         {
-            var aor = parts[5];
+            var aor = parts[Columns["AOR_Label"]];
 
             observation = new Observation()
             {
                 Instrument = Instrument.Hifi,
-                ObsID = long.Parse(parts[0]),
+                ObsID = long.Parse(parts[Columns["OBSID"]]),
                 Type = ObservationType.Spectroscopy,
-                Level = ParseObservationLevel(parts[9]),
-                InstrumentMode = ParseInstrumentMode(parts[2]),
-                PointingMode = ParsePointingMode(parts[2]),
-                Band = parts[1],
-                Object = parts[10],
+                Level = ObservationLevel.None, // ParseObservationLevel(parts[9]),
+                InstrumentMode = ParseInstrumentMode(parts[Columns["instMode"]]),
+                PointingMode = ParsePointingMode(parts[Columns["instMode"]]),
+                Band = parts[Columns["Band"]],
+                Object = parts[Columns["Object"]],
                 Calibration = aor.IndexOf("cal", StringComparison.InvariantCultureIgnoreCase) >= 0,
 
-                RA = double.Parse(parts[34]),
-                Dec = double.Parse(parts[35]),
-                PA = double.Parse(parts[43]),
-                Aperture = double.Parse(parts[14]),     // HPBW
-                FineTimeStart = long.Parse(parts[21]),
-                FineTimeEnd = long.Parse(parts[22]),
+                // RA = double.Parse(parts[34]),
+                // Dec = double.Parse(parts[35]),
+                // PA = double.Parse(parts[43]),
+                Aperture = double.Parse(parts[Columns["HPBW"]]),     // HPBW
+                //FineTimeStart = long.Parse(parts[21]),
+                //FineTimeEnd = long.Parse(parts[22]),
                 Repetition = 1,         // TODO
 
                 ScanMap = new ScanMap()
                 {
                     AV = -1,
-                    Height = double.Parse(parts[12]),
-                    Width = double.Parse(parts[11])
+                    Height = double.Parse(parts[Columns["Map_height"]]),
+                    Width = double.Parse(parts[Columns["Map_width"]])
                 },
 
                 AOR = aor,
-                AOT = parts[6],
+                AOT = parts[Columns["AOT"]],
             };
 
             // Calculate spectro range from WCS header

@@ -255,7 +255,7 @@ WHERE ((inst = 1 AND obsType = 2 AND pointingMode IN (1, 2, 4))
             // Find pointings
             var sql = @"
 SELECT fineTime, ra, dec, pa
-FROM Herschel_3.load.Pointing
+FROM load.Pointing
 WHERE inst = @inst AND obsID = @obsid AND isOnTarget = 1
 ORDER BY fineTime";
 
@@ -265,6 +265,7 @@ ORDER BY fineTime";
             {
                 using (var cmd = new SqlCommand(sql, cn))
                 {
+                    cmd.CommandTimeout = 1200;
                     cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = (byte)obs.Instrument;
                     cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = obs.ObsID;
 

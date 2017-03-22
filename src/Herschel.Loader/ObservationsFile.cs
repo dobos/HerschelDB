@@ -10,7 +10,7 @@ using Herschel.Lib;
 
 namespace Herschel.Loader
 {
-    abstract class ObservationsFile
+    abstract class ObservationsFile : InputFile
     {
         protected abstract bool Parse(string[] parts, out Observation observation);
 
@@ -54,18 +54,21 @@ namespace Herschel.Loader
         protected IEnumerable<Observation> ReadObservationsFile(string filename)
         {
             // Open file
-            using (var infile = new StreamReader(filename))
+            using (var reader = new StreamReader(filename))
             {
-                // Skip four lines
-                for (int i = 0; i < 4; i++)
-                {
-                    infile.ReadLine();
-                }
-
                 string line;
 
-                
-                while ((line = infile.ReadLine()) != null)
+                // Load column headers
+                line = reader.ReadLine();
+                ParseColumns(line);
+
+                // Skip additional three lines
+                for (int i = 0; i < 3; i++)
+                {
+                    reader.ReadLine();
+                }
+
+                while ((line = reader.ReadLine()) != null)
                 {
                     var parts = SplitLine(line);
 
@@ -76,43 +79,6 @@ namespace Herschel.Loader
                     }
                 }
             }
-        }
-
-        private string[] SplitLine(string line)
-        {
-            var parts = new List<string>();
-            var buffer = new char[0x400];
-            int bufferpos;
-            bool inquotes;
-
-            line = line.Trim();
-
-            // Split line at spaces but not within quotes
-            parts.Clear();
-            bufferpos = 0;
-            inquotes = false;
-
-            for (int i = 0; i < line.Length; i++)
-            {
-                if (line[i] == '"')
-                {
-                    inquotes = !inquotes;
-                }
-                else if (line[i] != ' ' || inquotes)
-                {
-                    buffer[bufferpos] = line[i];
-                    bufferpos++;
-                }
-
-                if (!inquotes && line[i] == ' ' || i == line.Length - 1)
-                {
-                    // end of column
-                    parts.Add(new String(buffer, 0, bufferpos));
-                    bufferpos = 0;
-                }
-            }
-
-            return parts.ToArray();
         }
 
         /// <summary>

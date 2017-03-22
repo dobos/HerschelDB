@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enum.cs" />
+    <Compile Include="InputFile.cs" />
     <Compile Include="ObservationsFileSpire.cs" />
     <Compile Include="ObservationsFilePacs.cs" />
     <Compile Include="ObservationsFileHifi.cs" />

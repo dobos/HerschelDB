@@ -141,7 +141,7 @@ AS
 Verify that legs are generated for every PACS and SPIRE scan maps
 */
 
-	SELECT o.inst, o.obsType, o.obsID, o.pointingMode, o.calibration, o.obsLevel, l.cnt
+	SELECT o.inst, o.obsType, o.obsID, o.pointingMode, o.calibration, o.failed, o.obsLevel, l.cnt
 	FROM Observation o
 	LEFT OUTER JOIN 
 		( SELECT inst, obsID, COUNT(*) cnt
@@ -209,15 +209,15 @@ AS
 	WITH parallel AS
 	(
 		SELECT obs.inst, obs.obsID, region.IntersectAdvanced(a.region, b.region, 1, 1000) region
-		FROM [Observation] obs WITH (FORCESCAN)
-		INNER JOIN Observation a ON a.inst = 1 AND a.obsID = obs.obsID
-		INNER JOIN Observation b ON b.inst = 2 AND b.obsID = obs.obsID
+		FROM dbo.Observation obs WITH (FORCESCAN)
+		INNER JOIN dbo.Observation a ON a.inst = 1 AND a.obsID = obs.obsID
+		INNER JOIN dbo.Observation b ON b.inst = 2 AND b.obsID = obs.obsID
 		WHERE a.region IS NOT NULL AND b.region IS NOT NULL
 			AND obs.inst = 4
 	)
 	UPDATE obs WITH (TABLOCKX)
 	SET region = parallel.region
-	FROM [Observation] obs
+	FROM dbo.Observation obs
 	INNER JOIN parallel ON parallel.inst = obs.inst AND parallel.obsID = obs.obsID
 	WHERE obs.region IS NULL
 
@@ -261,16 +261,16 @@ GO
 
 ----------------------------------------------------------------
 
-IF OBJECT_ID ('load.VerifyFootprints', N'P') IS NOT NULL
-DROP PROC [load].[VerifyFootprints]
+IF OBJECT_ID ('load.VerifyScanMaps', N'P') IS NOT NULL
+DROP PROC [load].[VerifyScanMaps]
 
 GO
 
-CREATE PROC [load].[VerifyFootprints]
+CREATE PROC [load].[VerifyScanMaps]
 AS
 
-	SELECT inst, obsid, repetition, region.Error(region)
-	FROM Observation
+	SELECT inst, obsid, repetition, calibration, failed, region.Error(region)
+	FROM dbo.Observation
 	WHERE inst IN (1,2,4) AND pointingMode IN (8, 16)
 		AND calibration = 0 AND failed = 0 AND  obsLevel < 250
 		AND (region IS NULL OR region.HasError(region) = 1)

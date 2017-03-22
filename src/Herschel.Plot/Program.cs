@@ -132,12 +132,12 @@ namespace Herschel.Plot
             {
                 cn.Open();
 
-                using (var cmd = new SqlCommand("SELECT region FROM Herschel_3..Observation WHERE inst = 1 AND obsID = " + obsid.ToString(), cn))
+                using (var cmd = new SqlCommand("SELECT region FROM Observation WHERE inst = 1 AND obsID = " + obsid.ToString(), cn))
                 {
                     AppendRegionsLayer(plot, cmd, false, false, false);
                 }
 
-                using (var cmd = new SqlCommand("SELECT ra point_ra, dec point_dec FROM Herschel_3.load.PointingCluster WHERE inst = 1 AND obsID = " + obsid.ToString() + " AND isRotated = 0", cn))
+                using (var cmd = new SqlCommand("SELECT ra point_ra, dec point_dec FROM load.PointingCluster WHERE inst = 1 AND obsID = " + obsid.ToString() + " AND isRotated = 0", cn))
                 {
                     var ds = new SqlQueryDataSource(cmd);
 

@@ -7,10 +7,11 @@ GO
 
 CREATE PROC [load].[MergeObservations]
 AS
-	TRUNCATE TABLE Observation
+	TRUNCATE TABLE dbo.Observation
 
-	INSERT Observation WITH (TABLOCKX)
-	SELECT o.inst, o.obsID, 
+	INSERT dbo.Observation WITH (TABLOCKX)
+	SELECT o.inst, 
+		o.obsID, 
 		obsType, 
 		obsLevel,
 		instMode,
@@ -40,7 +41,7 @@ AS
 	-- TODO: move it to verify script
 	DECLARE @nopointcount int
 	SELECT @nopointcount = ISNULL(COUNT(*), 0)
-	FROM Observation
+	FROM dbo.Observation
 	WHERE calibration = 0 AND obsLevel < 250 AND fineTimeStart = -1
 
 	-- TODO: raise error
@@ -62,12 +63,12 @@ AS
 	-- Add parallel observations
 	WITH pacs AS
 	(
-		SELECT * FROM Observation
+		SELECT * FROM dbo.Observation
 		WHERE inst = 1
 	),
 	spire AS
 	(
-		SELECT * FROM Observation
+		SELECT * FROM dbo.Observation
 		WHERE inst = 2
 	),
 	parallel AS
@@ -92,6 +93,7 @@ AS
 			pacs.fineTimeStart AS fineTimeStart,
 			pacs.fineTimeEnd AS fineTimeEnd,
 			pacs.repetition AS repetition,
+			pacs.proposer AS proposer,
 			pacs.aor AS aor,
 			pacs.aot AS aot,
 			NULL AS region
@@ -99,7 +101,7 @@ AS
 		INNER JOIN spire
 			ON pacs.obsID = spire.obsID
 	)
-	INSERT Observation WITH (TABLOCKX)
+	INSERT dbo.Observation WITH (TABLOCKX)
 	SELECT * FROM parallel
 
 GO
@@ -129,11 +131,11 @@ AS
 			ON s.inst = o.inst AND s.obsID = o.obsID*/
 
 	-- Update obsType and fineTime of PACS/SPIRE parallel
-	UPDATE Observation
+	UPDATE dbo.Observation
 	SET obsType = 1,
 		fineTimeStart = s.fineTimeStart,
 		fineTimeEnd = s.fineTimeEnd
-	FROM Observation o
+	FROM dbo.Observation o
 	INNER JOIN (
 		SELECT obsID, MIN(fineTime) AS fineTimeStart, MAX(fineTime) AS fineTimeEnd
 		FROM load.Pointing
@@ -153,14 +155,14 @@ AS
 		FROM load.Pointing
 		GROUP BY inst, obsID
 	)
-	UPDATE Observation
+	UPDATE dbo.Observation
 	SET ra = limits.ra,
 		dec = limits.dec,
 		pa = limits.pa,
 		aperture = limits.aperture,
 		fineTimeStart = limits.fineTimeStart,
 	    fineTimeEnd = limits.fineTimeEnd
-	FROM Observation o
+	FROM dbo.Observation o
 	INNER JOIN limits ON limits.inst = o.inst AND limits.ObsID = o.obsID
 
 
@@ -185,18 +187,20 @@ AS
 		FROM load.Pointing
 		GROUP BY inst, obsID
 	)
-	UPDATE Observation
+	UPDATE dbo.Observation
 	SET ra = -999,
 		dec = -999,
 		pa = p.pa, 
 		aperture = -999, 
 		fineTimeStart = p.fineTimeStart, 
 		fineTimeEnd = p.fineTimeEnd
-	FROM Observation o
+	FROM dbo.Observation o
 	INNER JOIN p ON p.inst = o.inst AND p.obsID = o.obsID
 	WHERE o.inst = 1 AND o.obsType = 1 AND o.pointingMode = 8;
 
 	-- PACS chop-nod
+	-- TODO: no results here with v2 pointing files
+	-- no pointing clusters found for chop-nods
 
 	WITH p AS
 	(
@@ -207,14 +211,14 @@ AS
 		WHERE isRotated = 1
 		GROUP BY inst, obsID
 	)
-	UPDATE Observation
+	UPDATE dbo.Observation
 	SET ra = p.ra,
 		dec = p.dec,
 		pa = p.pa, 
 		aperture = -999, 
 		fineTimeStart = p.fineTimeStart, 
 		fineTimeEnd = p.fineTimeEnd
-	FROM Observation o
+	FROM dbo.Observation o
 	INNER JOIN p ON p.inst = o.inst AND p.obsID = o.obsID
 	WHERE o.inst = 1 AND o.obsType = 1 AND o.pointingMode = 65;
 
@@ -228,10 +232,10 @@ AS
 		WHERE isRotated = 1
 		GROUP BY inst, obsID
 	)
-	UPDATE Observation
+	UPDATE dbo.Observation
 	SET fineTimeStart = p.fineTimeStart, 
 		fineTimeEnd = p.fineTimeEnd
-	FROM Observation o
+	FROM dbo.Observation o
 	INNER JOIN p ON p.inst = o.inst AND p.obsID = o.obsID
 	WHERE o.inst = 1 AND o.obsType = 2;
 
@@ -244,11 +248,11 @@ AS
 		FROM load.Pointing
 		GROUP BY inst, obsID
 	)
-	UPDATE Observation
+	UPDATE dbo.Observation
 	SET aperture = -999, 
 		fineTimeStart = p.fineTimeStart, 
 		fineTimeEnd = p.fineTimeEnd
-	FROM Observation o
+	FROM dbo.Observation o
 	INNER JOIN p ON p.inst = o.inst AND p.obsID = o.obsID
 	WHERE o.inst = 2 AND o.obsType = 1 AND o.pointingMode IN (8, 16);
 
@@ -262,8 +266,8 @@ AS
 		fineTimeStart = pacs.fineTimeStart,
 		fineTimeEnd = pacs.fineTimeEnd,
 		repetition = -999
-	FROM Observation o
-	INNER JOIN Observation pacs ON pacs.inst = 1 AND pacs.obsID = o.obsID
+	FROM dbo.Observation o
+	INNER JOIN dbo.Observation pacs ON pacs.inst = 1 AND pacs.obsID = o.obsID
 	WHERE o.inst = 2 AND o.obsType = 1 AND o.pointingMode = 32;
 
 	-- SPIRE spectro raster
@@ -275,7 +279,7 @@ AS
 		FROM load.Pointing
 		GROUP BY inst, obsID
 	)
-	UPDATE Observation
+	UPDATE dbo.Observation
 	SET aperture = 2.6, 
 		fineTimeStart = p.fineTimeStart, 
 		fineTimeEnd = p.fineTimeEnd
@@ -293,8 +297,8 @@ AS
 		fineTimeStart = pacs.fineTimeStart,
 		fineTimeEnd = pacs.fineTimeEnd,
 		repetition = -999
-	FROM Observation o
-	INNER JOIN Observation pacs ON pacs.inst = 1 AND pacs.obsID = o.obsID
+	FROM dbo.Observation o
+	INNER JOIN dbo.Observation pacs ON pacs.inst = 1 AND pacs.obsID = o.obsID
 	WHERE o.inst = 4 AND o.obsType = 1 AND o.pointingMode = 32;
 
 ---------------------------------------------------------------

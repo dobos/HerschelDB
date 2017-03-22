@@ -95,6 +95,8 @@ VALUES
             {
                 using (var cmd = new SqlCommand(sql, cn))
                 {
+                    cmd.CommandTimeout = 120;
+
                     cmd.Parameters.Add("@inst", SqlDbType.TinyInt).Value = (byte)Observation.Instrument;
                     cmd.Parameters.Add("@obsID", SqlDbType.BigInt).Value = Observation.ObsID;
                     cmd.Parameters.Add("@groupID", SqlDbType.TinyInt).Value = GroupID;

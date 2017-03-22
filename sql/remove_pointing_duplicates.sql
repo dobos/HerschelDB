@@ -34,7 +34,7 @@ INSERT [load].[RawPointing_ID] WITH (TABLOCKX)
 	 [aperture], [width], [height],
 	 [isAPosition], [isBPosition], [isOffPosition], [isOnTarget], [rasterLineNum], [rasterColumnNum], [rasterAngle])
 SELECT * FROM [load].[RawPointing]
--- 16:03
+-- 18:35
 
 GO
 
@@ -58,7 +58,7 @@ ON [load].[Pointing]
 		fineTime
 ) WITH (SORT_IN_TEMPDB = ON)
 ON [load]
--- 16:04
+-- 16:08
 
 GO
 
@@ -85,8 +85,8 @@ SELECT inst,  obsID, obsType, fineTime, COUNT(*) cnt
 FROM load.Pointing
 GROUP BY inst,  obsID, obsType, fineTime
 HAVING COUNT(*) > 1
--- 9804
--- 4:49
+-- 54153
+-- 5:57
 
 GO
 
@@ -127,13 +127,13 @@ HAVING COUNT(*) > 1
 -- But still one entry by fine time remains
 
 SELECT COUNT(*) FROM load.Duplicate
--- 9804
+-- 54153
 
 SELECT COUNT(*)
 FROM load.Duplicate d
 INNER JOIN load.Pointing p
 	ON d.inst = p.inst AND d.obsID = p.obsID AND d.obsType = p.obsType AND d.fineTime = p.fineTime
--- 9804
+-- 54153
 
 GO
 
